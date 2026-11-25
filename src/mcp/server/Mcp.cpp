@@ -198,6 +198,10 @@ namespace mcp::server {
     }
 
     Json Mcp::wire(Json value, ProtocolEra era) {
+        if (value.contains("error") && value["error"].value("code", 0) == jsonrpc::messages::InvalidRequest &&
+            value["error"].value("message", "") == "Duplicate id") {
+            value["error"]["message"] = "Duplicate id or in-flight limit";
+        }
         if (era == ProtocolEra::PerRequest20260728 && value.contains("error") && value.value("id", Json()).is_null()) {
             value.erase("id");
         }

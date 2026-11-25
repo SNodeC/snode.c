@@ -231,6 +231,37 @@ namespace {
                         "optional error data retains explicit null");
     }
 
+    void errorReplies(tests::support::TestResult& test) {
+        auto* peer = new Peer;
+        Context context(peer);
+        context.onMessage(R"({"jsonrpc":"2.0","id":1,"method":"defer"})");
+        peer->sendError(1, -32603, "Internal error");
+        test.expectTrue(!context.output.back()["error"].contains("data"), "sendError omits absent data");
+        context.onMessage(R"({"jsonrpc":"2.0","id":2,"method":"defer"})");
+        peer->sendError(2, -32603, "Internal error", std::optional<json>(nullptr));
+        test.expectTrue(context.output.back()["error"].contains("data") && context.output.back()["error"]["data"].is_null(),
+                        "sendError retains explicit null data");
+        context.onMessage(R"({"jsonrpc":"2.0","id":3,"method":"defer"})");
+        const json data = {{"detail", "failure"}};
+        peer->sendError(3, -32603, "Internal error", std::optional<json>(data));
+        test.expectTrue(context.output.back()["error"]["data"] == data, "sendError retains object data");
+    }
+
+    void uncorrelatedErrors(tests::support::TestResult& test) {
+        auto* peer = new Peer;
+        Context context(peer);
+        const auto id = peer->sendRequest("pending");
+        const auto before = context.output.size();
+        context.onMessage(jsonrpc::messages::Error{nullptr, -32700, "Parse error"}.serialize());
+        test.expectTrue(peer->errors == 1 && context.output.size() == before, "null-id error reaches the hook without a reply");
+        context.onMessage(jsonrpc::messages::Result{id, 1}.serialize());
+        test.expectTrue(peer->results == 1, "uncorrelated error preserves outstanding requests");
+        context.onMessage(jsonrpc::messages::Error{id, -32603, "Internal error"}.serialize());
+        test.expectTrue(peer->errors == 1, "unknown non-null error id remains dropped");
+        context.onMessage(jsonrpc::messages::Error{nullptr, -32600, "Invalid Request"}.serialize());
+        test.expectTrue(peer->errors == 2, "each uncorrelated error reaches the protocol");
+    }
+
     void invariants(tests::support::TestResult& test) {
         auto* peer = new Peer;
         Context context(peer);
@@ -269,13 +300,16 @@ namespace {
                         "batch combines automatic errors and asynchronous replies");
         context.onMessage(R"({"jsonrpc":"2.0","id":"duplicate","method":"defer"})");
         context.onMessage(R"({"jsonrpc":"2.0","id":"duplicate","method":"defer"})");
-        test.expectTrue(context.output.back()["error"]["code"] == -32600, "duplicate unanswered incoming id is rejected");
+        test.expectTrue(context.output.back()["error"] == json({{"code", -32600}, {"message", "Duplicate id"}}),
+                        "duplicate unanswered incoming id is rejected without claiming an in-flight limit");
         peer->sendResult("duplicate", 4);
         const auto before = context.output.size();
         peer->sendResult("a", 9);
         peer->sendError("missing", -32603, "Internal error");
         test.expectTrue(context.output.size() == before, "duplicate and unknown answers have no wire output");
-        peer->sendRequest(jsonrpc::messages::Request{1, "reserved"});
+        test.expectTrue(!peer->sendRequest(jsonrpc::messages::Request{nullptr, "invalid"}) && context.output.size() == before,
+                        "outgoing null-id request is rejected without wire output");
+        test.expectTrue(peer->sendRequest(jsonrpc::messages::Request{1, "reserved"}), "non-null explicit outgoing id is accepted");
         const auto id = peer->sendRequest("sum", json::array({1, 2}));
         test.expectTrue(id == 2, "integer allocation skips outstanding ids");
         context.onMessage(jsonrpc::messages::Result{id, 3}.serialize());
@@ -324,6 +358,8 @@ int main(int argc, char* argv[]) {
     }
     messages(test);
     examples(test);
+    errorReplies(test);
+    uncorrelatedErrors(test);
     invariants(test);
     {
         auto* peer = new Peer;

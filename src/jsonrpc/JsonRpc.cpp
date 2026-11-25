@@ -240,7 +240,7 @@ namespace jsonrpc {
             onRequest(request);
         } else {
             log().warn() << "duplicate incoming request id: " << request.id;
-            emit(messages::Error{request.id, messages::InvalidRequest, "Duplicate id or in-flight limit"}.toJson(), batch);
+            emit(messages::Error{request.id, messages::InvalidRequest, "Duplicate id"}.toJson(), batch);
         }
     }
 
@@ -260,7 +260,7 @@ namespace jsonrpc {
     }
 
     void JsonRpc::_onError(const messages::Error& error) {
-        if (cancelRequest(error.id)) {
+        if (error.id.is_null() || cancelRequest(error.id)) {
             onError(error);
         } else {
             log().warn() << "unknown response id: " << error.id;
@@ -302,7 +302,7 @@ namespace jsonrpc {
 
     bool JsonRpc::sendRequest(const messages::Request& request, const utils::Timeval& timeout) {
         bool accepted = false;
-        if (isRequest(request.toJson()) && !outgoing.contains(request.id)) {
+        if (!request.id.is_null() && isRequest(request.toJson()) && !outgoing.contains(request.id)) {
             auto& timer = outgoing[request.id];
             if (timeout > 0) {
                 timer = core::timer::Timer::singleshotTimer(
@@ -346,10 +346,6 @@ namespace jsonrpc {
 
     void JsonRpc::sendError(const messages::Id& id, std::int64_t code, const std::string& message, std::optional<json> data) {
         answer(id, messages::Error{id, code, message, std::move(data)}.toJson());
-    }
-
-    void JsonRpc::sendError(const messages::Id& id, std::int64_t code, const std::string& message, const json& data) {
-        sendError(id, code, message, std::optional<json>(data));
     }
 
     void JsonRpc::answer(const messages::Id& id, const json& response) {

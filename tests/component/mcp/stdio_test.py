@@ -117,12 +117,15 @@ def run(executable):
             assert client.receive()["error"]["code"] == -32700
             assert client.receive()["error"]["code"] == -32600
             client.send(request("tools/call", 3, {"name": "delay"}))
+            client.send(request("tools/call", 3, {"name": "delay"}))
+            duplicate = client.receive()
+            assert duplicate == {"jsonrpc": "2.0", "id": 3, "error": {"code": -32600, "message": "Duplicate id or in-flight limit"}}
             client.send({"jsonrpc": "2.0", "method": "notifications/cancelled", "params": {"requestId": 3}})
             client.send(request("tools/list", 4))
             assert client.receive()["id"] == 4
             time.sleep(0.25)
             errors = client.finish()
-            assert all(message.get("id") != 3 for message in client.messages)
+            assert all(message.get("id") != 3 or message == duplicate for message in client.messages)
             if not flags:
                 assert b"MCP fixture ready" in errors, errors
         batch = Client(executable, ["--quiet"], directory)
@@ -159,6 +162,9 @@ def run(executable):
         assert legacy.receive()["result"]["protocolVersion"] == "2025-11-25"
         legacy.send({"jsonrpc": "2.0", "method": "notifications/initialized"})
         legacy.send(request("tools/call", 11, {"name": "delay"}, False))
+        legacy.send(request("tools/call", 11, {"name": "delay"}, False))
+        duplicate = legacy.receive()
+        assert duplicate == {"jsonrpc": "2.0", "id": 11, "error": {"code": -32600, "message": "Duplicate id or in-flight limit"}}
         legacy.send({"jsonrpc": "2.0", "method": "notifications/cancelled", "params": {"requestId": 11}})
         legacy.send(request("ping", 12, modern=False))
         assert legacy.receive() == {"jsonrpc": "2.0", "id": 12, "result": {}}
@@ -166,7 +172,7 @@ def run(executable):
         assert legacy.receive()["result"]["resultType"] == "complete"
         time.sleep(0.25)
         legacy.finish()
-        assert all(message.get("id") != 11 for message in legacy.messages)
+        assert all(message.get("id") != 11 or message == duplicate for message in legacy.messages)
         subscription = Client(executable, [], directory)
         subscription.send(request("subscriptions/listen", "listen"))
         assert subscription.receive()["method"] == "notifications/subscriptions/acknowledged"
