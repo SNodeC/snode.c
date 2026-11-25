@@ -95,6 +95,12 @@ install(
 
 add_executable(snodec-mcp-client client.cpp)
 target_link_libraries(snodec-mcp-client PRIVATE mcp-client mcp-client-http)
+set_target_properties(
+    snodec-mcp-client
+    PROPERTIES
+        INSTALL_RPATH
+        "$ORIGIN/../${CMAKE_INSTALL_LIBDIR};$ORIGIN/../${CMAKE_INSTALL_LIBDIR}/snode.c/mcp;$ORIGIN/../${CMAKE_INSTALL_LIBDIR}/snode.c/jsonrpc;$ORIGIN/../${CMAKE_INSTALL_LIBDIR}/snode.c/web/http"
+)
 install(TARGETS snodec-mcp-client RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
                                           COMPONENT apps
 )

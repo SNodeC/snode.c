@@ -127,6 +127,18 @@ install(
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/mcp/detail
     COMPONENT mcp
 )
+install(
+    FILES json-schema-validator/LICENSE
+    DESTINATION ${CMAKE_INSTALL_DATADIR}/doc/snodec/mcp
+    RENAME json-schema-validator.LICENSE
+    COMPONENT mcp
+)
+install(
+    FILES json-schema-validator/src/metaschemas/LICENSE
+    DESTINATION ${CMAKE_INSTALL_DATADIR}/doc/snodec/mcp
+    RENAME json-schema-metaschemas.LICENSE
+    COMPONENT mcp
+)
 add_subdirectory(server)
 
 add_subdirectory(client)

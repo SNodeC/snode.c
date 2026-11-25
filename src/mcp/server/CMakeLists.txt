@@ -94,18 +94,6 @@ install(
     COMPONENT mcp-server
 )
 install(
-    FILES ../json-schema-validator/LICENSE
-    DESTINATION ${CMAKE_INSTALL_DATADIR}/doc/snodec/mcp-server
-    RENAME json-schema-validator.LICENSE
-    COMPONENT mcp-server
-)
-install(
-    FILES ../json-schema-validator/src/metaschemas/LICENSE
-    DESTINATION ${CMAKE_INSTALL_DATADIR}/doc/snodec/mcp-server
-    RENAME json-schema-metaschemas.LICENSE
-    COMPONENT mcp-server
-)
-install(
     EXPORT snodec_mcp-server_Targets
     FILE snodec_mcp-server_Targets.cmake
     NAMESPACE snodec::

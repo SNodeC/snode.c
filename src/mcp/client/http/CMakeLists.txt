@@ -49,7 +49,7 @@ set_target_properties(
                SOVERSION ${SNODEC_MCP_SOVERSION}
                OUTPUT_NAME snodec-mcp-client-http
                INSTALL_RPATH
-               "$ORIGIN;$ORIGIN/../jsonrpc;$ORIGIN/../http;$ORIGIN/../.."
+               "$ORIGIN;$ORIGIN/../jsonrpc;$ORIGIN/../web/http;$ORIGIN/../.."
 )
 install(
     TARGETS mcp-client-http
