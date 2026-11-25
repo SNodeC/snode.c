@@ -49,6 +49,7 @@
 #include "jsonrpc/messages/Result.h"
 #include "mcp/Protocol.h"
 #include "mcp/server/Server.h"
+#include "mcp/server/detail/Tasks.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -263,7 +264,7 @@ namespace mcp::server {
             reply = state->registry.dispatchRequest(
                 request, era, output, state->timeout, state->principal, state->channel, this, state->pageSize);
         }
-        if (!reply->done) {
+        if (!reply->done && reply->task.expired()) {
             state->pending.emplace(request.id, reply);
         }
         if (state->sink) {
@@ -300,6 +301,19 @@ namespace mcp::server {
         if (terminal) {
             state->pending.erase(id);
         }
+    }
+
+    void Mcp::sendTaskMessage(const Json& value) {
+        const auto channel = state->channel;
+        output(
+            value,
+            false,
+            [channel](const Json& message, bool) {
+                if (channel && channel->active && channel->output) {
+                    channel->output(message);
+                }
+            },
+            nullptr);
     }
 
     void Mcp::onNotification(const jsonrpc::messages::Notification& notification) {
@@ -412,6 +426,11 @@ namespace mcp::server {
                             if (std::none_of(inputs.begin(), inputs.end(), [&response](const auto& item) {
                                     return item.second.response.lock() == response;
                                 })) {
+                                if (const auto task = response->task.lock()) {
+                                    if (const auto store = task->store.lock()) {
+                                        store->working(task);
+                                    }
+                                }
                                 const auto resume = response->resume;
                                 resume();
                             }

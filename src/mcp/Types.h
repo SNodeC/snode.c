@@ -71,6 +71,14 @@ namespace mcp {
         std::string logger;
     };
 
+    /// Tool execution policy; task support is opt-in on each registration.
+    enum class TaskSupport { Forbidden, Optional, Required };
+
+    struct TaskOptions {
+        std::uint64_t ttlMs = 60000;
+        std::uint64_t pollIntervalMs = 1000;
+    };
+
     /// Authenticated application identity; never inferred from request arguments.
     struct Principal {
         std::string subject; ///< Owned identifier assigned by the authorization callback.

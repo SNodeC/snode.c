@@ -77,6 +77,8 @@ namespace mcp::server::detail {
     enum class SubscriptionClosure { Complete, Cancel };
 
     struct Response;
+    struct Task;
+    class Tasks;
 
     struct Channel {
         struct Input {
@@ -132,6 +134,8 @@ namespace mcp::server::detail {
         std::optional<std::string> requestState;
         std::weak_ptr<Channel> channel;
         std::function<void()> resume;
+        std::function<Completion(TaskOptions)> startTask;
+        std::weak_ptr<Task> task;
         Mcp* protocol = nullptr;
         std::shared_ptr<jsonrpc::JsonRpcContext> protocolOwner;
         Json id;
@@ -176,6 +180,7 @@ namespace mcp::server {
         using Handler =
             std::variant<std::shared_ptr<Tool>, std::shared_ptr<Resource>, std::shared_ptr<Prompt>, std::shared_ptr<ResourceTemplate>>;
 
+        Impl();
         ~Impl();
         void attach();
         bool remove(RegistrationKind kind, const std::string& identifier);
@@ -219,8 +224,10 @@ namespace mcp::server {
         paginate(const std::string& method, const Json& params, const Json& list, const std::string& field, std::size_t pageSize) const;
         void changed(RegistrationKind kind);
         void flushChanges();
+        void taskChanged(const std::shared_ptr<detail::Task>& task);
         const Entry* resolveResource(const std::string& uri, std::map<std::string, std::string>& variables) const;
 
+        std::shared_ptr<detail::Tasks> tasks;
         Json serverInfo;
         std::string instructions;
         std::uint64_t revision = 0;

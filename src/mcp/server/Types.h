@@ -76,6 +76,8 @@ namespace mcp::server {
     using mcp::Progress;
     using mcp::ProgressToken;
     using mcp::Role;
+    using mcp::TaskOptions;
+    using mcp::TaskSupport;
     using mcp::UrlInput;
 
 } // namespace mcp::server

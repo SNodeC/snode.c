@@ -436,7 +436,8 @@ false
                     "versions");
     test.expectTrue(response["result"]["capabilities"] == Json({{"tools", {{"listChanged", true}}},
                                                                 {"resources", {{"subscribe", true}, {"listChanged", true}}},
-                                                                {"prompts", {{"listChanged", true}}}}),
+                                                                {"prompts", {{"listChanged", true}}},
+                                                                {"extensions", {{"io.modelcontextprotocol/tasks", Json::object()}}}}),
                     "capabilities advertise subscriptions and runtime list changes");
     test.expectTrue(response["result"]["resultType"] == "complete" && response["result"]["ttlMs"] == 0 &&
                         response["result"]["cacheScope"] == "private",

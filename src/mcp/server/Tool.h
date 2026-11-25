@@ -61,14 +61,15 @@ namespace mcp::server {
 
     /// Owned tool metadata; raw JSON Schema remains the sole schema representation.
     struct ToolDefinition {
-        std::string name;                   ///< Nonempty owned protocol identifier.
-        std::string description{};          ///< Owned human-readable description.
-        Json inputSchema{};                 ///< Owned object-input schema; 2020-12 default, explicit draft-07 supported.
-        std::optional<Json> outputSchema{}; ///< Optional owned successful-output schema.
-        std::optional<std::string> title{}; ///< Optional owned display title.
-        Json annotations{};                 ///< Optional protocol tool annotations; null omits them.
-        std::vector<Icon> icons{};          ///< Owned optional icons; never fetched by the module.
-        Json meta{};                        ///< Owned optional metadata object; null omits the field.
+        std::string name;                                 ///< Nonempty owned protocol identifier.
+        std::string description{};                        ///< Owned human-readable description.
+        Json inputSchema{};                               ///< Owned object-input schema; 2020-12 default, explicit draft-07 supported.
+        std::optional<Json> outputSchema{};               ///< Optional owned successful-output schema.
+        std::optional<std::string> title{};               ///< Optional owned display title.
+        Json annotations{};                               ///< Optional protocol tool annotations; null omits them.
+        std::vector<Icon> icons{};                        ///< Owned optional icons; never fetched by the module.
+        Json meta{};                                      ///< Owned optional metadata object; null omits the field.
+        TaskSupport taskSupport = TaskSupport::Forbidden; ///< Legacy execution support; modern handlers may start negotiated tasks.
     };
 
     /// Application subclass; the server retains shared ownership until its destruction.

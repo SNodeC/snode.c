@@ -82,6 +82,7 @@ namespace mcp::server {
         void onCancel(OnCancel callback) const;
         /// Emit on this legacy session, subject to its threshold/rate/size limits.
         bool log(LogLevel level, Json data, const std::string& logger = {}) const;
+        std::optional<std::string> getTaskId() const;
 
     private:
         explicit RequestContext(std::shared_ptr<detail::Response> impl);

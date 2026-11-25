@@ -43,6 +43,8 @@ add_library(
     Mcp.h
     Server.cpp
     Server.h
+    detail/Tasks.cpp
+    detail/Tasks.h
     detail/UriTemplate.cpp
     Config.cpp
     Config.h

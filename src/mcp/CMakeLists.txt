@@ -37,7 +37,7 @@ target_compile_options(
             $<$<CXX_COMPILER_ID:Clang>:-Wno-error>
 )
 
-add_library(mcp SHARED Results.cpp Schema.cpp Types.cpp)
+add_library(mcp SHARED Results.cpp Schema.cpp Types.cpp Utilities.cpp)
 add_library(snodec::mcp ALIAS mcp)
 target_compile_features(mcp PUBLIC cxx_std_20)
 target_link_libraries(

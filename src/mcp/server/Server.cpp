@@ -57,6 +57,7 @@
 #include "mcp/server/Results.h"
 #include "mcp/server/Types.h"
 #include "mcp/server/detail/Server.h"
+#include "mcp/server/detail/Tasks.h"
 #include "mcp/server/detail/UriTemplate.h"
 #include "utils/base64.h"
 
@@ -189,8 +190,13 @@ namespace mcp::server {
 
             done = true;
             completion = Completion::Accepted;
-            timer.cancel();
+            if (task.expired()) {
+                timer.cancel();
+            }
             observers.clear();
+            if (const auto record = task.lock(); record && era == ProtocolEra::Initialization20251125) {
+                value["_meta"]["io.modelcontextprotocol/related-task"] = {{"taskId", record->state["taskId"]}};
+            }
             output(jsonrpc::messages::Result{id, std::move(value)}.toJson(), true);
         }
 
@@ -266,7 +272,12 @@ namespace mcp::server {
                         value["requestState"] = std::move(*input.requestState);
                     }
 
-                    if (era == ProtocolEra::PerRequest20260728) {
+                    if (const auto record = task.lock(); record && era == ProtocolEra::PerRequest20260728) {
+                        if (const auto store = record->store.lock()) {
+                            store->input(record, value);
+                            completion = Completion::Accepted;
+                        }
+                    } else if (era == ProtocolEra::PerRequest20260728) {
                         completion = result(std::move(value));
                     } else if (const auto current = channel.lock(); current && current->active && resume && !input.requests.empty()) {
                         const bool waiting = std::any_of(current->inputs.begin(), current->inputs.end(), [this](const auto& item) {
@@ -277,11 +288,20 @@ namespace mcp::server {
                             current->nextInput > UINT64_MAX - input.requests.size()) {
                             completion = error(-32603, "Elicitation already pending or capacity exceeded");
                         } else {
+                            if (const auto record = task.lock()) {
+                                if (const auto store = record->store.lock()) {
+                                    store->input(record, value);
+                                }
+                            }
                             inputResponses.clear();
                             requestState = std::move(input.requestState);
                             std::vector<Json> messages;
                             for (auto& [key, request] : value["inputRequests"].items()) {
                                 const Json requestId = "snodec.elicitation." + std::to_string(++current->nextInput);
+                                if (const auto record = task.lock()) {
+                                    request["params"]["_meta"]["io.modelcontextprotocol/related-task"] = {
+                                        {"taskId", record->state["taskId"]}};
+                                }
                                 if (request["params"]["mode"] == "url") {
                                     request["params"]["elicitationId"] = requestId;
                                 }
@@ -326,7 +346,9 @@ namespace mcp::server {
 
             done = true;
             completion = Completion::Accepted;
-            timer.cancel();
+            if (task.expired()) {
+                timer.cancel();
+            }
             observers.clear();
             output(response, true);
         }
@@ -338,6 +360,9 @@ namespace mcp::server {
         if (!done) {
             if (subscription) {
                 params["_meta"][subscriptionKey] = id;
+            }
+            if (const auto record = task.lock(); record && era == ProtocolEra::Initialization20251125) {
+                params["_meta"]["io.modelcontextprotocol/related-task"] = {{"taskId", record->state["taskId"]}};
             }
 
             output(jsonrpc::messages::Notification{method, std::optional<Json>(std::move(params))}.toJson(), false);
@@ -387,7 +412,9 @@ namespace mcp::server {
                 }
 
                 done = true;
-                timer.cancel();
+                if (task.expired()) {
+                    timer.cancel();
+                }
                 output(nullptr, true);
             }
 
@@ -473,6 +500,7 @@ namespace mcp::server {
 
     Server::Impl::~Impl() {
         changeTimer.cancel();
+        tasks->shutdown();
     }
 
     void Server::Impl::attach() {
@@ -704,6 +732,17 @@ namespace mcp::server {
                 if (era == ProtocolEra::Initialization20251125 && channel) {
                     advertised["logging"] = Json::object();
                 }
+                if (era == ProtocolEra::Initialization20251125 && channel) {
+                    advertised["tasks"] = {{"list", Json::object()}, {"cancel", Json::object()}};
+                    for (const auto& [key, entry] : entries) {
+                        static_cast<void>(key);
+                        if (entry.kind == Kind::Tool && entry.description.contains("execution")) {
+                            advertised["tasks"]["requests"]["tools"]["call"] = Json::object();
+                        }
+                    }
+                } else if (era == ProtocolEra::PerRequest20260728) {
+                    advertised["extensions"]["io.modelcontextprotocol/tasks"] = Json::object();
+                }
                 Json value{{"capabilities", std::move(advertised)}};
                 if (era == ProtocolEra::Initialization20251125) {
                     value["protocolVersion"] = protocolVersion2025;
@@ -737,7 +776,11 @@ namespace mcp::server {
                 } else {
                     const Json filter = params.value("notifications", Json::object());
                     const Json uris = filter.value("resourceSubscriptions", Json::array());
-                    bool valid = uris.is_array() && uris.size() <= 128;
+                    const Json taskIds = filter.value("taskIds", Json::array());
+                    bool valid = uris.is_array() && uris.size() <= 128 && taskIds.is_array() && taskIds.size() <= 128;
+                    for (const auto& id : taskIds) {
+                        valid = valid && id.is_string() && id.get_ref<const std::string&>().size() <= 128;
+                    }
                     for (const auto& uri : uris) {
                         valid = valid && uri.is_string() && uri.get_ref<const std::string&>().size() <= 16384;
                     }
@@ -750,8 +793,12 @@ namespace mcp::server {
                         const auto current = weak.lock();
                         return !current || current->done;
                     });
-                    if (!valid) {
-                        reply->error(-32602, "Malformed resource subscription filter or 128-URI limit exceeded");
+                    if (filter.contains("taskIds") && !detail::Tasks::negotiated(reply->clientCapabilities)) {
+                        reply->error(-32021,
+                                     "Missing required client capability",
+                                     {{"requiredCapabilities", {{"extensions", {{"io.modelcontextprotocol/tasks", Json::object()}}}}}});
+                    } else if (!valid) {
+                        reply->error(-32602, "Malformed resource subscription filter or 128-entry limit exceeded");
                     } else if (subscriptions.size() >= 1024) {
                         reply->error(-32603, "Subscription capacity exceeded");
                     } else {
@@ -764,6 +811,9 @@ namespace mcp::server {
                         }
                         if (!uris.empty()) {
                             honored["resourceSubscriptions"] = uris;
+                        }
+                        if (!taskIds.empty()) {
+                            honored["taskIds"] = taskIds;
                         }
 
                         reply->listen(std::move(honored));
@@ -802,6 +852,8 @@ namespace mcp::server {
                         reply->result(Json::object());
                     }
                 }
+            } else if (tasks->dispatch(method, params, reply, pageSize)) {
+                // The task store owns task lifecycle and result retention.
             } else if (method == "completion/complete") {
                 const auto now = utils::Timeval::currentTime();
                 if (completionReset < now) {
@@ -889,6 +941,9 @@ namespace mcp::server {
                     static_cast<void>(key);
                     if (entry.kind == kind) {
                         Json description = entry.description;
+                        if (era == ProtocolEra::PerRequest20260728) {
+                            description.erase("execution");
+                        }
                         if (era == ProtocolEra::Initialization20251125 && kind == Kind::Tool && description.contains("outputSchema") &&
                             (!description["outputSchema"].is_object() || description["outputSchema"].value("type", Json()) != "object")) {
                             description.erase("outputSchema");
@@ -967,8 +1022,42 @@ namespace mcp::server {
                                 }
                             }
                         };
-                        const auto invoke = reply->resume;
-                        invoke();
+                        if (kind == Kind::Tool) {
+                            const auto support = std::get<std::shared_ptr<Tool>>(entry->handler)->getDefinition().taskSupport;
+                            const std::weak_ptr<detail::Tasks> store = tasks;
+                            reply->startTask = [weak, store, support, augmented = params.contains("task")](TaskOptions options) {
+                                Completion accepted = Completion::Inactive;
+                                if (const auto current = weak.lock()) {
+                                    if (support == TaskSupport::Forbidden) {
+                                        current->error(-32601, "Task execution forbidden for this tool");
+                                    } else if (current->era == ProtocolEra::PerRequest20260728 || augmented) {
+                                        if (const auto owner = store.lock()) {
+                                            accepted = owner->begin(current, options);
+                                        }
+                                    }
+                                }
+                                return accepted;
+                            };
+                            if (era == ProtocolEra::Initialization20251125 &&
+                                (params.contains("task") || support == TaskSupport::Required)) {
+                                const auto metadata = params.value("task", Json());
+                                const auto ttl = metadata.is_object() ? metadata.value("ttl", Json(std::uint64_t(60000))) : Json();
+                                if (support == TaskSupport::Forbidden || !params.contains("task")) {
+                                    reply->error(-32601, "Tool task augmentation is forbidden or required");
+                                } else if (!metadata.is_object() || !ttl.is_number_unsigned()) {
+                                    reply->error(-32602, "Invalid task metadata");
+                                } else {
+                                    reply->startTask(
+                                        TaskOptions{std::clamp(ttl.get<std::uint64_t>(), std::uint64_t(1), std::uint64_t(86400000)), 1000});
+                                }
+                            } else if (era == ProtocolEra::PerRequest20260728 && support == TaskSupport::Required) {
+                                reply->startTask(TaskOptions{});
+                            }
+                        }
+                        if (!reply->done) {
+                            const auto invoke = reply->resume;
+                            invoke();
+                        }
                     }
                 }
             } else {
@@ -1186,11 +1275,26 @@ namespace mcp::server {
     }
 
     template <class Result>
+    Completion Reply<Result>::startTask(TaskOptions options)
+        requires(std::is_same_v<Result, ToolResult>)
+    {
+        return !impl->task.expired() ? Completion::Accepted : impl->startTask ? impl->startTask(options) : Completion::Inactive;
+    }
+
+    std::optional<std::string> RequestContext::getTaskId() const {
+        std::optional<std::string> id;
+        if (const auto task = impl->task.lock()) {
+            id = task->state["taskId"].get<std::string>();
+        }
+        return id;
+    }
+
+    template <class Result>
     void Reply<Result>::progress(Progress progress) {
         const auto request = impl;
         request->expire();
-        if (request->progressToken && !request->done && std::isfinite(progress.value) && progress.value >= 0 &&
-            (!request->lastProgress || progress.value > *request->lastProgress) &&
+        if ((request->task.expired() || request->era == ProtocolEra::Initialization20251125) && request->progressToken && !request->done &&
+            std::isfinite(progress.value) && progress.value >= 0 && (!request->lastProgress || progress.value > *request->lastProgress) &&
             (!progress.total || (std::isfinite(*progress.total) && *progress.total >= progress.value))) {
             request->lastProgress = progress.value;
             Json params{{"progress", progress.value}};
@@ -1433,6 +1537,9 @@ namespace mcp::server {
         display(description, definition.title, definition.icons);
         registrationMetadata(description, definition.meta, RegistrationKind::Tool, definition.name);
 
+        if (definition.taskSupport != TaskSupport::Forbidden) {
+            description["execution"]["taskSupport"] = definition.taskSupport == TaskSupport::Required ? "required" : "optional";
+        }
         if (!definition.annotations.is_null()) {
             description["annotations"] = std::move(definition.annotations);
         }

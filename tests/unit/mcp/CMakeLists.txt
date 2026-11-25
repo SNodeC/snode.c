@@ -198,3 +198,10 @@ target_link_libraries(
     McpLoggingTest PRIVATE snodec::mcp-server snodec-test-support
 )
 set_tests_properties(McpLoggingTest PROPERTIES LABELS "unit;mcp;logging")
+
+snodec_add_test(McpTaskTest McpTaskTest.cpp)
+target_include_directories(McpTaskTest PRIVATE ${PROJECT_SOURCE_DIR})
+target_link_libraries(
+    McpTaskTest PRIVATE snodec::mcp-server snodec-test-support
+)
+set_tests_properties(McpTaskTest PROPERTIES LABELS "unit;mcp;tasks")

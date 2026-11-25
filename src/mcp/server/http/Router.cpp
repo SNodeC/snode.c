@@ -244,7 +244,7 @@ namespace mcp::server::http {
                 if (!closed) {
                     closed = true;
                     timer.cancel();
-                    if (reply) {
+                    if (reply && reply->task.expired()) {
                         reply->cancel(CancelReason::Disconnected);
                     }
 
@@ -632,8 +632,9 @@ namespace mcp::server::http {
                                                 : ProtocolEra::PerRequest20260728;
                     const std::string accept = lower(req->get("Accept"));
                     const Json version = meta.is_object() ? meta.value(versionKey, Json()) : Json();
-                    const bool needsName = method == "tools/call" || method == "prompts/get" || method == "resources/read";
-                    const Json name = params.value(method == "resources/read" ? "uri" : "name", Json());
+                    const bool taskMethod = method == "tasks/get" || method == "tasks/update" || method == "tasks/cancel";
+                    const bool needsName = method == "tools/call" || method == "prompts/get" || method == "resources/read" || taskMethod;
+                    const Json name = params.value(method == "resources/read" ? "uri" : taskMethod ? "taskId" : "name", Json());
                     const bool notification = !request.contains("id");
                     if (!accepts(accept, "application/json") || !accepts(accept, "text/event-stream")) {
                         res->status(406).end();

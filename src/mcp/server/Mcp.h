@@ -83,6 +83,7 @@ namespace mcp::server {
         bool onSignal(int sig) final;
         std::shared_ptr<detail::Response> receive(const Json& request, detail::Response::Output output);
         void deliver(const std::string& message);
+        void sendTaskMessage(const Json& value);
         Json wire(Json value) const;
         static Json wire(Json value, detail::ProtocolEra era);
         bool respond(const Json& message);
