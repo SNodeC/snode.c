@@ -48,18 +48,15 @@
 
 #include "core/socket/State.h"
 #include "log/SemanticLogger.h"
+#include "web/http/CiStringMap.h"
 #include "web/http/client/SemanticLog.h"
 
-#include <cctype>
-#include <cstddef>
 #include <cstdint>
 #include <functional>
 #include <list>
-#include <map>
 #include <memory>
 #include <string>
 #include <string_view>
-#include <utility>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
@@ -115,6 +112,18 @@ namespace web::http::client::tools {
             ReadyState ready = ReadyState::CONNECTING;
         };
 
+        static bool feed(const std::shared_ptr<SharedState>& state, std::string_view chunk);
+
+    private:
+        static bool digits(std::string_view value);
+        static uint32_t parseU32(std::string_view value);
+        static void
+        deliverMessage(const std::shared_ptr<SharedState>& state, const std::string& type, const std::string& data, const std::string& id);
+        static void dispatch(const std::shared_ptr<SharedState>& state);
+        static bool processLine(const std::shared_ptr<SharedState>& state, std::string_view line);
+        static bool parse(const std::shared_ptr<SharedState>& state);
+
+    protected:
         std::shared_ptr<SharedState> sharedState;
     };
 
@@ -137,145 +146,6 @@ namespace web::http::client::tools {
             bool stopped = false;
             bool reconnectScheduled = false;
         };
-
-        static bool digits(std::string_view maybeDigitsAsString) {
-            for (const char maybeDigit : maybeDigitsAsString) {
-                if (std::isdigit(static_cast<unsigned char>(maybeDigit)) == 0) {
-                    return false;
-                }
-            }
-
-            return !maybeDigitsAsString.empty();
-        }
-
-        static uint32_t parseU32(std::string_view uint32AsString) {
-            uint64_t uint32AsUint64 = 0;
-
-            for (const char digit : uint32AsString) {
-                uint32AsUint64 = uint32AsUint64 * 10 + (static_cast<unsigned char>(digit) - '0');
-                if (uint32AsUint64 > 0xFFFFFFFFULL) {
-                    return 0xFFFFFFFFU;
-                }
-            }
-
-            return static_cast<uint32_t>(uint32AsUint64);
-        }
-
-        static void deliverMessage(const std::shared_ptr<SharedState>& sharedState,
-                                   const std::string& evType,
-                                   const std::string& payload,
-                                   const std::string& evId) {
-            const MessageEvent e{evType, payload, evId, sharedState->origin};
-
-            if (auto it = sharedState->onEventListener.find(evType); it != sharedState->onEventListener.end()) {
-                for (const auto& onEventListener : it->second) {
-                    onEventListener(e);
-                }
-            }
-
-            if (evType == "message") {
-                for (const auto& onMessageListener : sharedState->onMessageListener) {
-                    onMessageListener(e);
-                }
-            }
-        }
-
-        static void dispatch(const std::shared_ptr<SharedState>& sharedState) {
-            sharedState->lastId = sharedState->idBuf;
-            if (sharedState->data.empty()) {
-                sharedState->type.clear();
-                return;
-            }
-            if (!sharedState->data.empty() && sharedState->data.back() == '\n') {
-                sharedState->data.pop_back();
-            }
-
-            const std::string evType = sharedState->type.empty() ? "message" : std::exchange(sharedState->type, std::string{});
-            const std::string payload = std::exchange(sharedState->data, std::string{});
-            const std::string evId = sharedState->lastId;
-
-            deliverMessage(sharedState, evType, payload, evId);
-        }
-
-        static bool processLine(const std::shared_ptr<SharedState>& sharedState,
-                                const std::shared_ptr<SharedConfig>& sharedConfig,
-                                std::string_view line) {
-            bool success = true;
-
-            if (!line.empty() && line.front() != ':') {
-                std::string_view field;
-                std::string_view value;
-
-                if (auto p = line.find(':'); p != std::string_view::npos) {
-                    field = line.substr(0, p);
-                    value = line.substr(p + 1);
-                    if (!value.empty() && value.front() == ' ') {
-                        value.remove_prefix(1);
-                    }
-                } else {
-                    field = line;
-                }
-
-                if (field == "data") {
-                    static constexpr size_t kMaxDataSize = 1 << 20;
-
-                    success = sharedState->data.size() + value.size() + 1 <= kMaxDataSize; // Data length
-
-                    if (success) {
-                        sharedState->data.append(value);
-                        sharedState->data.push_back('\n');
-                    }
-                } else if (field == "event") {
-                    sharedState->type = value;
-                } else if (field == "id") {
-                    if (value.find('\0') == std::string_view::npos) {
-                        sharedState->idBuf = value;
-                    }
-                } else if (field == "retry") {
-                    if (digits(value)) {
-                        uint32_t const retry = parseU32(value);
-
-                        sharedState->retry = retry;
-                        sharedConfig->config->setReconnectTime(retry / 1000.);
-                        sharedConfig->config->setRetryTimeout(retry / 1000.);
-                    }
-                }
-            }
-
-            return success;
-        }
-
-        static bool parse(const std::shared_ptr<SharedState>& sharedState, const std::shared_ptr<SharedConfig>& sharedConfig) {
-            static constexpr size_t kMaxLine = 256 * 1024;
-
-            bool success = true;
-            bool eol = true;
-            do {
-                const size_t i = sharedState->pending.find_first_of("\r\n");
-
-                eol = i != std::string::npos && (sharedState->pending[i] != '\r' || i + 1 < sharedState->pending.size());
-
-                if (eol && i <= kMaxLine) {
-                    const size_t eolLength =
-                        (sharedState->pending[i] == '\r' && i + 1 < sharedState->pending.size() && sharedState->pending[i + 1] == '\n') ? 2
-                                                                                                                                        : 1;
-
-                    const std::string_view line(sharedState->pending.data(), i);
-
-                    if (!line.empty()) {
-                        success = processLine(sharedState, sharedConfig, line);
-                    } else {
-                        dispatch(sharedState);
-                    }
-
-                    sharedState->pending.erase(0, i + eolLength);
-                } else {
-                    success = sharedState->pending.size() <= kMaxLine; // Line length
-                }
-            } while (eol && success);
-
-            return success;
-        }
 
     public:
         ~EventSourceT() override {
@@ -367,72 +237,51 @@ namespace web::http::client::tools {
                         masterRequest->set("Last-Event-ID", sharedState->lastId);
                     }
 
-                    if (!masterRequest->requestEventSource(
-                            sharedState->path,
-                            [masterRequestWeak = std::weak_ptr<MasterRequest>(masterRequest), sharedState, sharedConfig, socketConnection]()
-                                -> std::size_t {
-                                std::size_t consumed = 0;
-
-                                if (const std::shared_ptr<MasterRequest> masterRequest = masterRequestWeak.lock()) {
-                                    char buf[16384];
-                                    consumed = masterRequest->getSocketContext()->readFromPeer(buf, sizeof(buf));
-
-                                    sharedState->pending.append(buf, consumed);
-
-                                    if (!parse(sharedState, sharedConfig)) {
-                                        masterRequest->getSocketContext()->close();
-                                    }
-                                } else {
-                                    web::http::client::semantic::httpClientLog(*socketConnection).debug()
-                                        << "server-sent event: server disconnect";
-                                }
-
-                                return consumed;
-                            },
-                            [sharedState, sharedConfig, socketConnection]() {
-                                if (sharedState->ready == ReadyState::CLOSED) {
-                                    return;
-                                }
-
-                                web::http::client::semantic::httpClientLog(*socketConnection).debug() << "server-sent event stream start";
-
+                    masterRequest->url = sharedState->path;
+                    masterRequest->set("Accept", "text/event-stream");
+                    masterRequest->set("Connection", "keep-alive");
+                    const bool sent = masterRequest->stream(
+                        {},
+                        [sharedState](const std::shared_ptr<Response>& response) {
+                            if (response->statusCode == "200" &&
+                                web::http::ciContains(response->headers["Content-Type"], "text/event-stream")) {
                                 sharedState->ready = ReadyState::OPEN;
-
                                 web::http::client::semantic::httpClientEventSourceLog().info()
                                     << "event stream established: " << sharedState->origin + sharedState->path;
-
-                                sharedConfig->config->setReconnectTime(sharedState->retry / 1000.);
-                                sharedConfig->config->setRetryTimeout(sharedState->retry / 1000.);
-
+                                for (const auto& callback : sharedState->onOpenListener) {
+                                    callback();
+                                }
                                 if (auto it = sharedState->onEventListener.find("open"); it != sharedState->onEventListener.end()) {
-                                    EventSource::MessageEvent e{"open", "", sharedState->lastId, sharedState->origin};
-
-                                    for (auto& onOpen : it->second) {
-                                        onOpen(e);
+                                    const MessageEvent event{"open", "", sharedState->lastId, sharedState->origin};
+                                    for (const auto& callback : it->second) {
+                                        callback(event);
                                     }
                                 }
-
-                                for (const auto& onOpen : sharedState->onOpenListener) {
-                                    onOpen();
+                            } else {
+                                for (const auto& callback : sharedState->onErrorListener) {
+                                    callback();
                                 }
-                            },
-                            [sharedState, socketConnection]() {
-                                web::http::client::semantic::httpClientLog(*socketConnection).debug()
-                                    << "not an server-sent event endpoint: " << sharedState->origin + sharedState->path;
-                                if (auto it = sharedState->onEventListener.find("error"); it != sharedState->onEventListener.end()) {
-                                    EventSource::MessageEvent e{"error", "", sharedState->lastId, sharedState->origin};
-
-                                    for (auto& onError : it->second) {
-                                        onError(e);
-                                    }
+                            }
+                        },
+                        [sharedState, sharedConfig, eventSourceWeak](std::string_view chunk) {
+                            if (!feed(sharedState, chunk)) {
+                                if (const auto source = eventSourceWeak.lock(); source && source->socketConnection != nullptr) {
+                                    source->socketConnection->close();
                                 }
-
-                                for (const auto& onError : sharedState->onErrorListener) {
-                                    onError();
-                                }
-                            })) {
-                        if (const std::shared_ptr<EventSourceT> eventSource = eventSourceWeak.lock()) {
-                            eventSource->socketConnection->close();
+                            }
+                            sharedConfig->config->setReconnectTime(sharedState->retry / 1000.);
+                            sharedConfig->config->setRetryTimeout(sharedState->retry / 1000.);
+                        },
+                        []() {
+                        },
+                        [sharedState](const std::string&) {
+                            for (const auto& callback : sharedState->onErrorListener) {
+                                callback();
+                            }
+                        });
+                    if (!sent) {
+                        if (const auto source = eventSourceWeak.lock(); source && source->socketConnection != nullptr) {
+                            source->socketConnection->close();
                         }
                     }
                 },

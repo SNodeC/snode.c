@@ -42,10 +42,139 @@
 #include "web/http/client/tools/EventSource.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+#include <algorithm>
+#include <cstddef>
+#include <utility>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace web::http::client::tools {
+
+    bool EventSource::digits(std::string_view value) {
+        bool valid = !value.empty();
+        for (const char digit : value) {
+            valid = valid && digit >= '0' && digit <= '9';
+        }
+        return valid;
+    }
+
+    uint32_t EventSource::parseU32(std::string_view value) {
+        uint64_t result = 0;
+        for (const char digit : value) {
+            result = std::min<uint64_t>(0xFFFFFFFFULL, result * 10 + static_cast<unsigned char>(digit) - '0');
+        }
+        return static_cast<uint32_t>(result);
+    }
+
+    void EventSource::deliverMessage(const std::shared_ptr<SharedState>& sharedState,
+                                     const std::string& evType,
+                                     const std::string& payload,
+                                     const std::string& evId) {
+        const MessageEvent e{evType, payload, evId, sharedState->origin};
+
+        if (auto it = sharedState->onEventListener.find(evType); it != sharedState->onEventListener.end()) {
+            for (const auto& onEventListener : it->second) {
+                onEventListener(e);
+            }
+        }
+
+        if (evType == "message") {
+            for (const auto& onMessageListener : sharedState->onMessageListener) {
+                onMessageListener(e);
+            }
+        }
+    }
+
+    void EventSource::dispatch(const std::shared_ptr<SharedState>& state) {
+        state->lastId = state->idBuf;
+        if (!state->data.empty()) {
+            state->data.pop_back();
+            const std::string type = state->type.empty() ? "message" : state->type;
+            const std::string payload = std::exchange(state->data, std::string{});
+            deliverMessage(state, type, payload, state->lastId);
+        }
+        state->type.clear();
+    }
+
+    bool EventSource::processLine(const std::shared_ptr<SharedState>& sharedState, std::string_view line) {
+        bool success = true;
+
+        if (!line.empty() && line.front() != ':') {
+            std::string_view field;
+            std::string_view value;
+
+            if (auto p = line.find(':'); p != std::string_view::npos) {
+                field = line.substr(0, p);
+                value = line.substr(p + 1);
+                if (!value.empty() && value.front() == ' ') {
+                    value.remove_prefix(1);
+                }
+            } else {
+                field = line;
+            }
+
+            if (field == "data") {
+                static constexpr std::size_t kMaxDataSize = 1 << 20;
+
+                success = sharedState->data.size() + value.size() + 1 <= kMaxDataSize; // Data length
+
+                if (success) {
+                    sharedState->data.append(value);
+                    sharedState->data.push_back('\n');
+                }
+            } else if (field == "event") {
+                sharedState->type = value;
+            } else if (field == "id") {
+                if (value.find('\0') == std::string_view::npos) {
+                    sharedState->idBuf = value;
+                }
+            } else if (field == "retry") {
+                if (digits(value)) {
+                    uint32_t const retry = parseU32(value);
+
+                    sharedState->retry = retry;
+                }
+            }
+        }
+
+        return success;
+    }
+
+    bool EventSource::parse(const std::shared_ptr<SharedState>& sharedState) {
+        static constexpr std::size_t kMaxLine = 256 * 1024;
+
+        bool success = true;
+        bool eol = true;
+        do {
+            const std::size_t i = sharedState->pending.find_first_of("\r\n");
+
+            eol = i != std::string::npos && (sharedState->pending[i] != '\r' || i + 1 < sharedState->pending.size());
+
+            if (eol && i <= kMaxLine) {
+                const std::size_t eolLength =
+                    (sharedState->pending[i] == '\r' && i + 1 < sharedState->pending.size() && sharedState->pending[i + 1] == '\n') ? 2 : 1;
+
+                const std::string_view line(sharedState->pending.data(), i);
+
+                if (!line.empty()) {
+                    success = processLine(sharedState, line);
+                } else {
+                    dispatch(sharedState);
+                }
+
+                sharedState->pending.erase(0, i + eolLength);
+            } else {
+                success = sharedState->pending.size() <= kMaxLine; // Line length
+            }
+        } while (eol && success);
+
+        return success;
+    }
+
+    bool EventSource::feed(const std::shared_ptr<SharedState>& state, std::string_view chunk) {
+        state->pending.append(chunk);
+        return parse(state);
+    }
 
     EventSource::EventSource()
         : sharedState(std::make_shared<SharedState>()) {

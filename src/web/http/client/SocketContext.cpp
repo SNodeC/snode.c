@@ -83,7 +83,10 @@ namespace web::http::client {
               [this](int status, const std::string& reason) {
                   deliverResponseParseError(status, reason);
               },
-              parserLimits) {
+              parserLimits,
+              [this]() {
+                  return !deliveredRequests.empty() && deliveredRequests.front()->streamResponse;
+              }) {
         masterRequest->setMasterRequest(masterRequest);
     }
 
@@ -305,6 +308,10 @@ namespace web::http::client {
         httpClose = response->connectionState == ConnectionState::Close ||
                     (response->connectionState == ConnectionState::Default &&
                      ((response->httpMajor == 0 && response->httpMinor == 0) || (response->httpMajor == 1 && response->httpMinor == 0)));
+
+        if (onServerSentEvent) {
+            httpClose = false;
+        }
 
         if (httpClose) {
             frameworkLog().debug() << "HTTP: Connection = Close";
