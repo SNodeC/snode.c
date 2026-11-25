@@ -179,18 +179,30 @@ namespace mcp::server::detail {
         return accepted;
     }
 
-    void Tasks::expire(const std::string& id) {
+    void Tasks::expire(const std::string& id, CancelReason reason) {
         const auto found = entries.find(id);
         if (found != entries.end()) {
             const auto task = found->second;
             entries.erase(found);
             task->execution->timer.cancel();
-            task->execution->cancel(CancelReason::Deadline);
+            task->execution->cancel(reason);
             for (const auto& weak : task->waiters) {
                 if (const auto waiter = weak.lock()) {
                     waiter->error(-32602, "Task expired");
                 }
             }
+        }
+    }
+
+    void Tasks::release(const std::shared_ptr<Channel>& channel) {
+        std::vector<std::string> owned;
+        for (const auto& [id, task] : entries) {
+            if (task->execution->channel.lock() == channel) {
+                owned.push_back(id);
+            }
+        }
+        for (const auto& id : owned) {
+            expire(id, CancelReason::Disconnected);
         }
     }
 
@@ -393,6 +405,13 @@ namespace mcp::server {
         tasks->notify = [this](const auto& task) {
             taskChanged(task);
         };
+    }
+
+    void Server::Impl::endChannel(const std::shared_ptr<detail::Channel>& channel) const {
+        channel->active = false;
+        channel->resources.clear();
+        channel->output = {};
+        tasks->release(channel);
     }
 
     void Server::Impl::taskChanged(const std::shared_ptr<detail::Task>& task) {

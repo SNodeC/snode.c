@@ -55,6 +55,7 @@
 #endif
 namespace mcp::server::detail {
     struct Response;
+    struct Channel;
     class Tasks;
 
     struct Task {
@@ -81,11 +82,12 @@ namespace mcp::server::detail {
         void input(const std::shared_ptr<Task>& task, const Json& value);
         void working(const std::shared_ptr<Task>& task);
         void shutdown();
+        void release(const std::shared_ptr<Channel>& channel);
 
     private:
         void output(const std::shared_ptr<Task>& task, const Json& value, bool terminal);
         void publish(const std::shared_ptr<Task>& task);
-        void expire(const std::string& id);
+        void expire(const std::string& id, CancelReason reason = CancelReason::Deadline);
         void result(const std::shared_ptr<Task>& task, const std::shared_ptr<Response>& reply);
         std::map<std::string, std::shared_ptr<Task>> entries;
         bool closing = false;

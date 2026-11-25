@@ -150,6 +150,9 @@ namespace mcp::server {
     void Mcp::finish() {
         if (!state->closing) {
             state->closing = true;
+            if (!state->fixedEra) {
+                state->registry.endChannel(state->channel);
+            }
             auto pending = std::move(state->pending);
             for (const auto& [id, reply] : pending) {
                 static_cast<void>(id);
@@ -170,11 +173,6 @@ namespace mcp::server {
 
     void Mcp::onDisconnected() {
         finish();
-        if (!state->fixedEra) {
-            state->channel->active = false;
-            state->channel->resources.clear();
-            state->channel->output = {};
-        }
         Super::onDisconnected();
     }
 
