@@ -434,9 +434,10 @@ false
     test.expectTrue(response["result"]["supportedVersions"] ==
                         Json::array({mcp::server::detail::protocolVersion2026, mcp::server::detail::protocolVersion2025}),
                     "versions");
-    test.expectTrue(response["result"]["capabilities"] ==
-                        Json({{"tools", Json::object()}, {"resources", {{"subscribe", true}}}, {"prompts", Json::object()}}),
-                    "capabilities advertise subscriptions and omit listChanged");
+    test.expectTrue(response["result"]["capabilities"] == Json({{"tools", {{"listChanged", true}}},
+                                                                {"resources", {{"subscribe", true}, {"listChanged", true}}},
+                                                                {"prompts", {{"listChanged", true}}}}),
+                    "capabilities advertise subscriptions and runtime list changes");
     test.expectTrue(response["result"]["resultType"] == "complete" && response["result"]["ttlMs"] == 0 &&
                         response["result"]["cacheScope"] == "private",
                     "modern result/cache contract");
@@ -525,9 +526,10 @@ false
         Access::registry(server).dispatch(request("subscriptions/listen", {{"notifications", {{"toolsListChanged", true}}}}),
                                           mcp::server::detail::ProtocolEra::PerRequest20260728,
                                           output);
-    test.expectTrue(response["method"] == "notifications/subscriptions/acknowledged" && response["params"]["notifications"].empty() &&
+    test.expectTrue(response["method"] == "notifications/subscriptions/acknowledged" &&
+                        response["params"]["notifications"] == Json({{"toolsListChanged", true}}) &&
                         response["params"]["_meta"][mcp::server::detail::subscriptionKey] == 7,
-                    "empty honored filter and correlated ack");
+                    "honored list-change filter and correlated ack");
     std::vector<Json> shutdown;
     auto ending = Access::registry(server).dispatch(
         request("subscriptions/listen"), mcp::server::detail::ProtocolEra::PerRequest20260728, [&shutdown](const Json& value, bool) {

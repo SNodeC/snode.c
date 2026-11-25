@@ -175,3 +175,12 @@ target_link_libraries(
     McpMetadataTest PRIVATE snodec::mcp-server snodec-test-support
 )
 set_tests_properties(McpMetadataTest PROPERTIES LABELS "unit;mcp;metadata")
+
+snodec_add_test(McpRuntimeTest McpRuntimeTest.cpp)
+target_include_directories(McpRuntimeTest PRIVATE ${PROJECT_SOURCE_DIR})
+target_link_libraries(
+    McpRuntimeTest PRIVATE snodec::mcp-server snodec-test-support
+)
+set_tests_properties(
+    McpRuntimeTest PROPERTIES LABELS "unit;mcp;registration;subscriptions"
+)

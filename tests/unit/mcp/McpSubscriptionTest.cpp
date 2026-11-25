@@ -85,8 +85,8 @@ int main(int argc, char* argv[]) {
         output);
     test.expectTrue(messages.size() == 1 && messages[0]["method"] == "notifications/subscriptions/acknowledged" &&
                         messages[0]["params"]["_meta"][detail::subscriptionKey] == "watch" &&
-                        !messages[0]["params"]["notifications"].contains("resourcesListChanged"),
-                    "ack first, unsupported filter omitted, typed subscription ID");
+                        messages[0]["params"]["notifications"]["resourcesListChanged"] == true,
+                    "ack first, supported list-change filter honored, typed subscription ID");
     server.resourceUpdated("test://other");
     test.expectTrue(messages.size() == 1, "unrequested URI suppressed");
     server.resourceUpdated("test://one");

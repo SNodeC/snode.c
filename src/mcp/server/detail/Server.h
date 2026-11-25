@@ -172,7 +172,9 @@ namespace mcp::server {
         using Handler =
             std::variant<std::shared_ptr<Tool>, std::shared_ptr<Resource>, std::shared_ptr<Prompt>, std::shared_ptr<ResourceTemplate>>;
 
-        void seal();
+        ~Impl();
+        void attach();
+        bool remove(RegistrationKind kind, const std::string& identifier);
         void add(RegistrationKind kind, Json description, Handler handler);
         std::shared_ptr<detail::Access::Response> dispatch(const Json& request,
                                                            detail::ProtocolEra era,
@@ -206,11 +208,15 @@ namespace mcp::server {
         };
 
         Json capabilities() const;
+        void changed(RegistrationKind kind);
+        void flushChanges();
         const Entry* resolveResource(const std::string& uri, std::map<std::string, std::string>& variables) const;
 
         Json serverInfo;
         std::string instructions;
-        bool sealed = false;
+        bool attached = false;
+        std::set<RegistrationKind> changes;
+        core::timer::Timer changeTimer;
         mutable utils::Timeval completionReset;
         mutable std::size_t completionCount = 0;
         std::map<std::string, Entry> entries;

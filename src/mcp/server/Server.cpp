@@ -408,9 +408,7 @@ namespace mcp::server {
         const auto reject = [&](const std::string& field, const std::string& reason) {
             return RegistrationError(kind, identifier, field, reason);
         };
-        if (sealed) {
-            throw reject("registration", "registry is sealed");
-        } else if (identifier.empty() || description.value("name", std::string()).empty()) {
+        if (identifier.empty() || description.value("name", std::string()).empty()) {
             throw reject(identifier.empty() ? keyName : "name", "must not be empty");
         } else if (!std::visit(
                        [](const auto& callback) {
@@ -466,21 +464,86 @@ namespace mcp::server {
         if (kind == Kind::ResourceTemplate) {
             templates.push_back(key);
         }
+        changed(kind);
     }
 
-    void Server::Impl::seal() {
-        sealed = true;
+    Server::Impl::~Impl() {
+        changeTimer.cancel();
+    }
+
+    void Server::Impl::attach() {
+        attached = true;
+    }
+
+    bool Server::Impl::remove(RegistrationKind kind, const std::string& identifier) {
+        const std::string key = std::to_string(static_cast<int>(kind)) + ":" + identifier;
+        const bool removed = entries.erase(key) != 0;
+        if (removed) {
+            std::erase(templates, key);
+            changed(kind);
+        }
+        return removed;
+    }
+
+    bool Server::remove(RegistrationKind kind, const std::string& identifier) {
+        return impl->remove(kind, identifier);
+    }
+
+    void Server::Impl::changed(RegistrationKind kind) {
+        if (attached) {
+            const bool schedule = changes.empty();
+            changes.insert(kind == Kind::ResourceTemplate ? Kind::Resource : kind);
+            if (schedule) {
+                changeTimer = core::timer::Timer::singleshotTimer(
+                    [this] {
+                        flushChanges();
+                    },
+                    utils::Timeval(0));
+            }
+        }
+    }
+
+    void Server::Impl::flushChanges() {
+        // Detach the running receiver before callbacks can schedule the next turn.
+        const auto running = std::move(changeTimer);
+        const auto pending = std::exchange(changes, {});
+        std::vector<std::shared_ptr<Response>> streams;
+        std::vector<std::shared_ptr<Channel>> clients;
+        std::erase_if(subscriptions, [](const auto& weak) {
+            return weak.expired();
+        });
+        std::erase_if(channels, [](const auto& weak) {
+            return weak.expired();
+        });
+        for (const auto& weak : subscriptions) {
+            if (const auto current = weak.lock(); current && !current->done) {
+                streams.push_back(current);
+            }
+        }
+        for (const auto& weak : channels) {
+            if (const auto current = weak.lock(); current && current->active) {
+                clients.push_back(current);
+            }
+        }
+        for (const auto kind : pending) {
+            const std::string category = kind == Kind::Tool ? "tools" : kind == Kind::Prompt ? "prompts" : "resources";
+            const std::string filter = category + "ListChanged";
+            const std::string method = "notifications/" + category + "/list_changed";
+            for (const auto& stream : streams) {
+                if (stream->notifications.value(filter, false)) {
+                    stream->notify(method, Json::object());
+                }
+            }
+            for (const auto& client : clients) {
+                if (client->active && client->output) {
+                    client->output(jsonrpc::messages::Notification{method}.toJson());
+                }
+            }
+        }
     }
 
     Json Server::Impl::capabilities() const {
-        Json result = Json::object();
-        for (const auto& [key, entry] : entries) {
-            static_cast<void>(key);
-            result[entry.kind == Kind::Tool                                                 ? "tools"
-                   : (entry.kind == Kind::Resource || entry.kind == Kind::ResourceTemplate) ? "resources"
-                                                                                            : "prompts"] = Json::object();
-        }
-
+        Json result{{"tools", {{"listChanged", true}}}, {"resources", {{"listChanged", true}}}, {"prompts", {{"listChanged", true}}}};
         for (const auto& [key, entry] : entries) {
             static_cast<void>(key);
             if (entry.kind == Kind::Prompt) {
@@ -613,6 +676,17 @@ namespace mcp::server {
                        (era == ProtocolEra::Initialization20251125 && method == "initialize")) {
                 if (era == ProtocolEra::Initialization20251125 && channel) {
                     channel->capabilities = params["capabilities"];
+                    std::erase_if(channels, [](const auto& weak) {
+                        return weak.expired();
+                    });
+                    if (std::none_of(channels.begin(), channels.end(), [&channel](const auto& weak) {
+                            return weak.lock() == channel;
+                        })) {
+                        if (channels.size() >= 1024) {
+                            throw std::runtime_error("Notification channel capacity exceeded");
+                        }
+                        channels.push_back(channel);
+                    }
                 }
 
                 Json advertised = capabilities();
@@ -663,6 +737,11 @@ namespace mcp::server {
                     } else {
                         subscriptions.push_back(reply);
                         Json honored = Json::object();
+                        for (const std::string name : {"toolsListChanged", "promptsListChanged", "resourcesListChanged"}) {
+                            if (filter.value(name, false)) {
+                                honored[name] = true;
+                            }
+                        }
                         if (!uris.empty()) {
                             honored["resourceSubscriptions"] = uris;
                         }

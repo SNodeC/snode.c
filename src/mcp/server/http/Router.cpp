@@ -529,7 +529,7 @@ namespace mcp::server::http {
 
         auto state = std::make_shared<State>(server, config, std::move(options));
         state->observe();
-        Access::registry(server).seal();
+        Access::registry(server).attach();
         use("/", [state, authorize](const auto& req, const auto& res, auto& next) {
             const std::string origin = req->get("Origin");
             const auto& allowed = state->config.getAllowedOrigins();

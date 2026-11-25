@@ -58,7 +58,7 @@ namespace mcp::server::stream {
     SocketContextFactory::~SocketContextFactory() = default;
 
     core::socket::stream::SocketContext* SocketContextFactory::create(core::socket::stream::SocketConnection* connection) {
-        detail::Access::registry(server).seal();
+        detail::Access::registry(server).attach();
 
         return new SocketContext(connection, server, config);
     }

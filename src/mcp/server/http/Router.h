@@ -107,7 +107,7 @@ namespace mcp::server {
             /// Runs on the event loop after Origin validation; exceptions become 500 without credential logging.
             using Authorize = std::function<Authorization(const std::shared_ptr<express::Request>&)>;
 
-            /// Attach on the event loop after init; seals registration; empty authorize permits anonymous access.
+            /// Attach on the event loop after init; enables runtime registration notifications; empty authorize permits anonymous access.
             /// Retain server and config until this router and its operations have drained.
             Router(Server& server, Config& config, Authorize authorize = {}, RouterOptions options = {});
 
