@@ -64,6 +64,11 @@ namespace {
         unsigned logs = 0;
         unsigned tasks = 0;
         unsigned statuses = 0;
+        unsigned cancelled = 0;
+        unsigned expired = 0;
+        bool cancelling = false;
+        bool awaitingExpiry = false;
+        std::string cancelledTask;
         bool acknowledged = false;
         bool prompt = false;
         bool mutating = false;
@@ -74,6 +79,10 @@ namespace {
         explicit Protocol(FlowState& state)
             : state(state) {
             setNegotiation(state.legacy ? mcp::client::Negotiation::Legacy : mcp::client::Negotiation::Modern);
+        }
+
+        ~Protocol() final {
+            check.cancel();
         }
 
         void configure() {
@@ -114,18 +123,16 @@ namespace {
             if (text == "Hello, 世界") {
                 mcp::client::RequestOptions options;
                 options.task = state.legacy;
+                options.ttlMs = 5000;
                 callTool("background", Json::object(), options);
             } else if (text == "background complete") {
                 readResource("test://updates");
             } else if (text == "mutated") {
-                core::timer::Timer::singleshotTimer(
-                    [this]() {
-                        state.complete = state.tools == 1 && state.resources == 1 && state.prompts == 1 && state.updated == 1 &&
-                                         state.tasks == 1 && state.statuses > 0 && state.logs == (state.legacy ? 1U : 0U);
-                        disconnect();
-                        core::SNodeC::stop();
-                    },
-                    utils::Timeval(0.15));
+                state.cancelling = true;
+                mcp::client::RequestOptions options;
+                options.task = state.legacy;
+                options.ttlMs = 5000;
+                callTool("background", {{"waitForCancel", true}}, options);
             }
         }
 
@@ -163,8 +170,23 @@ namespace {
             ++state.logs;
         }
 
-        void onTaskCreated(const jsonrpc::messages::Id&, const mcp::TaskInfo&) final {
+        void onTaskCreated(const jsonrpc::messages::Id&, const mcp::TaskInfo& task) final {
             ++state.tasks;
+            if (state.cancelling) {
+                state.cancelledTask = task.taskId;
+                cancelTask(task.taskId);
+            }
+        }
+
+        void onCancelled(const jsonrpc::messages::Id&, const std::string&) final {
+            ++state.cancelled;
+            check = core::timer::Timer::singleshotTimer(
+                [this]() {
+                    const auto timer = std::move(check);
+                    state.awaitingExpiry = true;
+                    getTask(state.cancelledTask);
+                },
+                utils::Timeval(5.2));
         }
 
         void onTaskStatus(const mcp::TaskInfo&) final {
@@ -172,7 +194,14 @@ namespace {
         }
 
         void onRemoteError(const jsonrpc::messages::Error& error) final {
-            std::cerr << error.serialize() << std::endl;
+            if (state.awaitingExpiry && error.code == -32602) {
+                ++state.expired;
+                state.complete = state.tools == 1 && state.resources == 1 && state.prompts == 1 && state.updated == 1 && state.tasks == 2 &&
+                                 state.statuses > 0 && state.cancelled == 1 && state.expired == 1 && state.logs == (state.legacy ? 1U : 0U);
+                disconnect();
+            } else {
+                std::cerr << error.serialize() << std::endl;
+            }
             core::SNodeC::stop();
         }
 
@@ -182,6 +211,7 @@ namespace {
         }
 
         FlowState& state;
+        core::timer::Timer check;
     };
 } // namespace
 
@@ -225,7 +255,9 @@ int main(int argc, char* argv[]) {
                       {"updated", state.updated},
                       {"logs", state.logs},
                       {"tasks", state.tasks},
-                      {"statuses", state.statuses}}
+                      {"statuses", state.statuses},
+                      {"cancelled", state.cancelled},
+                      {"expired", state.expired}}
                      .dump()
               << std::endl;
     return state.complete ? 0 : 1;

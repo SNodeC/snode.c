@@ -105,13 +105,15 @@ namespace tests::mcp {
         });
         ToolDefinition background{"background", {}, schema};
         background.taskSupport = TaskSupport::Optional;
-        server.tool(background, [](const auto&, const auto& reply) {
+        server.tool(background, [](const auto& call, const auto& reply) {
             reply->startTask(TaskOptions{5000, 10});
-            core::timer::Timer::singleshotTimer(
-                [reply]() {
-                    reply->result(ToolResult::text("background complete"));
-                },
-                utils::Timeval(0.05));
+            if (!call.arguments.value("waitForCancel", false)) {
+                core::timer::Timer::singleshotTimer(
+                    [reply]() {
+                        reply->result(ToolResult::text("background complete"));
+                    },
+                    utils::Timeval(0.05));
+            }
         });
         server.tool({"mutate", {}, schema}, [&server, schema](const auto& call, const auto& reply) {
             for (unsigned index = 0; index < 3; ++index) {

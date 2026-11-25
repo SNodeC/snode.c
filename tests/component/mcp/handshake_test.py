@@ -63,6 +63,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
         body = self.rfile.read(int(self.headers.get('Content-Length', '0')))
         method = json.loads(body).get('method', '')
         self.server.methods.append(method)
+        if self.headers.get('Host') != '127.0.0.1:' + str(self.server.server_address[1]):
+            self.server.bad_hosts.append(self.headers.get('Host'))
         if self.server.reject and (self.server.reject != 404 or method == 'server/discover'):
             self.send_response(self.server.reject)
             self.send_header('Content-Length', '0')
@@ -95,6 +97,7 @@ with tempfile.TemporaryDirectory() as directory:
     proxy.backend = backend.port
     proxy.reject = 0
     proxy.methods = []
+    proxy.bad_hosts = []
     proxy.initialized = False
     proxy.violations = 0
     proxy.application = threading.Event()
@@ -108,6 +111,7 @@ with tempfile.TemporaryDirectory() as directory:
         assert result.returncode == 0, (result.stdout, result.stderr)
         assert proxy.initialized and proxy.application.is_set() and proxy.violations == 0, proxy.violations
         assert json.loads(result.stdout)['tools']
+        assert not proxy.bad_hosts, proxy.bad_hosts
         command[command.index('--legacy') + 1] = 'false'
         for status in (401, 500):
             proxy.reject = status

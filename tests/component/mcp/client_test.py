@@ -159,6 +159,7 @@ with tempfile.TemporaryDirectory() as directory:
                     command += ["--server", transport] if isinstance(transport, str) else ["--port", str(transport.port)]
                     result = subprocess.run(command, capture_output=True, timeout=12, env=dict(os.environ, XDG_CONFIG_HOME=directory, XDG_STATE_HOME=directory))
                     assert result.returncode == 0, (command, result.stdout.decode(), result.stderr.decode())
+                    print("feature flow", "legacy" if legacy else "modern", "stdio" if isinstance(transport, str) else "http", result.stdout.decode().strip(), flush=True)
         proxy = DisconnectProxy(server.port)
         try:
             result = run(directory, proxy, True, "call", "delay", {"reportCount": True})
