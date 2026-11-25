@@ -177,3 +177,60 @@ set_tests_properties(
     McpElicitationTest PROPERTIES LABELS "component;mcp;elicitation;stdio;http"
                                   TIMEOUT 45
 )
+
+add_test(NAME McpHttpReplayTest
+         COMMAND ${MCP_PYTHON} ${CMAKE_CURRENT_SOURCE_DIR}/replay_test.py
+                 $<TARGET_FILE:McpHttpFixture>
+)
+set_tests_properties(
+    McpHttpReplayTest PROPERTIES LABELS "mcp;component;http;resumability"
+                                 TIMEOUT 30
+)
+
+add_test(
+    NAME McpClientTransportTest
+    COMMAND
+        ${MCP_PYTHON} -B ${CMAKE_CURRENT_SOURCE_DIR}/client_test.py
+        $<TARGET_FILE:snodec-mcp-client> $<TARGET_FILE:McpStdioFixture>
+        $<TARGET_FILE:McpHttpFixture> $<TARGET_FILE:McpClientFixture>
+)
+set_tests_properties(
+    McpClientTransportTest PROPERTIES LABELS "mcp;client;component;stdio;http"
+                                      TIMEOUT 120
+)
+
+add_executable(McpClientFixture ClientFixture.cpp)
+target_include_directories(McpClientFixture PRIVATE ${PROJECT_SOURCE_DIR})
+target_link_libraries(McpClientFixture PRIVATE mcp-client mcp-client-http)
+
+snodec_add_test(McpClientProcessTest ClientProcessTest.cpp)
+target_include_directories(McpClientProcessTest PRIVATE ${PROJECT_SOURCE_DIR})
+target_link_libraries(
+    McpClientProcessTest PRIVATE mcp-client snodec-test-support
+)
+set_tests_properties(
+    McpClientProcessTest
+    PROPERTIES LABELS "component;mcp;client;stdio;lifecycle" TIMEOUT 10
+)
+
+if(SNODEC_MCP_SDK_ROOT)
+    add_test(
+        NAME McpClientSdkTest
+        COMMAND
+            ${MCP_PYTHON} -B ${CMAKE_CURRENT_SOURCE_DIR}/client_sdk_test.py
+            ${MCP_NODE} ${SNODEC_MCP_SDK_ROOT} $<TARGET_FILE:snodec-mcp-client>
+    )
+    set_tests_properties(
+        McpClientSdkTest PROPERTIES LABELS "mcp;client;component;sdk" TIMEOUT
+                                    120
+    )
+endif()
+
+add_test(NAME McpClientHandshakeTest
+         COMMAND ${MCP_PYTHON} -B ${CMAKE_CURRENT_SOURCE_DIR}/handshake_test.py
+                 $<TARGET_FILE:snodec-mcp-client> $<TARGET_FILE:McpHttpFixture>
+)
+set_tests_properties(
+    McpClientHandshakeTest
+    PROPERTIES LABELS "component;mcp;client;http;lifecycle" TIMEOUT 20
+)

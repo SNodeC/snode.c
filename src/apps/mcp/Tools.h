@@ -41,6 +41,7 @@
 
 #pragma once
 
+#include "mcp/Types.h"
 #include "mcp/server/Config.h"
 #include "mcp/server/Reply.h"
 #include "mcp/server/Types.h"

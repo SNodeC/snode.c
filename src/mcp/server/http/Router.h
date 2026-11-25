@@ -43,10 +43,13 @@
 #define MCP_SERVER_HTTP_ROUTER_H
 
 #include "express/Router.h"
+#include "mcp/Types.h"
 #include "mcp/server/Types.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstddef>
+#include <cstdint>
 #include <optional>
 #include <string>
 #include <variant>
@@ -94,10 +97,19 @@ namespace mcp::server {
             std::optional<std::string> documentation{};    ///< Optional documentation URI.
         };
 
+        /// 2025 SSE replay limits; maximumEvents=0 disables resumability.
+        struct ReplayOptions {
+            std::size_t maximumEvents = 128;
+            std::size_t maximumBytes = 1048576;
+            std::uint64_t retentionMs = 60000;
+            std::size_t maximumStreams = 64;
+        };
+
         /// Owned HTTP binding policy, copied into the router at construction.
         struct RouterOptions {
             std::optional<ProtectedResource> protectedResource{};                   ///< Optional RFC 9728 metadata/challenge configuration.
             LegacySubscriptions legacySubscriptions = LegacySubscriptions::Enabled; ///< Enable bounded 2025 session/GET channels.
+            ReplayOptions replay{};
         };
 
         /// Express router; copy/mount it while the borrowed registry and config remain alive.
@@ -106,7 +118,7 @@ namespace mcp::server {
             /// Runs on the event loop after Origin validation; exceptions become 500 without credential logging.
             using Authorize = std::function<Authorization(const std::shared_ptr<express::Request>&)>;
 
-            /// Attach on the event loop after init; seals registration; empty authorize permits anonymous access.
+            /// Attach on the event loop after init; enables runtime registration notifications; empty authorize permits anonymous access.
             /// Retain server and config until this router and its operations have drained.
             Router(Server& server, Config& config, Authorize authorize = {}, RouterOptions options = {});
 

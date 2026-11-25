@@ -39,26 +39,14 @@
  * THE SOFTWARE.
  */
 
-#include "SseCommand.h"
+#pragma once
 
-#include "web/http/client/Request.h"
+namespace mcp {
+    enum class ProtocolEra { Initialization20251125, PerRequest20260728 };
+    inline constexpr const char* protocolVersion2026 = "2026-07-28";
+    inline constexpr const char* protocolVersion2025 = "2025-11-25";
+    inline constexpr const char* versionKey = "io.modelcontextprotocol/protocolVersion";
+    inline constexpr const char* capabilitiesKey = "io.modelcontextprotocol/clientCapabilities";
+    inline constexpr const char* subscriptionKey = "io.modelcontextprotocol/subscriptionId";
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#endif // DOXYGEN_SHOULD_SKIP_THIS
-
-namespace web::http::client::commands {
-
-    SseCommand::SseCommand(const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
-                           const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError)
-        : Super(onResponseReceived, onResponseParseError) {
-    }
-
-    SseCommand::~SseCommand() {
-    }
-
-    bool SseCommand::execute(const std::shared_ptr<MasterRequest>& request) {
-        return request->executeSse();
-    }
-
-} // namespace web::http::client::commands
+} // namespace mcp

@@ -175,3 +175,55 @@ target_link_libraries(
     McpMetadataTest PRIVATE snodec::mcp-server snodec-test-support
 )
 set_tests_properties(McpMetadataTest PROPERTIES LABELS "unit;mcp;metadata")
+
+snodec_add_test(McpRuntimeTest McpRuntimeTest.cpp)
+target_include_directories(McpRuntimeTest PRIVATE ${PROJECT_SOURCE_DIR})
+target_link_libraries(
+    McpRuntimeTest PRIVATE snodec::mcp-server snodec-test-support
+)
+set_tests_properties(
+    McpRuntimeTest PROPERTIES LABELS "unit;mcp;registration;subscriptions"
+)
+
+snodec_add_test(McpPaginationTest McpPaginationTest.cpp)
+target_include_directories(McpPaginationTest PRIVATE ${PROJECT_SOURCE_DIR})
+target_link_libraries(
+    McpPaginationTest PRIVATE snodec::mcp-server snodec-test-support
+)
+set_tests_properties(McpPaginationTest PROPERTIES LABELS "unit;mcp;pagination")
+
+snodec_add_test(McpLoggingTest McpLoggingTest.cpp)
+target_include_directories(McpLoggingTest PRIVATE ${PROJECT_SOURCE_DIR})
+target_link_libraries(
+    McpLoggingTest PRIVATE snodec::mcp-server snodec-test-support
+)
+set_tests_properties(McpLoggingTest PROPERTIES LABELS "unit;mcp;logging")
+
+snodec_add_test(McpTaskTest McpTaskTest.cpp)
+target_include_directories(McpTaskTest PRIVATE ${PROJECT_SOURCE_DIR})
+target_link_libraries(
+    McpTaskTest PRIVATE snodec::mcp-server snodec-test-support
+)
+set_tests_properties(McpTaskTest PROPERTIES LABELS "unit;mcp;tasks")
+
+snodec_add_test(McpReplayTest McpReplayTest.cpp)
+target_include_directories(McpReplayTest PRIVATE ${PROJECT_SOURCE_DIR})
+target_link_libraries(
+    McpReplayTest PRIVATE snodec::mcp-server-http snodec-test-support
+)
+set_tests_properties(
+    McpReplayTest PROPERTIES LABELS "unit;mcp;http;resumability"
+)
+
+snodec_add_test(McpClientTest McpClientTest.cpp)
+target_include_directories(McpClientTest PRIVATE ${PROJECT_SOURCE_DIR})
+target_link_libraries(
+    McpClientTest PRIVATE snodec::mcp-client snodec::mcp-server
+                          snodec-test-support
+)
+set_tests_properties(McpClientTest PROPERTIES LABELS "unit;mcp;client")
+
+snodec_add_test(McpHeadersTest McpHeadersTest.cpp)
+target_include_directories(McpHeadersTest PRIVATE ${PROJECT_SOURCE_DIR})
+target_link_libraries(McpHeadersTest PRIVATE mcp snodec-test-support)
+set_tests_properties(McpHeadersTest PROPERTIES LABELS "unit;mcp;http;headers")

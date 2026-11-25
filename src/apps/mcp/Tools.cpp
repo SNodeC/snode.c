@@ -47,7 +47,6 @@
 #include "mcp/server/Config.h"
 #include "mcp/server/Reply.h"
 #include "mcp/server/Request.h"
-#include "mcp/server/Results.h"
 #include "mcp/server/Server.h"
 #include "mcp/server/Types.h"
 #include "utils/CLI11.hpp"

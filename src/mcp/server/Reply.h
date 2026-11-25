@@ -79,6 +79,10 @@ namespace mcp::server {
             requires(!std::is_same_v<Result, CompletionResult>);
         /// Send progress on the event loop with the original typed token; no token is a no-op.
         void progress(Progress progress);
+        /// Materialize a negotiated modern task while retaining this asynchronous reply.
+        /// Legacy augmented calls are materialized before the handler runs.
+        Completion startTask(TaskOptions options = {})
+            requires(std::is_same_v<Result, ToolResult>);
 
     private:
         explicit Reply(std::shared_ptr<detail::Response> impl);

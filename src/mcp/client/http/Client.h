@@ -39,36 +39,48 @@
  * THE SOFTWARE.
  */
 
-#ifndef WEB_HTTP_CLIENT_COMMANDS_SSECOMMAND_H
-#define WEB_HTTP_CLIENT_COMMANDS_SSECOMMAND_H
-
-#include "web/http/client/RequestCommand.h"
-
-namespace web::http::client {
-    class Request;
-    class Response;
-} // namespace web::http::client
+#pragma once
+#include "web/http/legacy/in/Client.h"
+#include "web/http/tls/in/Client.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+#include <cmath>
+#endif
+namespace mcp::client {
+    class Mcp;
+}
 
-#include <string>
-
-#endif // DOXYGEN_SHOULD_SKIP_THIS
-
-namespace web::http::client::commands {
-
-    class SseCommand : public web::http::client::RequestCommand {
-        using Super = web::http::client::RequestCommand;
-
-    public:
-        SseCommand(const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
-                   const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError);
-
-        ~SseCommand() override;
-
-        bool execute(const std::shared_ptr<MasterRequest>& request) override;
+namespace mcp::client::http {
+    struct Options {
+        std::string path = "/mcp";
+        std::function<std::string()> bearerToken{};
+        std::function<void(const std::string&)> onError{};
     };
 
-} // namespace web::http::client::commands
+    /// A protocol-specific HTTP binding; owns the engine, one exchange per connection.
+    template <typename Transport>
+    class Client final {
+    public:
+        using SocketAddress = typename Transport::SocketAddress;
+        using Config = typename Transport::Config;
+        Client(const std::string& name, Mcp* protocol, Options options = {});
+        ~Client();
+        Client(const Client&) = delete;
+        Client& operator=(const Client&) = delete;
+        Client(Client&&) = delete;
+        Client& operator=(Client&&) = delete;
+        Config* getConfig() const;
+        void setPath(const std::string& path);
+        void start(const SocketAddress& address);
+        void stop();
 
-#endif // WEB_HTTP_CLIENT_COMMANDS_SSECOMMAND_H
+    private:
+        struct State;
+        std::shared_ptr<State> state;
+    };
+
+    using Http = Client<web::http::legacy::in::Client>;
+    using Https = Client<web::http::tls::in::Client>;
+} // namespace mcp::client::http
+extern template class mcp::client::http::Client<web::http::legacy::in::Client>;
+extern template class mcp::client::http::Client<web::http::tls::in::Client>;

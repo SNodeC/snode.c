@@ -42,9 +42,9 @@
 #include "SkeletonPreviewTool.h"
 
 #include "Tools.h"
+#include "mcp/Types.h"
 #include "mcp/server/Request.h"
 #include "mcp/server/Results.h"
-#include "mcp/server/Types.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

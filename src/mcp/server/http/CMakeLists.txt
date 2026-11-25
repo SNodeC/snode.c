@@ -37,7 +37,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-add_library(mcp-server-http SHARED Router.cpp Router.h)
+add_library(
+    mcp-server-http SHARED Router.cpp Router.h detail/Replay.cpp
+                           detail/Replay.h
+)
 add_library(snodec::mcp-server-http ALIAS mcp-server-http)
 target_link_libraries(mcp-server-http PUBLIC mcp-server http-server-express)
 set_target_properties(

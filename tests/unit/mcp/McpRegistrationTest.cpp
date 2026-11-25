@@ -180,13 +180,15 @@ int main(int argc, char* argv[]) {
     response = call("resources/read", {{"uri", "test://resource"}});
     test.expectTrue(response["result"]["contents"][0]["text"] == "exact bytes" && response["result"]["contents"][1]["blob"] == "AA==",
                     "typed resource preserves text and blob entries");
-    detail::Access::registry(server).seal();
-    detail::Access::registry(server).seal();
-    reject(
-        [&] {
-            server.tool({"later", {}, schema}, handler);
-        },
-        "tool later: registration: registration rejected: registry is sealed");
+    detail::Access::registry(server).attach();
+    detail::Access::registry(server).attach();
+    server.tool({"later", {}, schema}, handler);
+    response = call("tools/list");
+    test.expectTrue(response["result"]["tools"].size() == 2, "registration remains available after attachment");
+    test.expectTrue(server.remove(RegistrationKind::Tool, "later") && !server.remove(RegistrationKind::Tool, "later"),
+                    "runtime removal reports whether a registration existed");
+    response = call("tools/list");
+    test.expectTrue(response["result"]["tools"].size() == 1, "removed registration disappears from discovery");
     core::SNodeC::free();
 
     return test.processResult();

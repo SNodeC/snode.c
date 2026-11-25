@@ -57,7 +57,6 @@ namespace web::http::client {
         class SendHeaderCommand;
         class UpgradeCommand;
         class EndCommand;
-        class SseCommand;
     } // namespace commands
 
     namespace tools {
@@ -73,6 +72,7 @@ namespace web::http::client {
 #include <list>
 #include <memory>
 #include <string>
+#include <string_view>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -173,6 +173,12 @@ namespace web::http::client {
         bool send(const std::string& chunk,
                   const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
                   const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError);
+        /// Deliver SSE bodies incrementally after the HTTP transfer decoder.
+        bool stream(const std::string& body,
+                    const std::function<void(const std::shared_ptr<Response>&)>& onHeaders,
+                    const std::function<void(std::string_view)>& onData,
+                    const std::function<void()>& onComplete,
+                    const std::function<void(const std::string&)>& onError);
         bool upgrade(const std::string& url,
                      const std::string& protocols,
                      const std::function<void(bool)>& onUpgradeInitiate,
@@ -189,11 +195,6 @@ namespace web::http::client {
                  const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError);
 
     private:
-        bool requestEventSource(const std::string& url,
-                                const std::function<std::size_t()>& onServerSentEvent,
-                                const std::function<void()>& onOpen,
-                                const std::function<void()>& onError);
-
         bool initiate(const std::shared_ptr<MasterRequest>& request);
 
         friend class commands::SendFileCommand;
@@ -201,14 +202,12 @@ namespace web::http::client {
         friend class commands::SendHeaderCommand;
         friend class commands::UpgradeCommand;
         friend class commands::EndCommand;
-        friend class commands::SseCommand;
 
         bool executeSendFile(const std::string& file, const std::function<void(int)>& onStatus);
         bool executeUpgrade(const std::string& url, const std::string& protocols, const std::function<void(bool)>& onStatus);
         bool executeSendHeader();
         bool executeSendFragment(const char* chunk, std::size_t chunkLen);
         bool executeEnd();
-        bool executeSse();
 
         void requestPrepared(const std::shared_ptr<MasterRequest>& request);
         void requestDelivered();
@@ -227,6 +226,7 @@ namespace web::http::client {
 
         std::size_t contentLengthSent = 0;
         bool deliveryFailed = false;
+        bool streamResponse = false;
 
         std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)> onResponseReceived;
         std::function<void(const std::shared_ptr<Request>&, const std::string& message)> onResponseParseError;

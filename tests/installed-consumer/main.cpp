@@ -50,6 +50,12 @@
 #include <jsonrpc/SocketContext.h>
 #include <jsonrpc/client/SubProtocol.h>
 #include <jsonrpc/server/SubProtocol.h>
+#include <mcp/Protocol.h>
+#include <mcp/Results.h>
+#include <mcp/Schema.h>
+#include <mcp/client/Mcp.h>
+#include <mcp/client/Stdio.h>
+#include <mcp/client/http/Client.h>
 #include <mcp/server/Config.h>
 #include <mcp/server/Request.h>
 #include <mcp/server/ResourceTemplate.h>
@@ -181,6 +187,12 @@ static_assert(std::is_base_of_v<web::websocket::server::SubProtocol, jsonrpc::se
 static_assert(std::is_base_of_v<web::websocket::client::SubProtocol, jsonrpc::client::SubProtocol>);
 
 int main([[maybe_unused]] int argc, char* argv[]) {
+    mcp::client::Stdio child("installed-child", []() {
+        return new mcp::client::Mcp();
+    });
+    mcp::client::http::Http http("installed-http-client", new mcp::client::Mcp());
+    mcp::client::Mcp client;
+    const bool mcpClientReady = client.getProtocolEra() == mcp::ProtocolEra::PerRequest20260728;
     InstalledRpcContext rpc;
     rpc.onConnected();
     rpc.onMessage(R"({"jsonrpc":"2.0","id":"consumer","method":"missing"})");
@@ -215,7 +227,7 @@ int main([[maybe_unused]] int argc, char* argv[]) {
         });
         const int loop = core::SNodeC::start();
         ::close(pair[1]);
-        result = loop == 0 && attached == 1 && jsonrpcReady ? 0 : 1;
+        result = loop == 0 && attached == 1 && jsonrpcReady && mcpClientReady ? 0 : 1;
     }
 
     return result;

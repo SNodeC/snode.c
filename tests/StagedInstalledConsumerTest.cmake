@@ -103,3 +103,35 @@ if(NOT run_result EQUAL 0)
             "installed consumer execution failed\n${run_output}\n${run_error}"
     )
 endif()
+
+if(SNODEC_BUILD_APPS)
+    execute_process(
+        COMMAND
+            "${CMAKE_COMMAND}" -E env "${prefix}/bin/snodec-mcp-client"
+            --config-file /dev/null --quiet --server
+            "${SNODEC_MCP_STDIO_FIXTURE}" --server-arguments
+            "[\"--config-file\",\"/dev/null\",\"--log-console\",\"stderr\"]"
+            --command tools
+        RESULT_VARIABLE client_result
+        OUTPUT_VARIABLE client_output
+        ERROR_VARIABLE client_error
+        TIMEOUT 15
+    )
+    if(NOT client_result EQUAL 0 OR NOT client_output MATCHES "\"tools\"")
+        message(
+            FATAL_ERROR
+                "installed MCP client failed: ${client_result}\n${client_output}\n${client_error}"
+        )
+    endif()
+    foreach(license IN ITEMS json-schema-validator.LICENSE
+                             json-schema-metaschemas.LICENSE
+    )
+        if(NOT EXISTS
+           "${prefix}/${SNODEC_INSTALL_DATADIR}/doc/snodec/mcp/${license}"
+        )
+            message(
+                FATAL_ERROR "shared MCP dependency license missing: ${license}"
+            )
+        endif()
+    endforeach()
+endif()

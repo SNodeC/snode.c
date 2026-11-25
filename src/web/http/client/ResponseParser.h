@@ -70,7 +70,8 @@ namespace web::http::client {
                        const std::function<void()>& onResponseStart,
                        const std::function<void(Response&)>& onResponseParsed,
                        const std::function<void(int, const std::string&)>& onResponseParseError,
-                       const web::http::ParserLimits& limits = {});
+                       const web::http::ParserLimits& limits = {},
+                       const std::function<bool()>& streaming = {});
 
         ResponseParser(const ResponseParser&) = delete;
         ResponseParser& operator=(const ResponseParser&) = delete;
@@ -88,6 +89,7 @@ namespace web::http::client {
         void parseError(int code, const std::string& reason) override;
 
         Response response;
+        std::function<bool()> streaming;
 
         // Callbacks
         std::function<void()> onResponseStart;

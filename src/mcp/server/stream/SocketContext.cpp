@@ -44,6 +44,7 @@
 #include "Log.h"
 #include "core/socket/stream/SocketConnection.h"
 #include "core/socket/stream/SocketContext.h"
+#include "mcp/Types.h"
 #include "mcp/server/Config.h"
 #include "mcp/server/Mcp.h"
 #include "mcp/server/Types.h"
@@ -63,7 +64,13 @@ namespace mcp::server::stream {
     SocketContext::SocketContext(core::socket::stream::SocketConnection* connection, Server& server, Config& config)
         : SocketContext(connection,
                         config,
-                        new Mcp(detail::Access::registry(server), config.getDeadline(), {}, {}, {}, config.getMaximumMessageBytes())) {
+                        new Mcp(detail::Access::registry(server),
+                                config.getDeadline(),
+                                {},
+                                {},
+                                {},
+                                config.getMaximumMessageBytes(),
+                                config.getPageSize())) {
     }
 
     SocketContext::SocketContext(core::socket::stream::SocketConnection* connection, Config& config, Mcp* protocol)

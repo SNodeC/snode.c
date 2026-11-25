@@ -42,6 +42,7 @@
 #ifndef APPS_MCP_REVIEWLABELTOOL_H
 #define APPS_MCP_REVIEWLABELTOOL_H
 
+#include "mcp/Types.h"
 #include "mcp/server/Reply.h"
 #include "mcp/server/Tool.h"
 #include "mcp/server/Types.h"

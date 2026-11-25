@@ -43,6 +43,7 @@
 #define MCP_SERVER_MCP_H
 
 #include "jsonrpc/JsonRpc.h"
+#include "mcp/Types.h"
 #include "mcp/server/Types.h"
 #include "mcp/server/detail/Server.h"
 #include "utils/Timeval.h"
@@ -55,6 +56,10 @@
 #include <optional>
 #include <string>
 #endif // DOXYGEN_SHOULD_SKIP_THIS
+
+namespace mcp {
+    enum class ProtocolEra;
+}
 
 namespace mcp::server {
 
@@ -69,7 +74,8 @@ namespace mcp::server {
             std::shared_ptr<detail::Channel> channel = {},
             std::optional<detail::ProtocolEra> era = {},
             std::optional<Principal> principal = {},
-            std::size_t maximumMessageSize = 1024 * 1024);
+            std::size_t maximumMessageSize = 1024 * 1024,
+            std::size_t pageSize = 128);
         ~Mcp() final;
 
         void onConnected() final;
@@ -77,6 +83,7 @@ namespace mcp::server {
         bool onSignal(int sig) final;
         std::shared_ptr<detail::Response> receive(const Json& request, detail::Response::Output output);
         void deliver(const std::string& message);
+        void sendTaskMessage(const Json& value);
         Json wire(Json value) const;
         static Json wire(Json value, detail::ProtocolEra era);
         bool respond(const Json& message);

@@ -42,12 +42,14 @@
 #ifndef MCP_SERVER_SERVER_H
 #define MCP_SERVER_SERVER_H
 
+#include "mcp/Types.h"
 #include "mcp/server/Prompt.h" // IWYU pragma: export
 #include "mcp/server/Reply.h"
 #include "mcp/server/Request.h"
 #include "mcp/server/Resource.h"         // IWYU pragma: export
 #include "mcp/server/ResourceTemplate.h" // IWYU pragma: export
 #include "mcp/server/Tool.h"             // IWYU pragma: export
+#include "mcp/server/Types.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -59,7 +61,6 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace mcp::server {
-    struct Implementation;
 
     namespace detail {
         class Access; ///< Module-private registry access.
@@ -98,25 +99,33 @@ namespace mcp::server {
 
         Server(const Server&) = delete; ///< Stable owner identity; share through a reference instead.
 
+        /// Emit bounded legacy-session logging on the event loop; modern peers receive nothing.
+        /// Applications must omit credentials and private data from log payloads.
+        Server* log(LogLevel level, Json data, const std::string& logger = {});
+
         /// Report a URI change on the event loop; only explicitly subscribed live consumers are notified.
         /// Safe inside handlers; the call does not retain the URI and does not read the resource.
         Server* resourceUpdated(const std::string& uri);
 
-        /// Register transactionally before attachment on the event loop; throws RegistrationError; returns this.
+        /// Remove a registration on the event loop; existing replies retain their handler.
+        /// Returns false if absent. Resource templates use their URI template as identifier.
+        bool remove(RegistrationKind kind, const std::string& identifier);
+
+        /// Register transactionally on the event loop; throws RegistrationError; returns this.
         Server* tool(ToolDefinition definition, ToolHandler handler);
-        /// Retain shared ownership and validate transactionally before attachment; returns this.
+        /// Retain shared ownership and validate transactionally on the event loop; returns this.
         Server* tool(std::shared_ptr<Tool> handler);
-        /// Register transactionally before attachment on the event loop; throws RegistrationError; returns this.
+        /// Register transactionally on the event loop; throws RegistrationError; returns this.
         Server* resource(ResourceDefinition definition, ResourceHandler handler);
-        /// Retain shared ownership and validate transactionally before attachment; returns this.
+        /// Retain shared ownership and validate transactionally on the event loop; returns this.
         Server* resource(std::shared_ptr<Resource> handler);
-        /// Validate and retain a template subclass before attachment; named errors are transactional.
+        /// Validate and retain a template subclass on the event loop; named errors are transactional.
         Server* resourceTemplate(std::shared_ptr<ResourceTemplate> handler);
         /// Convenience adapter over the same template registry; callbacks run on the event loop.
         Server* resourceTemplate(ResourceTemplateDefinition definition, ResourceHandler handler);
-        /// Register transactionally before attachment on the event loop; throws RegistrationError; returns this.
+        /// Register transactionally on the event loop; throws RegistrationError; returns this.
         Server* prompt(PromptDefinition definition, PromptHandler handler);
-        /// Retain shared ownership and validate transactionally before attachment; returns this.
+        /// Retain shared ownership and validate transactionally on the event loop; returns this.
         Server* prompt(std::shared_ptr<Prompt> handler);
 
     private:

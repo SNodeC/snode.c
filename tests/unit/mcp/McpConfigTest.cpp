@@ -66,15 +66,17 @@ int main() {
     Root root;
     mcp::server::Config config(&root);
     test.expectTrue(config.getMaximumMessageBytes() == 1048576 && config.getMaximumOutputBytes() == 1048576 &&
-                        config.getDeadline().getMsd() == 30000 && config.getAllowedOrigins().empty(),
+                        config.getDeadline().getMsd() == 30000 && config.getPageSize() == 128 && config.getAllowedOrigins().empty(),
                     "unchanged CLI defaults");
     test.expectTrue(config.setMaximumMessageBytes(1024)
                             ->setMaximumOutputBytes(4096)
                             ->setDeadline(utils::Timeval(1.25))
+                            ->setPageSize(2)
                             ->setAllowedOrigins({"https://one.test"}) == &config,
                     "chainable typed defaults");
     test.expectTrue(config.getMaximumMessageBytes() == 1024 && config.getMaximumOutputBytes() == 4096 &&
-                        config.getDeadline().getMsd() == 1250 && config.getAllowedOrigins() == std::vector<std::string>{"https://one.test"},
+                        config.getDeadline().getMsd() == 1250 && config.getPageSize() == 2 &&
+                        config.getAllowedOrigins() == std::vector<std::string>{"https://one.test"},
                     "setters update effective defaults before parse");
     const auto invalid = [&](const std::function<void()>& action) {
         bool rejected = false;
@@ -85,6 +87,12 @@ int main() {
         }
         test.expectTrue(rejected, "invalid setter default rejected by the existing option validator");
     };
+    invalid([&] {
+        config.setPageSize(0);
+    });
+    invalid([&] {
+        config.setPageSize(129);
+    });
     invalid([&] {
         config.setMaximumMessageBytes(0);
     });

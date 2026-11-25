@@ -42,6 +42,7 @@
 #pragma once
 
 #include "core/timer/Timer.h"
+#include "mcp/Protocol.h"
 #include "mcp/server/Server.h"
 #include "mcp/server/detail/UriTemplate.h"
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -66,16 +67,18 @@ namespace mcp::server {
 
 namespace mcp::server::detail {
 
-    enum class ProtocolEra { Initialization20251125, PerRequest20260728 };
+    using mcp::capabilitiesKey;
+    using mcp::ProtocolEra;
+    using mcp::protocolVersion2025;
+    using mcp::protocolVersion2026;
+    using mcp::subscriptionKey;
+    using mcp::versionKey;
     enum class CachePolicy { None, Private };
     enum class SubscriptionClosure { Complete, Cancel };
-    inline constexpr const char* protocolVersion2026 = "2026-07-28";
-    inline constexpr const char* protocolVersion2025 = "2025-11-25";
-    inline constexpr const char* versionKey = "io.modelcontextprotocol/protocolVersion";
-    inline constexpr const char* capabilitiesKey = "io.modelcontextprotocol/clientCapabilities";
-    inline constexpr const char* subscriptionKey = "io.modelcontextprotocol/subscriptionId";
 
     struct Response;
+    struct Task;
+    class Tasks;
 
     struct Channel {
         struct Input {
@@ -84,6 +87,10 @@ namespace mcp::server::detail {
             Json requestedSchema;
         };
 
+        bool log(LogLevel level, Json data, const std::string& logger);
+        LogLevel loggingLevel = LogLevel::Info;
+        utils::Timeval logReset;
+        std::size_t logCount = 0;
         bool respond(const Json& message);
         bool complete(const Json& message);
         void forget(const Response& response);
@@ -127,6 +134,8 @@ namespace mcp::server::detail {
         std::optional<std::string> requestState;
         std::weak_ptr<Channel> channel;
         std::function<void()> resume;
+        std::function<Completion(TaskOptions)> startTask;
+        std::weak_ptr<Task> task;
         Mcp* protocol = nullptr;
         std::shared_ptr<jsonrpc::JsonRpcContext> protocolOwner;
         Json id;
@@ -171,22 +180,29 @@ namespace mcp::server {
         using Handler =
             std::variant<std::shared_ptr<Tool>, std::shared_ptr<Resource>, std::shared_ptr<Prompt>, std::shared_ptr<ResourceTemplate>>;
 
-        void seal();
+        Impl();
+        ~Impl();
+        void attach();
+        bool remove(RegistrationKind kind, const std::string& identifier);
         void add(RegistrationKind kind, Json description, Handler handler);
         std::shared_ptr<detail::Access::Response> dispatch(const Json& request,
                                                            detail::ProtocolEra era,
                                                            detail::Access::Response::Output output,
                                                            const utils::Timeval& timeout = utils::Timeval(30),
                                                            std::optional<Principal> principal = {},
-                                                           std::shared_ptr<detail::Channel> channel = {}) const;
+                                                           std::shared_ptr<detail::Channel> channel = {},
+                                                           std::size_t pageSize = 128) const;
         std::shared_ptr<detail::Access::Response> dispatchRequest(const jsonrpc::messages::Request& request,
                                                                   detail::ProtocolEra era,
                                                                   detail::Access::Response::Output output,
                                                                   const utils::Timeval& timeout = utils::Timeval(30),
                                                                   std::optional<Principal> principal = {},
                                                                   std::shared_ptr<detail::Channel> channel = {},
-                                                                  Mcp* protocol = nullptr) const;
+                                                                  Mcp* protocol = nullptr,
+                                                                  std::size_t pageSize = 128) const;
+        Json toolInputSchema(const std::string& name) const;
         void resourceUpdated(const std::string& uri);
+        void log(LogLevel level, const Json& data, const std::string& logger);
         static bool checkSchema(const Json& schema, std::string& error);
         static bool validate(const Json& schema, const Json& value, std::string& error);
         static bool validRequest(const Json& request);
@@ -205,11 +221,20 @@ namespace mcp::server {
         };
 
         Json capabilities() const;
+        Json
+        paginate(const std::string& method, const Json& params, const Json& list, const std::string& field, std::size_t pageSize) const;
+        void changed(RegistrationKind kind);
+        void flushChanges();
+        void taskChanged(const std::shared_ptr<detail::Task>& task);
         const Entry* resolveResource(const std::string& uri, std::map<std::string, std::string>& variables) const;
 
+        std::shared_ptr<detail::Tasks> tasks;
         Json serverInfo;
         std::string instructions;
-        bool sealed = false;
+        std::uint64_t revision = 0;
+        bool attached = false;
+        std::set<RegistrationKind> changes;
+        core::timer::Timer changeTimer;
         mutable utils::Timeval completionReset;
         mutable std::size_t completionCount = 0;
         std::map<std::string, Entry> entries;

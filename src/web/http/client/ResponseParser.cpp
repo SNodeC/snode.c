@@ -59,8 +59,10 @@ namespace web::http::client {
                                    const std::function<void()>& onResponseStart,
                                    const std::function<void(Response&)>& onResponseParsed,
                                    const std::function<void(int, const std::string&)>& onResponseParseError,
-                                   const web::http::ParserLimits& limits)
+                                   const web::http::ParserLimits& limits,
+                                   const std::function<bool()>& streaming)
         : Parser(socketContext, HTTPCompliance::RFC2616 | HTTPCompliance::RFC7230, limits)
+        , streaming(streaming)
         , onResponseStart(onResponseStart)
         , onResponseParsed(onResponseParsed)
         , onResponseParseError(onResponseParseError) {
@@ -108,62 +110,61 @@ namespace web::http::client {
     void ResponseParser::analyzeHeader() {
         Parser::analyzeHeader();
 
-        if (parserState == Parser::ParserState::ERROR) {
-            return;
-        }
-
-        if (headers.contains("Connection")) {
-            const std::string& connection = headers["Connection"];
-            if (httputils::headerHasToken(connection, "close")) {
-                response.connectionState = ConnectionState::Close;
-            } else if (httputils::headerHasToken(connection, "keep-alive")) {
-                response.connectionState = ConnectionState::Keep;
-            }
-        }
-        if (headers.contains("Set-Cookie")) {
-            std::string cookiesLine = headers["Set-Cookie"];
-
-            while (!cookiesLine.empty()) {
-                std::string cookieLine;
-                std::tie(cookieLine, cookiesLine) = httputils::str_split(cookiesLine, ',');
-
-                std::string cookieOptions;
-                std::string cookie;
-                std::tie(cookie, cookieOptions) = httputils::str_split(cookieLine, ';');
-
-                std::string cookieName;
-                std::string cookieValue;
-                std::tie(cookieName, cookieValue) = httputils::str_split(cookie, '=');
-
-                httputils::str_trimm(cookieName);
-                httputils::str_trimm(cookieValue);
-
-                std::map<std::string, CookieOptions>::iterator cookieElement;
-                bool inserted = false;
-                std::tie(cookieElement, inserted) = response.cookies.insert({cookieName, CookieOptions(cookieValue)});
-
-                while (!cookieOptions.empty()) {
-                    std::string option;
-                    std::tie(option, cookieOptions) = httputils::str_split(cookieOptions, ';');
-
-                    std::string optionName;
-                    std::string optionValue;
-                    std::tie(optionName, optionValue) = httputils::str_split(option, '=');
-
-                    httputils::str_trimm(optionName);
-                    httputils::str_trimm(optionValue);
-
-                    cookieElement->second.setOption(optionName, optionValue);
+        if (parserState != Parser::ParserState::ERROR) {
+            if (headers.contains("Connection")) {
+                const std::string& connection = headers["Connection"];
+                if (httputils::headerHasToken(connection, "close")) {
+                    response.connectionState = ConnectionState::Close;
+                } else if (httputils::headerHasToken(connection, "keep-alive")) {
+                    response.connectionState = ConnectionState::Keep;
                 }
             }
+            if (headers.contains("Set-Cookie")) {
+                std::string cookiesLine = headers["Set-Cookie"];
 
-            Parser::headers.erase("Set-Cookie");
-        }
+                while (!cookiesLine.empty()) {
+                    std::string cookieLine;
+                    std::tie(cookieLine, cookiesLine) = httputils::str_split(cookiesLine, ',');
 
-        if (transferEncoding == TransferEncoding::Identity && contentLength == 0) {
-            parsingFinished();
-        } else {
-            parserState = Parser::ParserState::BODY;
+                    std::string cookieOptions;
+                    std::string cookie;
+                    std::tie(cookie, cookieOptions) = httputils::str_split(cookieLine, ';');
+
+                    std::string cookieName;
+                    std::string cookieValue;
+                    std::tie(cookieName, cookieValue) = httputils::str_split(cookie, '=');
+
+                    httputils::str_trimm(cookieName);
+                    httputils::str_trimm(cookieValue);
+
+                    std::map<std::string, CookieOptions>::iterator cookieElement;
+                    bool inserted = false;
+                    std::tie(cookieElement, inserted) = response.cookies.insert({cookieName, CookieOptions(cookieValue)});
+
+                    while (!cookieOptions.empty()) {
+                        std::string option;
+                        std::tie(option, cookieOptions) = httputils::str_split(cookieOptions, ';');
+
+                        std::string optionName;
+                        std::string optionValue;
+                        std::tie(optionName, optionValue) = httputils::str_split(option, '=');
+
+                        httputils::str_trimm(optionName);
+                        httputils::str_trimm(optionValue);
+
+                        cookieElement->second.setOption(optionName, optionValue);
+                    }
+                }
+
+                Parser::headers.erase("Set-Cookie");
+            }
+
+            if ((streaming && streaming() && web::http::ciContains(headers["Content-Type"], "text/event-stream")) ||
+                (transferEncoding == TransferEncoding::Identity && contentLength == 0)) {
+                parsingFinished();
+            } else {
+                parserState = Parser::ParserState::BODY;
+            }
         }
     }
 

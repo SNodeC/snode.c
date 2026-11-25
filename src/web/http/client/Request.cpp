@@ -48,6 +48,9 @@
 #include "web/http/client/SemanticLog.h"
 #include "web/http/client/SocketContext.h"
 #include "web/http/client/SocketContextUpgradeFactorySelector.h"
+#include "web/http/decoder/Chunked.h"
+#include "web/http/decoder/HTTP10Response.h"
+#include "web/http/decoder/Identity.h"
 
 //
 
@@ -55,7 +58,6 @@
 #include "commands/SendFileCommand.h"
 #include "commands/SendFragmentCommand.h"
 #include "commands/SendHeaderCommand.h"
-#include "commands/SseCommand.h"
 #include "commands/UpgradeCommand.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -273,6 +275,7 @@ namespace web::http::client {
         , requestCommands(std::move(request.requestCommands))
         , contentLengthSent(request.contentLengthSent)
         , deliveryFailed(request.deliveryFailed)
+        , streamResponse(request.streamResponse)
         , onResponseReceived(std::move(request.onResponseReceived))
         , onResponseParseError(std::move(request.onResponseParseError))
         , socketContext(request.socketContext)
@@ -304,6 +307,7 @@ namespace web::http::client {
         contentLength = 0;
         contentLengthSent = 0;
         deliveryFailed = false;
+        streamResponse = false;
         connectionState = ConnectionState::Default;
     }
 
@@ -437,53 +441,60 @@ namespace web::http::client {
         return isConnected();
     }
 
-    bool MasterRequest::requestEventSource(const std::string& url,
-                                           const std::function<std::size_t()>& onServerSentEvent,
-                                           const std::function<void()>& onOpen,
-                                           const std::function<void()>& onError) {
-        if (isConnected()) {
-            const std::shared_ptr<MasterRequest> newRequest = std::make_shared<MasterRequest>(std::move(*this));
-
-            newRequest->url = url;
-            newRequest->httpMajor = 1;
-            newRequest->httpMinor = 1;
-
-            newRequest->set("Connection", "keep-alive", true);
-            newRequest->set("Accept", "text/event-stream", true);
-            newRequest->set("Cache-Control", "no-cache", true);
-
-            newRequest->sendHeader();
-
-            newRequest->requestCommands.push_back(new commands::SseCommand(
-                [masterRequest = this->masterRequest, onServerSentEvent, onOpen, onError](const std::shared_ptr<Request>& request,
-                                                                                          const std::shared_ptr<Response>& response) {
-                    if (!masterRequest.expired() && masterRequest.lock()->isConnected()) {
-                        if (web::http::ciContains(response->headers["Content-Type"], "text/event-stream") &&
-                            web::http::ciContains(request->header("Accept"), "text/event-stream")) {
-                            masterRequest.lock()->getSocketContext()->setSseEventReceiver(onServerSentEvent);
-
-                            onOpen();
+    bool MasterRequest::stream(const std::string& body,
+                               const std::function<void(const std::shared_ptr<Response>&)>& onHeaders,
+                               const std::function<void(std::string_view)>& onData,
+                               const std::function<void()>& onComplete,
+                               const std::function<void(const std::string&)>& onError) {
+        streamResponse = true;
+        const std::weak_ptr<MasterRequest> owner = masterRequest;
+        const bool queued = send(
+            body,
+            [owner, onHeaders, onData, onComplete, onError](const std::shared_ptr<Request>&, const std::shared_ptr<Response>& response) {
+                onHeaders(response);
+                if (const auto request = owner.lock(); request && request->isConnected()) {
+                    auto* context = request->getSocketContext();
+                    if (web::http::ciContains(response->headers["Content-Type"], "text/event-stream")) {
+                        std::shared_ptr<web::http::ContentDecoder> decoder;
+                        const bool identity = !web::http::ciContains(response->headers["Transfer-Encoding"], "chunked") &&
+                                              response->headers.contains("Content-Length");
+                        if (web::http::ciContains(response->headers["Transfer-Encoding"], "chunked")) {
+                            decoder = std::make_shared<web::http::decoder::Chunked>(context);
+                        } else if (identity) {
+                            decoder =
+                                std::make_shared<web::http::decoder::Identity>(context, std::stoull(response->headers["Content-Length"]));
                         } else {
-                            masterRequest.lock()->getSocketContext()->close();
-
-                            onError();
+                            decoder = std::make_shared<web::http::decoder::HTTP10Response>(context, 8 * 1024 * 1024);
                         }
+                        context->setSseEventReceiver([owner, decoder, identity, onData, onComplete, onError]() {
+                            const std::size_t consumed = decoder->read();
+                            if (!identity || decoder->isComplete()) {
+                                const auto data = decoder->getContent();
+                                if (!data.empty()) {
+                                    onData(std::string_view(data.data(), data.size()));
+                                }
+                            }
+                            if (const auto active = owner.lock(); active && active->isConnected()) {
+                                if (decoder->isError()) {
+                                    onError("Invalid or oversized HTTP stream body");
+                                    active->getSocketContext()->close();
+                                } else if (decoder->isComplete()) {
+                                    onComplete();
+                                    active->getSocketContext()->close();
+                                }
+                            }
+                            return consumed;
+                        });
+                    } else {
+                        onData(std::string_view(response->body.data(), response->body.size()));
+                        onComplete();
                     }
-                },
-                [masterRequest = this->masterRequest, onError]([[maybe_unused]] const std::shared_ptr<Request>& request,
-                                                               const std::string& status) {
-                    if (!masterRequest.expired() && masterRequest.lock()->isConnected()) {
-                        semantic::httpClientLog(*masterRequest.lock()->getSocketContext()->getSocketConnection()).debug()
-                            << "error in response: " << status;
-                        masterRequest.lock()->getSocketContext()->close();
-                        onError();
-                    }
-                }));
-
-            requestPrepared(newRequest);
-        }
-
-        return isConnected();
+                }
+            },
+            [onError](const std::shared_ptr<Request>&, const std::string& error) {
+                onError(error);
+            });
+        return queued;
     }
 
     bool MasterRequest::sendFile(
@@ -667,10 +678,6 @@ namespace web::http::client {
     }
 
     bool MasterRequest::executeEnd() {
-        return true;
-    }
-
-    bool MasterRequest::executeSse() {
         return true;
     }
 
