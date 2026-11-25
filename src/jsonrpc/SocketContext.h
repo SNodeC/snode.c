@@ -82,6 +82,7 @@ namespace jsonrpc {
 
     protected:
         void sendMessage(const std::string& message) override;
+        void end() override;
 
     private:
         void onReadError(int error) final;
@@ -91,7 +92,6 @@ namespace jsonrpc {
         std::size_t onReceivedFromPeer() final;
         void onDisconnected() final;
         bool onSignal(int sig) final;
-        void end() final;
         void consume(std::string_view bytes);
         void parseHeader();
         void framingError();

@@ -46,6 +46,7 @@
 #include "core/socket/stream/SocketConnection.h"
 #include "core/socket/stream/SocketContextFactory.h"
 #include "core/socket/stream/stdio/DescriptorOwnership.h"
+#include "core/socket/stream/stdio/SocketEndpoint.h"
 #include "core/timer/Timer.h"
 #include "jsonrpc/SocketContext.h"
 #include "mcp/client/Mcp.h"
@@ -60,7 +61,9 @@
 #include <cerrno>
 #include <csignal>
 #include <fcntl.h>
+#include <functional>
 #include <initializer_list>
+#include <memory>
 #include <optional>
 #include <spawn.h>
 #include <sys/syscall.h>
@@ -78,18 +81,42 @@ extern char** environ;
 
 namespace mcp::client {
     namespace {
+        class Context final : public jsonrpc::SocketContext {
+        public:
+            using Super = jsonrpc::SocketContext;
+
+            Context(core::socket::stream::SocketConnection* connection, Mcp* protocol, std::function<void()> onEnd)
+                : Super(connection, protocol)
+                , onEnd(std::move(onEnd)) {
+            }
+
+            ~Context() final;
+
+            void end() final {
+                Super::end();
+                onEnd();
+            }
+
+        private:
+            std::function<void()> onEnd;
+        };
+
+        Context::~Context() = default;
+
         class Factory final : public core::socket::stream::SocketContextFactory {
         public:
-            explicit Factory(Stdio::Creator creator)
-                : creator(std::move(creator)) {
+            Factory(Stdio::Creator creator, std::function<void()> onEnd)
+                : creator(std::move(creator))
+                , onEnd(std::move(onEnd)) {
             }
 
             core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* connection) final {
-                return new jsonrpc::SocketContext(connection, creator());
+                return new Context(connection, creator(), onEnd);
             }
 
         private:
             Stdio::Creator creator;
+            std::function<void()> onEnd;
         };
 
         void closeFd(int& fd) {
@@ -100,7 +127,7 @@ namespace mcp::client {
     } // namespace
 
     struct Stdio::State : std::enable_shared_from_this<State> {
-        using Endpoint = net::stdio::stream::SocketEndpoint<Factory, Creator>;
+        using Endpoint = net::stdio::stream::SocketEndpoint<Factory, Creator, std::function<void()>>;
 
         class Reaper final : public core::eventreceiver::ReadEventReceiver {
         public:
@@ -165,10 +192,18 @@ namespace mcp::client {
             pid_t pid;
         };
 
-        State(const std::string& name, Creator creator)
-            : endpoint(name, std::move(creator)) {
-            endpoint.getConfig()->Local::setDescriptorOwnership(net::stdio::config::DescriptorOwnership::TAKE);
-            endpoint.getConfig()->net::config::ConfigInstance::forceUnrequired();
+        explicit State(StdioOptions options)
+            : options(std::move(options)) {
+        }
+
+        void init(const std::string& name, Creator creator) {
+            endpoint = std::make_unique<Endpoint>(name, std::move(creator), [weak = weak_from_this()] {
+                if (const auto self = weak.lock()) {
+                    self->stop();
+                }
+            });
+            endpoint->getConfig()->Local::setDescriptorOwnership(net::stdio::config::DescriptorOwnership::TAKE);
+            endpoint->getConfig()->net::config::ConfigInstance::forceUnrequired();
         }
 
         ~State() {
@@ -179,18 +214,25 @@ namespace mcp::client {
 
         void stop() {
             if (connection != nullptr) {
-                connection->close();
+                connection->shutdownWrite();
             }
             if (reaper != nullptr && !stopping) {
                 stopping = true;
-                reaper->terminate(SIGTERM);
                 killTimer = core::timer::Timer::singleshotTimer(
                     [weak = weak_from_this()]() {
                         if (const auto self = weak.lock(); self && self->reaper != nullptr) {
-                            self->reaper->terminate(SIGKILL);
+                            auto running = std::move(self->killTimer);
+                            self->reaper->terminate(SIGTERM);
+                            self->killTimer = core::timer::Timer::singleshotTimer(
+                                [weak]() {
+                                    if (const auto current = weak.lock(); current && current->reaper != nullptr) {
+                                        current->reaper->terminate(SIGKILL);
+                                    }
+                                },
+                                self->options.terminateGrace);
                         }
                     },
-                    utils::Timeval(1));
+                    options.shutdownGrace);
             }
             stopping = true;
         }
@@ -298,19 +340,19 @@ namespace mcp::client {
                         input = std::exchange(fds[2], -1);
                         output = std::exchange(fds[1], -1);
                         stopping = false;
-                        endpoint.setOnConnect(
+                        endpoint->setOnConnect(
                             [weak = weak_from_this()](Endpoint::SocketConnection* active) {
                                 if (const auto self = weak.lock()) {
                                     self->connection = active;
                                     self->input = -1;
                                     self->output = -1;
                                     if (self->stopping) {
-                                        active->close();
+                                        active->shutdownWrite();
                                     }
                                 }
                             },
                             true);
-                        endpoint.setOnDisconnect(
+                        endpoint->setOnDisconnect(
                             [weak = weak_from_this()](Endpoint::SocketConnection*) {
                                 if (const auto self = weak.lock()) {
                                     self->connection = nullptr;
@@ -319,15 +361,15 @@ namespace mcp::client {
                                 }
                             },
                             true);
-                        endpoint.attach(net::stdio::SocketAddress(input, output),
-                                        [self = shared_from_this()](const auto&, const auto& status) {
-                                            if (status != core::socket::State::OK) {
-                                                closeFd(self->input);
-                                                closeFd(self->output);
-                                                self->stop();
-                                            }
-                                            self->notifyExit();
-                                        });
+                        endpoint->attach(net::stdio::SocketAddress(input, output),
+                                         [self = shared_from_this()](const auto&, const auto& status) {
+                                             if (status != core::socket::State::OK) {
+                                                 closeFd(self->input);
+                                                 closeFd(self->output);
+                                                 self->stop();
+                                             }
+                                             self->notifyExit();
+                                         });
                     }
                 }
             }
@@ -339,7 +381,8 @@ namespace mcp::client {
             }
         }
 
-        Endpoint endpoint;
+        std::unique_ptr<Endpoint> endpoint;
+        StdioOptions options;
         ExitHandler onExit;
         Reaper* reaper = nullptr;
         std::optional<int> pendingExit;
@@ -366,8 +409,9 @@ namespace mcp::client {
         }
     }
 
-    Stdio::Stdio(const std::string& name, Creator creator)
-        : state(std::make_shared<State>(name, std::move(creator))) {
+    Stdio::Stdio(const std::string& name, Creator creator, StdioOptions options)
+        : state(std::make_shared<State>(std::move(options))) {
+        state->init(name, std::move(creator));
     }
 
     Stdio::~Stdio() {

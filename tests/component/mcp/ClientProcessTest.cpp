@@ -52,11 +52,41 @@
 #include <memory>
 #include <sys/wait.h>
 #endif
+namespace {
+    class Protocol final : public mcp::client::Mcp {
+    public:
+        using Super = mcp::client::Mcp;
+
+        explicit Protocol(bool shutdown)
+            : shutdown(shutdown) {
+        }
+
+        ~Protocol() final;
+
+        void onConnected() final {
+            Super::onConnected();
+            if (shutdown) {
+                core::timer::Timer::singleshotTimer(
+                    [this] {
+                        disconnect();
+                    },
+                    utils::Timeval(.05));
+            }
+        }
+
+    private:
+        bool shutdown;
+    };
+
+    Protocol::~Protocol() = default;
+} // namespace
+
 int main(int argc, char* argv[]) {
     tests::support::TestResult test;
     unsigned exits = 0;
-    mcp::client::Stdio child("child-lifecycle", []() {
-        return new mcp::client::Mcp();
+    bool shutdown = false;
+    mcp::client::Stdio child("child-lifecycle", [&shutdown]() {
+        return new Protocol(shutdown);
     });
     auto transient = std::make_unique<mcp::client::Stdio>("pending-child", []() {
         return new mcp::client::Mcp();
@@ -76,12 +106,8 @@ int main(int argc, char* argv[]) {
             child.start({"/bin/true"}, exited);
         } else if (exits == 2) {
             test.expectTrue(WIFEXITED(status) && WEXITSTATUS(status) == 0, "early child EOF is reaped exactly once");
+            shutdown = true;
             child.start({"/bin/sleep", "30"}, exited);
-            core::timer::Timer::singleshotTimer(
-                [&child]() {
-                    child.stop();
-                },
-                utils::Timeval(0.05));
         } else {
             test.expectTrue(WIFSIGNALED(status) && WTERMSIG(status) == SIGTERM,
                             "teardown terminates and reaps a child with a reset signal mask");

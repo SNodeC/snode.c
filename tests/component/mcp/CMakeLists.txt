@@ -244,3 +244,17 @@ set_tests_properties(
     McpTaskStdioLingerTest PROPERTIES LABELS "mcp;component;stdio;tasks"
                                       TIMEOUT 10
 )
+
+if(TARGET snodec-mcp-client AND TARGET snodec-dev-stdio)
+    add_test(
+        NAME McpClientGracefulShutdownTest
+        COMMAND
+            ${MCP_PYTHON} -B
+            ${CMAKE_CURRENT_SOURCE_DIR}/graceful_shutdown_test.py
+            $<TARGET_FILE:snodec-mcp-client> $<TARGET_FILE:snodec-dev-stdio>
+    )
+    set_tests_properties(
+        McpClientGracefulShutdownTest
+        PROPERTIES LABELS "mcp;component;client;stdio;lifecycle" TIMEOUT 15
+    )
+endif()
