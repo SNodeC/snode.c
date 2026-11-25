@@ -127,21 +127,7 @@ namespace mcp::client {
             }
 
         private:
-            ~Reaper() final {
-                ::close(fd);
-                if (pid > 0) {
-                    ::kill(pid, SIGKILL);
-                    int status = 0;
-                    pid_t result = 0;
-                    do {
-                        result = ::waitpid(pid, &status, 0);
-                    } while (result < 0 && errno == EINTR);
-                }
-                if (state->reaper == this) {
-                    state->reaper = nullptr;
-                    state->killTimer.cancel();
-                }
-            }
+            ~Reaper() final;
 
             void destruct() final {
                 delete this;
@@ -204,7 +190,7 @@ namespace mcp::client {
                             self->reaper->terminate(SIGKILL);
                         }
                     },
-                    utils::Timeval{1});
+                    utils::Timeval(1));
             }
             stopping = true;
         }
@@ -363,6 +349,22 @@ namespace mcp::client {
         core::timer::Timer killTimer;
         bool stopping = false;
     };
+
+    Stdio::State::Reaper::~Reaper() {
+        ::close(fd);
+        if (pid > 0) {
+            ::kill(pid, SIGKILL);
+            int status = 0;
+            pid_t result = 0;
+            do {
+                result = ::waitpid(pid, &status, 0);
+            } while (result < 0 && errno == EINTR);
+        }
+        if (state->reaper == this) {
+            state->reaper = nullptr;
+            state->killTimer.cancel();
+        }
+    }
 
     Stdio::Stdio(const std::string& name, Creator creator)
         : state(std::make_shared<State>(name, std::move(creator))) {

@@ -66,6 +66,8 @@ namespace mcp::client::http {
     namespace detail {
         class Events final : public web::http::client::tools::EventSource {
         public:
+            ~Events() final;
+
             bool consume(std::string_view bytes) {
                 return feed(sharedState, bytes);
             }

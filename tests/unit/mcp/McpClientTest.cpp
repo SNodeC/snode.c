@@ -226,6 +226,7 @@ namespace {
 int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv);
     tests::support::TestResult test;
+    test.expectTrue(mcp::client::RequestOptions{}.timeout == utils::Timeval(30), "default request timeout is exactly thirty seconds");
     {
         mcp::server::Server server("client-test", "1");
         const Json schema{{"type", "object"}};

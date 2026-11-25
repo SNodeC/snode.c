@@ -73,7 +73,7 @@ namespace mcp::client {
     };
 
     struct RequestOptions {
-        utils::Timeval timeout{30};
+        utils::Timeval timeout = utils::Timeval(30);
         std::optional<ProgressToken> progressToken{};
         bool task = false;
         std::uint64_t ttlMs = 60000;

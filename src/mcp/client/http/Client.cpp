@@ -46,5 +46,9 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 #include <cmath>
 #endif
+namespace mcp::client::http::detail {
+    Events::~Events() = default;
+}
+
 template class mcp::client::http::Client<web::http::legacy::in::Client>;
 template class mcp::client::http::Client<web::http::tls::in::Client>;
