@@ -43,6 +43,12 @@
 #include "mcp/Results.h"
 
 namespace mcp::detail {
+    Json implementation(const Implementation& description);
+    ResourceContents decodeResource(const Json& value);
+    Content decodeContent(const Json& value);
+    ResourceResult decodeResourceResult(const Json& value);
+    PromptResult decodePromptResult(const Json& value);
+    CompletionResult decodeCompletionResult(const Json& value);
     Json encode(const Annotations& annotations);
     Json encode(const ResourceContents& contents);
     Json encode(const Content& content);

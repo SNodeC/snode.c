@@ -1508,15 +1508,7 @@ namespace mcp::server {
 
     Server::Server(Implementation implementation, std::string instructions)
         : impl(std::make_unique<Impl>()) {
-        impl->serverInfo = {{"name", std::move(implementation.name)}, {"version", std::move(implementation.version)}};
-        display(impl->serverInfo, implementation.title, implementation.icons);
-        if (implementation.description) {
-            impl->serverInfo["description"] = *implementation.description;
-        }
-
-        if (implementation.websiteUrl) {
-            impl->serverInfo["websiteUrl"] = *implementation.websiteUrl;
-        }
+        impl->serverInfo = mcp::detail::implementation(implementation);
 
         impl->instructions = std::move(instructions);
     }

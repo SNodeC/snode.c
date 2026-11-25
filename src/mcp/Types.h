@@ -79,6 +79,20 @@ namespace mcp {
         std::uint64_t pollIntervalMs = 1000;
     };
 
+    enum class TaskState { Working, InputRequired, Completed, Failed, Cancelled };
+
+    struct TaskInfo {
+        std::string taskId;
+        TaskState status;
+        std::string createdAt;
+        std::string lastUpdatedAt;
+        std::optional<std::uint64_t> ttlMs;
+        std::uint64_t pollIntervalMs = 1000;
+        Json result;
+        Json error;
+        Json inputRequests;
+    };
+
     /// Authenticated application identity; never inferred from request arguments.
     struct Principal {
         std::string subject; ///< Owned identifier assigned by the authorization callback.

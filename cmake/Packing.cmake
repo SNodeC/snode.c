@@ -197,6 +197,7 @@ cpack_add_component(core-socket-stream-stdio DEPENDS core-socket-stream)
 cpack_add_component(mcp)
 cpack_add_component(mcp-server DEPENDS mcp jsonrpc core-socket-stream)
 cpack_add_component(mcp-server-http DEPENDS mcp-server http-server-express)
+cpack_add_component(mcp-client DEPENDS mcp jsonrpc)
 
 cpack_add_component(net DEPENDS core-socket)
 cpack_add_component(net-stdio DEPENDS net core-socket-stream-stdio)

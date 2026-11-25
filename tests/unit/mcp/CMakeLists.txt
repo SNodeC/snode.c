@@ -214,3 +214,11 @@ target_link_libraries(
 set_tests_properties(
     McpReplayTest PROPERTIES LABELS "unit;mcp;http;resumability"
 )
+
+snodec_add_test(McpClientTest McpClientTest.cpp)
+target_include_directories(McpClientTest PRIVATE ${PROJECT_SOURCE_DIR})
+target_link_libraries(
+    McpClientTest PRIVATE snodec::mcp-client snodec::mcp-server
+                          snodec-test-support
+)
+set_tests_properties(McpClientTest PROPERTIES LABELS "unit;mcp;client")

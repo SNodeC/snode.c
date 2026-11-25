@@ -57,6 +57,22 @@
 
 namespace mcp {
 
+    struct ToolsListResult {
+        std::vector<Json> tools;
+    };
+
+    struct ResourcesListResult {
+        std::vector<Json> resources;
+    };
+
+    struct ResourceTemplatesListResult {
+        std::vector<Json> resourceTemplates;
+    };
+
+    struct PromptsListResult {
+        std::vector<Json> prompts;
+    };
+
     /// Owned completion suggestions; Reply enforces the wire limit of 100 values.
     struct CompletionResult {
         std::vector<std::string> values;    ///< Ranked suggestions, owned until completion.
@@ -153,6 +169,7 @@ namespace mcp {
         ToolResult& setMeta(Json meta);
         /// Serialize owned protocol result data without a JSON-RPC envelope.
         Json toJson() const;
+        static ToolResult fromJson(const Json& value);
 
     private:
         explicit ToolResult(Json value);
