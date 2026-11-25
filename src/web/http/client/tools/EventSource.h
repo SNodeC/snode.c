@@ -100,6 +100,8 @@ namespace web::http::client::tools {
             std::list<std::function<void()>> onErrorListener;
 
             std::string pending;
+            bool firstLine = true;
+            bool skipLf = false;
             std::string data;
             std::string type;
             std::string idBuf;
@@ -211,6 +213,8 @@ namespace web::http::client::tools {
                         sharedState->type.clear();
                         sharedState->idBuf.clear();
                         sharedState->pending.clear();
+                        sharedState->firstLine = true;
+                        sharedState->skipLf = false;
 
                         sharedConfig->config->setReconnectTime(sharedState->retry / 1000.);
                         sharedConfig->config->setRetryTimeout(sharedState->retry / 1000.);

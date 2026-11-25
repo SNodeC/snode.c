@@ -109,3 +109,10 @@ target_link_libraries(
 set_tests_properties(
     HttpUrlEncodingTest PROPERTIES LABELS "unit;http;encoding" TIMEOUT 5
 )
+
+snodec_add_test(EventSourceParserTest EventSourceParserTest.cpp)
+target_include_directories(EventSourceParserTest PRIVATE ${PROJECT_SOURCE_DIR})
+target_link_libraries(
+    EventSourceParserTest PRIVATE snodec::http-client snodec-test-support
+)
+set_tests_properties(EventSourceParserTest PROPERTIES LABELS "unit;http;sse")

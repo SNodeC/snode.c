@@ -140,35 +140,39 @@ namespace web::http::client::tools {
         return success;
     }
 
-    bool EventSource::parse(const std::shared_ptr<SharedState>& sharedState) {
-        static constexpr std::size_t kMaxLine = 256 * 1024;
-
-        bool success = true;
-        bool eol = true;
-        do {
-            const std::size_t i = sharedState->pending.find_first_of("\r\n");
-
-            eol = i != std::string::npos && (sharedState->pending[i] != '\r' || i + 1 < sharedState->pending.size());
-
-            if (eol && i <= kMaxLine) {
-                const std::size_t eolLength =
-                    (sharedState->pending[i] == '\r' && i + 1 < sharedState->pending.size() && sharedState->pending[i + 1] == '\n') ? 2 : 1;
-
-                const std::string_view line(sharedState->pending.data(), i);
-
-                if (!line.empty()) {
-                    success = processLine(sharedState, line);
-                } else {
-                    dispatch(sharedState);
+    bool EventSource::parse(const std::shared_ptr<SharedState>& state) {
+        constexpr std::size_t maximumLine = 256 * 1024;
+        bool valid = true;
+        bool lineAvailable = true;
+        while (valid && lineAvailable) {
+            if (state->skipLf && !state->pending.empty()) {
+                if (state->pending.front() == '\n') {
+                    state->pending.erase(0, 1);
                 }
-
-                sharedState->pending.erase(0, i + eolLength);
-            } else {
-                success = sharedState->pending.size() <= kMaxLine; // Line length
+                state->skipLf = false;
             }
-        } while (eol && success);
-
-        return success;
+            const std::size_t end = state->pending.find_first_of("\r\n");
+            lineAvailable = end != std::string::npos;
+            if (lineAvailable && end <= maximumLine) {
+                std::string line = state->pending.substr(0, end);
+                state->skipLf = state->pending[end] == '\r';
+                state->pending.erase(0, end + 1);
+                if (state->firstLine) {
+                    state->firstLine = false;
+                    if (line.starts_with("\xEF\xBB\xBF")) {
+                        line.erase(0, 3);
+                    }
+                }
+                if (line.empty()) {
+                    dispatch(state);
+                } else {
+                    valid = processLine(state, line);
+                }
+            } else {
+                valid = state->pending.size() <= maximumLine;
+            }
+        }
+        return valid;
     }
 
     bool EventSource::feed(const std::shared_ptr<SharedState>& state, std::string_view chunk) {
