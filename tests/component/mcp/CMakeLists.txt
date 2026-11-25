@@ -43,7 +43,7 @@ target_link_libraries(
     McpStdioFixture PRIVATE snodec::mcp-server snodec::net-stdio-stream
 )
 add_test(NAME McpStdioTest
-         COMMAND ${MCP_PYTHON} ${CMAKE_CURRENT_SOURCE_DIR}/stdio_test.py
+         COMMAND ${MCP_PYTHON} -B ${CMAKE_CURRENT_SOURCE_DIR}/stdio_test.py
                  $<TARGET_FILE:McpStdioFixture>
 )
 set_tests_properties(
@@ -65,7 +65,7 @@ foreach(variant IN ITEMS Http Tls)
         )
     endif()
     add_test(NAME Mcp${variant}Test
-             COMMAND ${MCP_PYTHON} ${CMAKE_CURRENT_SOURCE_DIR}/http_test.py
+             COMMAND ${MCP_PYTHON} -B ${CMAKE_CURRENT_SOURCE_DIR}/http_test.py
                      $<TARGET_FILE:Mcp${variant}Fixture> ${MCP_CURL} ${variant}
     )
     set_tests_properties(
@@ -179,7 +179,7 @@ set_tests_properties(
 )
 
 add_test(NAME McpHttpReplayTest
-         COMMAND ${MCP_PYTHON} ${CMAKE_CURRENT_SOURCE_DIR}/replay_test.py
+         COMMAND ${MCP_PYTHON} -B ${CMAKE_CURRENT_SOURCE_DIR}/replay_test.py
                  $<TARGET_FILE:McpHttpFixture>
 )
 set_tests_properties(
