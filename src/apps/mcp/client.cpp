@@ -57,7 +57,7 @@
 #include <iostream>
 #include <nlohmann/json.hpp>
 #include <optional>
-#include <sys/wait.h>
+#include <sys/wait.h> // IWYU pragma: keep - POSIX wait-status macros
 #include <utility>
 #include <variant>
 // IWYU pragma: no_include <nlohmann/detail/json_ref.hpp>
@@ -162,6 +162,13 @@ namespace {
 
         void onOtherResult(const jsonrpc::messages::Id&, const std::string& method, const Json& result) final {
             done(Json{{"method", method}, {"result", result}});
+        }
+
+        void onElicitation(const std::string& key,
+                           [[maybe_unused]] const std::variant<mcp::FormInput, mcp::UrlInput>& request,
+                           const std::shared_ptr<mcp::client::ElicitationReply>& reply) final {
+            std::cerr << "Elicitation " << key << ": declined" << std::endl;
+            reply->result(mcp::InputResponse{mcp::ElicitationAction::Decline});
         }
 
         void onRemoteError(const jsonrpc::messages::Error& error) final {

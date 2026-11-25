@@ -1,5 +1,7 @@
 # Optional-feature qualification
 
+This record describes the initial optional-feature series at `0292f96bc`; subsequent review fixes add their own regression tests and qualification evidence.
+
 The optional-feature implementation targets the official 2025-11-25 and 2026-07-28 schemas. The [API addendum](API-PROPOSAL.md#optional-feature-implementation-addendum) records the revision-specific wire decisions and normative references; the [guide](README.md) describes the APIs, bounds and transport ownership. Sampling, roots and modern logging remain excluded.
 
 ## Reproducible build discipline

@@ -234,3 +234,14 @@ target_link_libraries(
     McpTaskLimitsTest PRIVATE snodec::mcp-server snodec-test-support
 )
 set_tests_properties(McpTaskLimitsTest PROPERTIES LABELS "unit;mcp;tasks")
+
+snodec_add_test(McpClientElicitationTest McpClientElicitationTest.cpp)
+target_include_directories(
+    McpClientElicitationTest PRIVATE ${PROJECT_SOURCE_DIR}
+)
+target_link_libraries(
+    McpClientElicitationTest PRIVATE snodec::mcp-client snodec-test-support
+)
+set_tests_properties(
+    McpClientElicitationTest PROPERTIES LABELS "unit;mcp;client;elicitation"
+)

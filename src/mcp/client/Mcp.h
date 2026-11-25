@@ -48,6 +48,7 @@
 #include "utils/Timeval.h"
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 #include <cstdint>
+#include <functional>
 #include <memory>
 #include <nlohmann/json.hpp>
 #include <optional>
@@ -63,6 +64,22 @@ namespace jsonrpc::messages {
 } // namespace jsonrpc::messages
 
 namespace mcp::client {
+    /// Once-only input reply; retain to answer later. Destruction/timeout declines.
+    class ElicitationReply final {
+    public:
+        ~ElicitationReply();
+        ElicitationReply(const ElicitationReply&) = delete;
+        ElicitationReply& operator=(const ElicitationReply&) = delete;
+        Completion result(InputResponse response);
+
+    private:
+        friend class Mcp;
+        ElicitationReply(std::function<void(InputResponse)> callback, Json schema, const utils::Timeval& timeout);
+        void cancel();
+        struct State;
+        std::shared_ptr<State> state;
+    };
+
     enum class Negotiation { Auto, Modern, Legacy };
 
     struct Options {
@@ -70,6 +87,7 @@ namespace mcp::client {
         Negotiation negotiation = Negotiation::Auto;
         bool followPagination = true;
         bool pollTasks = true;
+        utils::Timeval elicitationTimeout = utils::Timeval(30);
     };
 
     struct RequestOptions {
@@ -140,7 +158,9 @@ namespace mcp::client {
         virtual void onTaskCreated(const jsonrpc::messages::Id& id, const TaskInfo& task);
         virtual void onTaskStatus(const TaskInfo& task);
         virtual void onTasks(const jsonrpc::messages::Id& id, const std::vector<TaskInfo>& tasks, const std::optional<std::string>& cursor);
-        virtual InputResponse onElicitation(const std::string& key, const std::variant<FormInput, UrlInput>& request);
+        virtual void onElicitation(const std::string& key,
+                                   const std::variant<FormInput, UrlInput>& request,
+                                   const std::shared_ptr<ElicitationReply>& reply);
         virtual void onProgress(const ProgressToken& token, const Progress& progress);
         virtual void onCancelled(const jsonrpc::messages::Id& id, const std::string& reason);
         virtual void onRemoteError(const jsonrpc::messages::Error& error);
@@ -163,7 +183,8 @@ namespace mcp::client {
         void initialize();
         jsonrpc::messages::Id send(Operation operation);
         void complete(Operation operation, const Json& result);
-        Json inputs(const Json& requests);
+        void inputs(const Json& requests, std::function<void(Json)> completion, const jsonrpc::messages::Id& origin, bool incoming = false);
+        bool cancelInputs(const jsonrpc::messages::Id* origin = nullptr, bool incoming = false);
         void scheduleTask(const std::string& id);
         void taskStatus(const TaskInfo& task);
         TaskInfo parseTask(const Json& value) const;
