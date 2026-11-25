@@ -290,7 +290,9 @@ namespace {
         peer->sendResult("a", 9);
         peer->sendError("missing", -32603, "Internal error");
         test.expectTrue(context.output.size() == before, "duplicate and unknown answers have no wire output");
-        peer->sendRequest(jsonrpc::messages::Request{1, "reserved"});
+        test.expectTrue(!peer->sendRequest(jsonrpc::messages::Request{nullptr, "invalid"}) && context.output.size() == before,
+                        "outgoing null-id request is rejected without wire output");
+        test.expectTrue(peer->sendRequest(jsonrpc::messages::Request{1, "reserved"}), "non-null explicit outgoing id is accepted");
         const auto id = peer->sendRequest("sum", json::array({1, 2}));
         test.expectTrue(id == 2, "integer allocation skips outstanding ids");
         context.onMessage(jsonrpc::messages::Result{id, 3}.serialize());

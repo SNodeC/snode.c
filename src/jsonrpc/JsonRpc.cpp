@@ -302,7 +302,7 @@ namespace jsonrpc {
 
     bool JsonRpc::sendRequest(const messages::Request& request, const utils::Timeval& timeout) {
         bool accepted = false;
-        if (isRequest(request.toJson()) && !outgoing.contains(request.id)) {
+        if (!request.id.is_null() && isRequest(request.toJson()) && !outgoing.contains(request.id)) {
             auto& timer = outgoing[request.id];
             if (timeout > 0) {
                 timer = core::timer::Timer::singleshotTimer(
