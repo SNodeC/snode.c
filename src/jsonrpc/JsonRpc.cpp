@@ -352,6 +352,18 @@ namespace jsonrpc {
         }
     }
 
+    void JsonRpc::discardRequest(const messages::Id& id) {
+        const auto found = incoming.find(id);
+        if (found != incoming.end()) {
+            const auto batch = found->second;
+            incoming.erase(found);
+            if (batch) {
+                --batch->unanswered;
+                finishBatch(batch);
+            }
+        }
+    }
+
     void JsonRpc::emit(const json& response, const std::shared_ptr<Batch>& batch) {
         if (batch) {
             batch->responses.push_back(response);

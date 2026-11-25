@@ -110,6 +110,7 @@ namespace jsonrpc {
         /// Derived protocols may supply their own id namespace (e.g. MCP elicitation).
         bool sendRequest(const messages::Request& request, const utils::Timeval& timeout = utils::Timeval(0));
         bool cancelRequest(const messages::Id& id);
+        void discardRequest(const messages::Id& id);
         const logger::BoundaryLogger& log() const;
 
     private:

@@ -52,6 +52,14 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+namespace jsonrpc {
+    class JsonRpcContext;
+}
+
+namespace mcp::server {
+    class Mcp;
+}
+
 namespace mcp::server::detail {
 
     enum class ProtocolEra { Initialization20251125, PerRequest20260728 };
@@ -73,6 +81,7 @@ namespace mcp::server::detail {
         };
 
         bool respond(const Json& message);
+        bool complete(const Json& message);
         void forget(const Response& response);
 
         Json capabilities = Json::object();
@@ -114,6 +123,8 @@ namespace mcp::server::detail {
         std::optional<std::string> requestState;
         std::weak_ptr<Channel> channel;
         std::function<void()> resume;
+        Mcp* protocol = nullptr;
+        std::shared_ptr<jsonrpc::JsonRpcContext> protocolOwner;
         Json id;
         ProtocolEra era;
         CachePolicy cachePolicy;
@@ -164,6 +175,12 @@ namespace mcp::server {
                                                            const utils::Timeval& timeout = utils::Timeval(30),
                                                            std::optional<Principal> principal = {},
                                                            std::shared_ptr<detail::Channel> channel = {}) const;
+        std::shared_ptr<detail::Access::Response> dispatchRequest(const Json& request,
+                                                                  detail::ProtocolEra era,
+                                                                  detail::Access::Response::Output output,
+                                                                  const utils::Timeval& timeout = utils::Timeval(30),
+                                                                  std::optional<Principal> principal = {},
+                                                                  std::shared_ptr<detail::Channel> channel = {}) const;
         void resourceUpdated(const std::string& uri);
         static bool checkSchema(const Json& schema, std::string& error);
         static bool validate(const Json& schema, const Json& value, std::string& error);

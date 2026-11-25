@@ -76,6 +76,8 @@ target_compile_options(
 
 add_library(
     mcp-server SHARED
+    Mcp.cpp
+    Mcp.h
     Server.cpp
     Server.h
     detail/UriTemplate.cpp
@@ -90,7 +92,7 @@ add_library(snodec::mcp-server ALIAS mcp-server)
 target_compile_features(mcp-server PUBLIC cxx_std_20)
 target_link_libraries(
     mcp-server
-    PUBLIC core-socket-stream
+    PUBLIC jsonrpc core-socket-stream
     PRIVATE nlohmann_json_schema_validator PkgConfig::MCP_PCRE2
 )
 target_include_directories(

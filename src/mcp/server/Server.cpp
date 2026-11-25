@@ -130,60 +130,6 @@ namespace mcp::server {
 
     } // namespace
 
-    bool detail::Channel::respond(const Json& message) {
-        bool accepted = false;
-        if (active && message.is_object() && message.value("jsonrpc", Json()) == "2.0" && !message.contains("method") &&
-            validId(message.value("id", Json())) && message.contains("result") != message.contains("error")) {
-            const auto found = inputs.find(message["id"].dump());
-            if (found != inputs.end()) {
-                const auto response = found->second.response.lock();
-                const std::string key = found->second.key;
-                if (response) {
-                    const Json result = message.value("result", Json());
-                    const Json failure = message.value("error", Json());
-                    const Json action = result.is_object() ? result.value("action", Json()) : Json();
-                    const Json content = result.is_object() ? result.value("content", Json()) : Json();
-                    bool failed = failure.is_object() && failure.value("code", Json()).is_number_integer() &&
-                                  failure.value("message", Json()).is_string();
-                    std::string validationError;
-                    if (action == "accept" && !found->second.requestedSchema.is_null()) {
-                        failed = !Access::Registry::validate(found->second.requestedSchema, content, validationError) || failed;
-                    }
-
-                    response->expire();
-                    if (!response->done && (failed || ((action == "accept" || action == "decline" || action == "cancel") &&
-                                                       (content.is_null() || content.is_object())))) {
-                        accepted = true;
-                        inputs.erase(message["id"].dump());
-                        if (failed) {
-                            if (response->toolRequest) {
-                                response->result(
-                                    {{"isError", true}, {"content", {{{"type", "text"}, {"text", "Client elicitation failed"}}}}});
-                            } else {
-                                response->error(-32603, "Client elicitation failed");
-                            }
-                        } else {
-                            response->inputResponses[key] = InputResponse{action == "accept"    ? ElicitationAction::Accept
-                                                                          : action == "decline" ? ElicitationAction::Decline
-                                                                                                : ElicitationAction::Cancel,
-                                                                          content};
-                            if (std::none_of(inputs.begin(), inputs.end(), [&response](const auto& item) {
-                                    return item.second.response.lock() == response;
-                                })) {
-                                const auto resume = response->resume;
-                                resume();
-                            }
-                        }
-                    }
-                } else {
-                    inputs.erase(found);
-                }
-            }
-        }
-
-        return accepted;
-    }
-
     void detail::Channel::forget(const Response& response) {
         std::vector<Json> ids;
         std::erase_if(inputs, [&response, &ids](const auto& item) {
@@ -641,12 +587,12 @@ namespace mcp::server {
         return result;
     }
 
-    std::shared_ptr<detail::Access::Response> Server::Impl::dispatch(const Json& request,
-                                                                     ProtocolEra era,
-                                                                     detail::Access::Response::Output output,
-                                                                     const utils::Timeval& timeout,
-                                                                     std::optional<Principal> principal,
-                                                                     std::shared_ptr<detail::Channel> channel) const {
+    std::shared_ptr<detail::Access::Response> Server::Impl::dispatchRequest(const Json& request,
+                                                                            ProtocolEra era,
+                                                                            detail::Access::Response::Output output,
+                                                                            const utils::Timeval& timeout,
+                                                                            std::optional<Principal> principal,
+                                                                            std::shared_ptr<detail::Channel> channel) const {
         const Json id = request.is_object() ? request.value("id", Json()) : Json();
         const std::string method = request.is_object() && request.contains("method") && request["method"].is_string()
                                        ? request["method"].get<std::string>()
