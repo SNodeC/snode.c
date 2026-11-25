@@ -52,3 +52,5 @@ add_subdirectory(mqtt)
 add_subdirectory(utils)
 
 add_subdirectory(mcp)
+
+add_subdirectory(jsonrpc)

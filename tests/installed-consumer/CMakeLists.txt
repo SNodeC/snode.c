@@ -8,7 +8,10 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(
     snodec CONFIG REQUIRED
-    COMPONENTS mcp-server
+    COMPONENTS jsonrpc
+               jsonrpc-server-websocket
+               jsonrpc-client-websocket
+               mcp-server
                mcp-server-http
                core
                net-stdio-stream
@@ -25,7 +28,10 @@ add_executable(consumer main.cpp)
 target_compile_features(consumer PRIVATE cxx_std_20)
 target_link_libraries(
     consumer
-    PRIVATE snodec::mcp-server
+    PRIVATE snodec::jsonrpc
+            snodec::jsonrpc-server-websocket
+            snodec::jsonrpc-client-websocket
+            snodec::mcp-server
             snodec::mcp-server-http
             snodec::core
             snodec::net-stdio-stream

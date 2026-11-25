@@ -130,6 +130,7 @@ add_subdirectory(web)
 add_subdirectory(express)
 add_subdirectory(database)
 add_subdirectory(iot)
+add_subdirectory(jsonrpc)
 add_subdirectory(mcp)
 
 if(SNODEC_BUILD_APPS)
@@ -146,9 +147,13 @@ get_all_targets_dependencies(SNODEC_LIST_OF_ALL_TARGETS_DEPENDENCIES web)
 get_all_targets_dependencies(SNODEC_LIST_OF_ALL_TARGETS_DEPENDENCIES express)
 get_all_targets_dependencies(SNODEC_LIST_OF_ALL_TARGETS_DEPENDENCIES database)
 get_all_targets_dependencies(SNODEC_LIST_OF_ALL_TARGETS_DEPENDENCIES iot)
+get_all_targets_dependencies(SNODEC_LIST_OF_ALL_TARGETS_DEPENDENCIES jsonrpc)
 get_all_targets_dependencies(SNODEC_LIST_OF_ALL_TARGETS_DEPENDENCIES mcp)
 
 set(SUPPORTED_COMPONENTS
+    jsonrpc
+    jsonrpc-server-websocket
+    jsonrpc-client-websocket
     mcp-server
     mcp-server-http
     core
