@@ -91,8 +91,6 @@ namespace jsonrpc {
         void sendResult(const messages::Id& id, const nlohmann::json& result);
         void sendError(const messages::Id& id, std::int64_t code, const std::string& message, std::optional<nlohmann::json> data = {});
 
-        void sendError(const messages::Id& id, std::int64_t code, const std::string& message, const nlohmann::json& data);
-
         const std::string& getConnectionName() const;
         const JsonRpcContext* getJsonRpcContext() const;
         std::size_t getMaximumMessageSize() const;

@@ -231,6 +231,22 @@ namespace {
                         "optional error data retains explicit null");
     }
 
+    void errorReplies(tests::support::TestResult& test) {
+        auto* peer = new Peer;
+        Context context(peer);
+        context.onMessage(R"({"jsonrpc":"2.0","id":1,"method":"defer"})");
+        peer->sendError(1, -32603, "Internal error");
+        test.expectTrue(!context.output.back()["error"].contains("data"), "sendError omits absent data");
+        context.onMessage(R"({"jsonrpc":"2.0","id":2,"method":"defer"})");
+        peer->sendError(2, -32603, "Internal error", std::optional<json>(nullptr));
+        test.expectTrue(context.output.back()["error"].contains("data") && context.output.back()["error"]["data"].is_null(),
+                        "sendError retains explicit null data");
+        context.onMessage(R"({"jsonrpc":"2.0","id":3,"method":"defer"})");
+        const json data = {{"detail", "failure"}};
+        peer->sendError(3, -32603, "Internal error", std::optional<json>(data));
+        test.expectTrue(context.output.back()["error"]["data"] == data, "sendError retains object data");
+    }
+
     void uncorrelatedErrors(tests::support::TestResult& test) {
         auto* peer = new Peer;
         Context context(peer);
@@ -342,6 +358,7 @@ int main(int argc, char* argv[]) {
     }
     messages(test);
     examples(test);
+    errorReplies(test);
     uncorrelatedErrors(test);
     invariants(test);
     {

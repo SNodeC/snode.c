@@ -348,10 +348,6 @@ namespace jsonrpc {
         answer(id, messages::Error{id, code, message, std::move(data)}.toJson());
     }
 
-    void JsonRpc::sendError(const messages::Id& id, std::int64_t code, const std::string& message, const json& data) {
-        sendError(id, code, message, std::optional<json>(data));
-    }
-
     void JsonRpc::answer(const messages::Id& id, const json& response) {
         const auto found = incoming.find(id);
         if (found != incoming.end()) {
