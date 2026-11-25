@@ -59,7 +59,6 @@
 #include <functional>
 #include <map>
 #include <nlohmann/detail/json_ref.hpp>
-#include <set>
 #include <utility>
 #include <vector>
 #endif // DOXYGEN_SHOULD_SKIP_THIS

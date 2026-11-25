@@ -273,3 +273,5 @@ Link `snodec::mcp-client` for this example. Applications own their UI, elicitati
 See the [qualification record](QUALIFICATION.md) for the SDK/Inspector/native feature matrices, supported eras and reproducible build discipline.
 
 `StdioOptions::shutdownGrace` and `terminateGrace` configure the EOF-to-SIGTERM and SIGTERM-to-SIGKILL grace periods (both default to two seconds). The stdio client keeps reading stdout until child exit; the demo reports the decoded exit code or signal description.
+
+Task admission also limits each requestor to 16 retained records by default: the legacy session or modern authenticated principal (anonymous modern callers share the anonymous allowance). Configure `Server::setTasksPerRequestor(1..128)` and `Server::setMaximumTaskTtlMs(1..86400000)` on the event loop. Retention requests above the configured maximum are clamped and the actual TTL is returned; zero/invalid parameters return -32602, and capacity rejection returns -32000.

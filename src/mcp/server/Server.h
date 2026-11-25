@@ -53,6 +53,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstddef>
+#include <cstdint>
 #include <functional>
 #include <memory>
 #include <stdexcept>
@@ -102,6 +104,10 @@ namespace mcp::server {
         /// Emit bounded legacy-session logging on the event loop; modern peers receive nothing.
         /// Applications must omit credentials and private data from log payloads.
         Server* log(LogLevel level, Json data, const std::string& logger = {});
+
+        /// Task admission/retention policy, configured on the event loop; returns this.
+        Server* setTasksPerRequestor(std::size_t maximum);
+        Server* setMaximumTaskTtlMs(std::uint64_t milliseconds);
 
         /// Report a URI change on the event loop; only explicitly subscribed live consumers are notified.
         /// Safe inside handlers; the call does not retain the URI and does not read the resource.

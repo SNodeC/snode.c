@@ -127,10 +127,19 @@ namespace mcp::server::detail {
                 execution->error(-32021,
                                  "Missing required client capability",
                                  {{"requiredCapabilities", {{"extensions", {{"io.modelcontextprotocol/tasks", Json::object()}}}}}});
-            } else if ((!modern && execution->channel.expired()) || options.ttlMs == 0 || options.ttlMs > 86400000 ||
-                       options.pollIntervalMs == 0 || options.pollIntervalMs > 60000 || entries.size() >= 128 || closing) {
-                execution->error(-32603, "Task limits exceeded or no initialized session");
+            } else if (options.ttlMs == 0 || options.pollIntervalMs == 0 || options.pollIntervalMs > 60000) {
+                execution->error(-32602, "Invalid task parameters");
+            } else if ((!modern && execution->channel.expired()) || closing) {
+                execution->error(-32602, "No active task requestor");
+            } else if (entries.size() >= 128 ||
+                       static_cast<std::size_t>(std::count_if(entries.begin(), entries.end(), [&](const auto& entry) {
+                           const auto& task = entry.second;
+                           return task->execution->era == execution->era &&
+                                  (modern ? task->visible(*execution) : task->execution->channel.lock() == execution->channel.lock());
+                       })) >= perRequestor) {
+                execution->error(-32000, "Task capacity exceeded");
             } else {
+                options.ttlMs = std::min(options.ttlMs, maximumTtlMs);
                 auto task = std::make_shared<Task>();
                 const std::string id = mcp::detail::randomToken();
                 const std::string now = mcp::detail::timestamp();
