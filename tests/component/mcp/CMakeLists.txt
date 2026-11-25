@@ -177,3 +177,12 @@ set_tests_properties(
     McpElicitationTest PROPERTIES LABELS "component;mcp;elicitation;stdio;http"
                                   TIMEOUT 45
 )
+
+add_test(NAME McpHttpReplayTest
+         COMMAND ${MCP_PYTHON} ${CMAKE_CURRENT_SOURCE_DIR}/replay_test.py
+                 $<TARGET_FILE:McpHttpFixture>
+)
+set_tests_properties(
+    McpHttpReplayTest PROPERTIES LABELS "mcp;component;http;resumability"
+                                 TIMEOUT 30
+)

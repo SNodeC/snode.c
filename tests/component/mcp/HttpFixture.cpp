@@ -52,7 +52,12 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "utils/CLI11.hpp"
+
+#include <cstddef>
+#include <cstdint>
 #include <initializer_list>
+#include <memory>
 #include <nlohmann/detail/json_ref.hpp>
 #include <nlohmann/json.hpp>
 #include <nlohmann/json_fwd.hpp>
@@ -80,6 +85,10 @@ int main(int argc, char* argv[]) {
 )json");
     const WebApp app("mcp-http");
     auto* config = app.getConfig()->Instance::newSubCommand<mcp::server::Config>();
+    auto* replayEvents =
+        config->addOption("--fixture-replay-events", "Replay event count", "events", std::size_t{128}, CLI::Range(1, 4096));
+    auto* replayRetention =
+        config->addOption("--fixture-replay-ms", "Replay retention", "milliseconds", std::uint64_t{60000}, CLI::Range(1, 300000));
     auto* http = app.getConfig()->Instance::getSubCommand<web::http::server::ConfigHttpServer>();
     http->setAllowPipelining(false)->setMaximumPendingRequests(1);
     http->getParserConfig()->setMaximumBodyBytes(1048576)->setMaximumHeaderBytes(65536)->setMaximumHeaderFields(100);
@@ -95,10 +104,13 @@ int main(int argc, char* argv[]) {
         });
     }
 
-    server.tool({"delay", {}, objectSchema}, [](const auto&, const auto& reply) {
+    const auto delayCalls = std::make_shared<std::size_t>(0);
+    server.tool({"delay", {}, objectSchema}, [delayCalls](const auto& call, const auto& reply) {
+        const auto number = ++*delayCalls;
+        const bool report = call.arguments.value("reportCount", false);
         core::timer::Timer::singleshotTimer(
-            [reply] {
-                reply->result(ToolResult::content({}));
+            [reply, number, report] {
+                reply->result(report ? ToolResult::json({{"calls", number}}) : ToolResult::content({}));
             },
             utils::Timeval(0.1));
     });
@@ -115,6 +127,8 @@ int main(int argc, char* argv[]) {
     });
     tests::mcp::registerFeatures(server);
     mcp::server::http::RouterOptions routerOptions;
+    routerOptions.replay.maximumEvents = replayEvents->as<std::size_t>();
+    routerOptions.replay.retentionMs = replayRetention->as<std::uint64_t>();
     routerOptions.protectedResource =
         mcp::server::http::ProtectedResource{"https://example.com/mcp", {"https://auth.example.com"}, {"test"}};
     const mcp::server::http::Router router(

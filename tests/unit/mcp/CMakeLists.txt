@@ -205,3 +205,12 @@ target_link_libraries(
     McpTaskTest PRIVATE snodec::mcp-server snodec-test-support
 )
 set_tests_properties(McpTaskTest PROPERTIES LABELS "unit;mcp;tasks")
+
+snodec_add_test(McpReplayTest McpReplayTest.cpp)
+target_include_directories(McpReplayTest PRIVATE ${PROJECT_SOURCE_DIR})
+target_link_libraries(
+    McpReplayTest PRIVATE snodec::mcp-server-http snodec-test-support
+)
+set_tests_properties(
+    McpReplayTest PROPERTIES LABELS "unit;mcp;http;resumability"
+)

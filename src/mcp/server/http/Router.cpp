@@ -51,17 +51,18 @@
 #include "jsonrpc/JsonRpc.h"
 #include "jsonrpc/messages/Id.h"
 #include "mcp/Protocol.h"
+#include "mcp/detail/Utilities.h"
 #include "mcp/server/Config.h"
 #include "mcp/server/Mcp.h"
 #include "mcp/server/Types.h"
 #include "mcp/server/detail/Server.h"
+#include "mcp/server/http/detail/Replay.h"
 #include "utils/base64.h"
 #include "web/http/http_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <algorithm>
-#include <array>
 #include <cctype>
 #include <cerrno>
 #include <cmath>
@@ -73,8 +74,6 @@
 #include <set>
 #include <stdexcept>
 #include <string>
-#include <sys/random.h>
-#include <sys/types.h>
 #include <utility>
 #include <variant>
 #include <vector>
@@ -201,6 +200,8 @@ namespace mcp::server::http {
             std::shared_ptr<WireReply> reply;
             std::shared_ptr<Channel> channel;
             core::timer::Timer timer;
+            std::unique_ptr<detail::Replay> replay;
+            bool started = false;
             std::string queue;
             ProtocolEra era;
             StreamMode mode;
@@ -244,25 +245,65 @@ namespace mcp::server::http {
                 if (!closed) {
                     closed = true;
                     timer.cancel();
-                    if (reply && reply->task.expired()) {
+                    if (!replay && reply && reply->task.expired()) {
                         reply->cancel(CancelReason::Disconnected);
                     }
 
-                    if (request.is_null() && channel) {
+                    if (!replay && request.is_null() && channel) {
                         channel->resources.clear();
                         channel->output = {};
                     }
 
+                    queue.clear();
+                    response.reset();
                     owner.reset();
                 }
             }
 
+            void abandon() {
+                replay.reset();
+                if (reply && reply->task.expired()) {
+                    reply->cancel(CancelReason::Disconnected);
+                }
+                if (request.is_null() && channel) {
+                    channel->resources.clear();
+                    channel->output = {};
+                }
+            }
+
+            bool reattach(const std::shared_ptr<express::Response>& target, const std::string& id) {
+                bool accepted = false;
+                if (closed && replay) {
+                    const auto missed = replay->after(id);
+                    if (missed && missed->size() <= config.getMaximumOutputBytes()) {
+                        response = target;
+                        queue = *missed;
+                        closed = false;
+                        paused = false;
+                        owner = shared_from_this();
+                        accepted = true;
+                        target->status(200)
+                            .set("Content-Type", "text/event-stream")
+                            .set("Cache-Control", "no-cache")
+                            .set("X-Accel-Buffering", "no");
+                        if (!target->pipe(this)) {
+                            stop();
+                        }
+                    }
+                }
+                return accepted;
+            }
+
             void feed(const Json& value, bool terminal) {
-                if (!closed) {
+                if (!closed || replay) {
                     ended = terminal;
                     if (mode == StreamMode::Sse) {
                         if (!value.is_null()) {
-                            queue += "event: message\ndata: " + value.dump() + "\n\n";
+                            const std::string wire =
+                                replay ? replay->append(value.dump()) : "event: message\ndata: " + value.dump() + "\n\n";
+                            if (!closed) {
+                                queue += wire;
+                            }
                         }
 
                         if (queue.size() > config.getMaximumOutputBytes()) {
@@ -300,6 +341,9 @@ namespace mcp::server::http {
             }
 
             void shutdown() {
+                if (closed && replay) {
+                    abandon();
+                }
                 if (!closed && (reply || request.is_null())) {
                     if (reply) {
                         reply->cancel(CancelReason::Shutdown);
@@ -316,7 +360,8 @@ namespace mcp::server::http {
 
             void start() override {
                 const std::weak_ptr<Operation> weak = shared_from_this();
-                if (request.is_null()) {
+                if (!started && request.is_null()) {
+                    started = true;
                     channel->output = [weak](const Json& value) {
                         if (const auto current = weak.lock()) {
                             if (value.is_null()) {
@@ -326,8 +371,12 @@ namespace mcp::server::http {
                             }
                         }
                     };
-                    queue = ": connected\n\n";
-                } else {
+                    queue = replay ? replay->append("") : ": connected\n\n";
+                } else if (!started) {
+                    started = true;
+                    if (replay) {
+                        queue = replay->append("");
+                    }
                     reply = Access::registry(server).dispatch(
                         request,
                         era,
@@ -337,7 +386,7 @@ namespace mcp::server::http {
                             }
                         },
                         config.getDeadline(),
-                        std::move(principal),
+                        principal,
                         channel,
                         config.getPageSize());
                 }
@@ -381,6 +430,53 @@ namespace mcp::server::http {
             };
 
             std::map<std::string, Session> sessions;
+            std::map<std::string, std::shared_ptr<Operation>> replayStreams;
+            core::timer::Timer replayTimer;
+
+            void retain(const std::shared_ptr<Operation>& operation) {
+                cleanReplay();
+                if (options.replay.maximumEvents > 0 && operation->era == ProtocolEra::Initialization20251125 &&
+                    operation->mode == StreamMode::Sse && replayStreams.size() < options.replay.maximumStreams) {
+                    operation->replay = std::make_unique<detail::Replay>(options.replay);
+                    replayStreams.emplace(operation->replay->streamId(), operation);
+                }
+            }
+
+            void cleanReplay() {
+                std::vector<std::shared_ptr<Operation>> expired;
+                std::erase_if(replayStreams, [&expired](const auto& entry) {
+                    const auto& operation = entry.second;
+                    operation->replay->prune();
+                    const bool remove =
+                        operation->closed && (operation->replay->expired() || !operation->channel || !operation->channel->active);
+                    if (remove) {
+                        expired.push_back(operation);
+                    }
+                    return remove;
+                });
+                for (const auto& operation : expired) {
+                    operation->abandon();
+                }
+            }
+
+            void resumeReplay(const std::shared_ptr<express::Request>& req,
+                              const std::shared_ptr<express::Response>& res,
+                              const std::shared_ptr<Channel>& channel,
+                              const std::optional<Principal>& principal) {
+                cleanReplay();
+                const std::string id = req->get("Last-Event-ID");
+                const auto separator = id.find('.');
+                const auto found = replayStreams.find(id.substr(0, separator));
+                if (id.size() > 128 || separator == std::string::npos || found == replayStreams.end() ||
+                    found->second->channel != channel || found->second->principal.has_value() != principal.has_value() ||
+                    (principal && found->second->principal->subject != principal->subject)) {
+                    res->status(410).end();
+                } else if (!found->second->closed) {
+                    res->status(409).end();
+                } else if (!found->second->reattach(res, id)) {
+                    res->status(410).end();
+                }
+            }
 
             State(Server& server, Config& config, RouterOptions options)
                 : server(server)
@@ -407,14 +503,8 @@ namespace mcp::server::http {
                                                 const std::shared_ptr<express::Response>& res) {
                 static_cast<void>(findSession(req));
                 std::shared_ptr<Channel> result;
-                std::array<unsigned char, 24> bytes{};
-                if (sessions.size() < 64 && ::getrandom(bytes.data(), bytes.size(), 0) == static_cast<ssize_t>(bytes.size())) {
-                    std::string token;
-                    for (const auto byte : bytes) {
-                        token += "0123456789abcdef"[byte >> 4U];
-                        token += "0123456789abcdef"[byte & 15U];
-                    }
-
+                if (sessions.size() < 64) {
+                    const std::string token = mcp::detail::randomToken();
                     result = std::make_shared<Channel>();
                     result->credential = req->get("Authorization");
                     result->resourceSubscriptions = options.legacySubscriptions == LegacySubscriptions::Enabled;
@@ -427,8 +517,18 @@ namespace mcp::server::http {
 
             void legacy(const std::shared_ptr<express::Request>& req, const std::shared_ptr<express::Response>& res) {
                 const auto channel = findSession(req);
+                std::optional<Principal> principal;
+                req->getAttribute<Authorized>([&principal](const auto& authorized) {
+                    principal = authorized.principal;
+                });
                 if (!channel) {
                     res->status(req->get("Mcp-Session-Id").empty() ? 400 : 404).end();
+                } else if (req->method == "GET" && !req->get("Last-Event-ID").empty()) {
+                    if (!accepts(lower(req->get("Accept")), "text/event-stream")) {
+                        res->status(406).end();
+                    } else {
+                        resumeReplay(req, res, channel, principal);
+                    }
                 } else if (req->method == "DELETE") {
                     if (channel->output) {
                         channel->output(nullptr);
@@ -449,9 +549,10 @@ namespace mcp::server::http {
                     res->status(409).end();
                 } else {
                     auto operation = std::make_shared<Operation>(
-                        server, config, nullptr, res, ProtocolEra::Initialization20251125, StreamMode::Sse, std::nullopt);
+                        server, config, nullptr, res, ProtocolEra::Initialization20251125, StreamMode::Sse, principal);
                     operation->owner = operation;
                     operation->channel = channel;
+                    retain(operation);
                     operations.push_back(operation);
                     res->status(200).set("Content-Type", "text/event-stream").set("Cache-Control", "no-cache");
                     if (!res->pipe(operation.get())) {
@@ -461,6 +562,11 @@ namespace mcp::server::http {
             }
 
             ~State() {
+                replayTimer.cancel();
+                for (const auto& [id, operation] : replayStreams) {
+                    static_cast<void>(id);
+                    operation->abandon();
+                }
                 if (reader) {
                     reader->close();
                 }
@@ -473,12 +579,14 @@ namespace mcp::server::http {
             void shutdown() {
                 if (!stopping) {
                     stopping = true;
+                    replayTimer.cancel();
                     for (const auto& weak : operations) {
                         if (const auto operation = weak.lock()) {
                             operation->shutdown();
                         }
                     }
 
+                    replayStreams.clear();
                     if (reader) {
                         reader->close();
                     }
@@ -491,6 +599,13 @@ namespace mcp::server::http {
 
             void observe() {
                 const std::weak_ptr<State> weak = shared_from_this();
+                replayTimer = core::timer::Timer::intervalTimer(
+                    [weak] {
+                        if (const auto state = weak.lock()) {
+                            state->cleanReplay();
+                        }
+                    },
+                    utils::Timeval(1));
                 reader = lifecycle.releaseReadAsSink(1, utils::Timeval(0));
                 writer = lifecycle.releaseWriteAsSource(1, utils::Timeval(0));
                 if (!reader || !writer) {
@@ -524,6 +639,11 @@ namespace mcp::server::http {
 
     Router::Router(Server& server, Config& config, Authorize authorize, RouterOptions options)
         : protectedResource(options.protectedResource) {
+        if (options.replay.maximumEvents > 4096 || options.replay.maximumBytes < 1024 || options.replay.maximumBytes > 16777216 ||
+            options.replay.retentionMs == 0 || options.replay.retentionMs > 300000 || options.replay.maximumStreams == 0 ||
+            options.replay.maximumStreams > 1024) {
+            throw std::invalid_argument("Invalid SSE replay limits");
+        }
         if (protectedResource) {
             static_cast<void>(metadataUrl(*protectedResource));
         }
@@ -583,7 +703,8 @@ namespace mcp::server::http {
                     } else if (std::holds_alternative<Forbidden>(*authorization)) {
                         res->status(403).end();
                     } else if (req->method != "POST") {
-                        if (state->options.legacySubscriptions == LegacySubscriptions::Enabled &&
+                        req->template setAttribute<Authorized>(std::get<Authorized>(*authorization));
+                        if ((state->options.legacySubscriptions == LegacySubscriptions::Enabled || !req->get("Last-Event-ID").empty()) &&
                             req->get("MCP-Protocol-Version") == protocolVersion2025 && (req->method == "GET" || req->method == "DELETE")) {
                             state->legacy(req, res);
                         } else {
@@ -660,7 +781,12 @@ namespace mcp::server::http {
                         std::erase_if(state->operations, [](const auto& weak) {
                             return weak.expired();
                         });
-                        if (state->stopping || state->operations.size() >= 64) {
+                        const auto activeOperations =
+                            std::count_if(state->operations.begin(), state->operations.end(), [](const auto& weak) {
+                                const auto operation = weak.lock();
+                                return operation && !operation->closed;
+                            });
+                        if (state->stopping || activeOperations >= 64) {
                             res->status(429).end();
                         } else {
                             const auto channel = era == ProtocolEra::Initialization20251125 ? state->findSession(req) : nullptr;
@@ -683,6 +809,7 @@ namespace mcp::server::http {
                                                          : channel;
                             }
 
+                            state->retain(operation);
                             operation->owner = operation;
                             state->operations.push_back(operation);
                             if (mode == StreamMode::Sse) {

@@ -48,6 +48,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstddef>
+#include <cstdint>
 #include <optional>
 #include <string>
 #include <variant>
@@ -95,10 +97,19 @@ namespace mcp::server {
             std::optional<std::string> documentation{};    ///< Optional documentation URI.
         };
 
+        /// 2025 SSE replay limits; maximumEvents=0 disables resumability.
+        struct ReplayOptions {
+            std::size_t maximumEvents = 128;
+            std::size_t maximumBytes = 1048576;
+            std::uint64_t retentionMs = 60000;
+            std::size_t maximumStreams = 64;
+        };
+
         /// Owned HTTP binding policy, copied into the router at construction.
         struct RouterOptions {
             std::optional<ProtectedResource> protectedResource{};                   ///< Optional RFC 9728 metadata/challenge configuration.
             LegacySubscriptions legacySubscriptions = LegacySubscriptions::Enabled; ///< Enable bounded 2025 session/GET channels.
+            ReplayOptions replay{};
         };
 
         /// Express router; copy/mount it while the borrowed registry and config remain alive.
