@@ -258,3 +258,12 @@ if(TARGET snodec-mcp-client AND TARGET snodec-dev-stdio)
         PROPERTIES LABELS "mcp;component;client;stdio;lifecycle" TIMEOUT 15
     )
 endif()
+
+add_test(NAME McpClientHttpReuseTest
+         COMMAND ${MCP_PYTHON} -B ${CMAKE_CURRENT_SOURCE_DIR}/reuse_test.py
+                 $<TARGET_FILE:snodec-mcp-client> $<TARGET_FILE:McpHttpFixture>
+)
+set_tests_properties(
+    McpClientHttpReuseTest PROPERTIES LABELS "mcp;component;client;http"
+                                      TIMEOUT 25
+)
