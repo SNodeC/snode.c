@@ -41,28 +41,35 @@
 
 #include "Calculator.h"
 #include "core/SNodeC.h"
-#include "core/socket/State.h"
+// IWYU pragma: no_include "core/socket/Socket.hpp"
+// IWYU pragma: no_include "core/socket/stream/SocketConnection.hpp"
 #include "core/socket/stream/SocketContextFactory.h"
 #include "express/legacy/in/WebApp.h"
 #include "jsonrpc/SocketContext.h"
+#include "jsonrpc/client/SubProtocol.h"
 #include "jsonrpc/server/SubProtocol.h"
-#include "net/in/SocketAddress.h"
 #include "net/in/stream/legacy/SocketClient.h"
 #include "net/in/stream/legacy/SocketServer.h"
 #include "net/stdio/SocketAddress.h"
 #include "net/stdio/stream/SocketEndpoint.h"
-#include "net/un/SocketAddress.h"
+#include "net/stdio/stream/config/ConfigSocketEndpoint.h"
 #include "net/un/stream/legacy/SocketServer.h"
 #include "utils/Config.h"
+#include "web/http/legacy/in/Client.h"
 #include "web/websocket/SubProtocolFactory.h"
+#include "web/websocket/client/SocketContextUpgradeFactory.h"
+#include "web/websocket/client/SubProtocol.h"
+#include "web/websocket/client/SubProtocolFactorySelector.h"
 #include "web/websocket/server/SocketContextUpgradeFactory.h"
+#include "web/websocket/server/SubProtocol.h"
 #include "web/websocket/server/SubProtocolFactorySelector.h"
 
+namespace jsonrpc {
+    class JsonRpc;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-#include <cstdint>
 #include <fcntl.h>
-#include <memory>
-#include <string>
 #include <unistd.h>
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
@@ -76,7 +83,7 @@ namespace {
 
         ~Factory() final;
 
-    private:
+    public:
         core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* connection) final {
             ::jsonrpc::JsonRpc* protocol =
                 client ? static_cast<::jsonrpc::JsonRpc*>(new apps::jsonrpc::CalculatorClient) : new apps::jsonrpc::Calculator;
@@ -86,6 +93,7 @@ namespace {
             return new ::jsonrpc::SocketContext(connection, protocol, framing);
         }
 
+    private:
         bool client;
     };
 
@@ -107,6 +115,26 @@ namespace {
 
     WebSocketFactory::~WebSocketFactory() = default;
 
+    class ClientWebSocketFactory final : public web::websocket::SubProtocolFactory<web::websocket::client::SubProtocol> {
+    public:
+        ClientWebSocketFactory()
+            : SubProtocolFactory("jsonrpc") {
+        }
+
+        ~ClientWebSocketFactory() final;
+
+    private:
+        web::websocket::client::SubProtocol* create(web::websocket::SubProtocolContext* context) final {
+            return new ::jsonrpc::client::SubProtocol(context, "jsonrpc", new apps::jsonrpc::CalculatorClient);
+        }
+    };
+
+    ClientWebSocketFactory::~ClientWebSocketFactory() = default;
+
+    web::websocket::SubProtocolFactory<web::websocket::client::SubProtocol>* clientWebSocketFactory() {
+        return new ClientWebSocketFactory;
+    }
+
     web::websocket::SubProtocolFactory<web::websocket::server::SubProtocol>* webSocketFactory() {
         return new WebSocketFactory;
     }
@@ -121,7 +149,7 @@ int main(int argc, char* argv[]) {
                                             "Calculator transport",
                                             "transport",
                                             std::string("stdio"),
-                                            CLI::IsMember({"stdio", "tcp", "unix", "websocket", "client"}));
+                                            CLI::IsMember({"stdio", "tcp", "unix", "websocket", "client", "websocket-client"}));
         utils::Config::configRoot.addOption(
             "--framing", "Stream framing", "framing", std::string("newline"), CLI::IsMember({"newline", "content-length"}));
         utils::Config::configRoot.addOption("--port", "TCP/WebSocket port", "port", std::uint16_t(7777), CLI::Validator());
@@ -131,6 +159,30 @@ int main(int argc, char* argv[]) {
         const net::stdio::stream::SocketEndpoint<Factory> stdio("calculator-stdio");
         const net::in::stream::legacy::SocketClient<Factory, bool> client("calculator-client", true);
         const express::legacy::in::WebApp app("calculator-websocket");
+        const web::http::legacy::in::Client wsClient(
+            "calculator-websocket-client",
+            [](const auto& request) {
+                request->set("Sec-WebSocket-Protocol", "jsonrpc");
+                request->upgrade(
+                    "/ws",
+                    "websocket",
+                    [](bool success) {
+                        if (!success) {
+                            core::SNodeC::stop();
+                        }
+                    },
+                    [](const auto&, const auto&, bool success) {
+                        if (!success) {
+                            core::SNodeC::stop();
+                        }
+                    },
+                    [](const auto&, const std::string&) {
+                        core::SNodeC::stop();
+                    });
+            },
+            [](const auto&) {
+            });
+        wsClient.getConfig()->Instance::forceUnrequired();
         tcp.getConfig()->Instance::forceUnrequired();
         local.getConfig()->Instance::forceUnrequired();
         stdio.getConfig()->Instance::forceUnrequired();
@@ -152,6 +204,10 @@ int main(int argc, char* argv[]) {
             local.listen(net::un::SocketAddress(utils::Config::configRoot.getOption("--path")->as<std::string>()), status);
         } else if (transport == "client") {
             client.connect(net::in::SocketAddress("127.0.0.1", port), status);
+        } else if (transport == "websocket-client") {
+            web::websocket::client::SocketContextUpgradeFactory::link();
+            web::websocket::client::SubProtocolFactorySelector::link("jsonrpc", clientWebSocketFactory);
+            wsClient.connect(net::in::SocketAddress("127.0.0.1", port), status);
         } else {
             web::websocket::server::SocketContextUpgradeFactory::link();
             web::websocket::server::SubProtocolFactorySelector::link("jsonrpc", webSocketFactory);

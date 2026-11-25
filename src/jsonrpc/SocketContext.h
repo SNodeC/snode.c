@@ -45,6 +45,14 @@
 #include "core/socket/stream/SocketContext.h"
 #include "jsonrpc/JsonRpcContext.h"
 
+namespace core::socket::stream {
+    class SocketConnection;
+}
+
+namespace jsonrpc {
+    class JsonRpc;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 #include <cstddef>
 #include <optional>
@@ -69,20 +77,21 @@ namespace jsonrpc {
                       std::size_t maximumHeaderSize = 8192);
         ~SocketContext() override;
 
+        core::socket::stream::SocketConnection* getSocketConnection() const final;
+        void close() final;
+
     protected:
         void sendMessage(const std::string& message) override;
-        void onReadError(int error) override;
-        void onWriteError(int error) override;
-        void onShutdown() override;
 
     private:
+        void onReadError(int error) final;
+        void onWriteError(int error) final;
+        void onShutdown() final;
         void onConnected() final;
         std::size_t onReceivedFromPeer() final;
         void onDisconnected() final;
         bool onSignal(int sig) final;
-        core::socket::stream::SocketConnection* getSocketConnection() const final;
         void end() final;
-        void close() final;
         void consume(std::string_view bytes);
         void parseHeader();
         void framingError();

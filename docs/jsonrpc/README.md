@@ -16,7 +16,8 @@ public:
     Calculator() : Super("calculator") {}
 private:
     void onRequest(const jsonrpc::messages::Request& request) final {
-        if (request.method == "add" && request.params && request.params->is_array()) {
+        if (request.method == "add" && request.params && request.params->is_array() && request.params->size() == 2 &&
+            (*request.params)[0].is_number() && (*request.params)[1].is_number()) {
             sendResult(request.id, (*request.params)[0].get<double>() + (*request.params)[1].get<double>());
         } else {
             Super::onRequest(request);
@@ -28,6 +29,8 @@ private:
 `onRequest`, `onNotification`, `onResult`, `onError` and `onRequestTimeout` have safe defaults. The default request hook answers Method not found. A request hook can retain the id and call `sendResult` or `sendError` later on the event-loop thread; duplicate or unknown answers are dropped. Incoming ids and outgoing ids are independent namespaces. Outgoing responses are removed from the outstanding table before application hooks run. `sendRequest(method, params, timeout)` allocates an integer id; zero timeout disables the timer. Disconnect/destruction cancels timers and discards connection state. Overrides of lifecycle hooks call the base implementation.
 
 Derived protocols configure `setBatchesEnabled`, `setMaximumMessageSize`, and `setMaximumNestingDepth`. Defaults are batches enabled, 1 MiB messages and 128 nested containers. Batch replies are emitted once all requests have answers, including deferred answers; notifications produce no replies. Limits are checked before dispatch. Invalid framing closes the connection; oversized whole messages and excessive nesting produce Invalid Request.
+
+Protocols with additional response constraints can override `validateResult` before correlation is consumed. It defaults to true; a rejected result leaves the request outstanding for a valid reply or timeout. Explicit-id `sendRequest`, `cancelRequest`, and `discardRequest` are protected extension points for protocol-specific id namespaces and cancellation.
 
 ## Bind transports
 

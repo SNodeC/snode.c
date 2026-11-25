@@ -43,6 +43,7 @@
 
 #include "Log.h"
 #include "core/timer/Timer.h"
+#include "jsonrpc/messages/Id.h"
 #include "jsonrpc/messages/Notification.h"
 #include "jsonrpc/messages/Request.h"
 #include "jsonrpc/messages/Result.h"
@@ -85,10 +86,6 @@ namespace mcp::server {
     using namespace detail;
 
     namespace {
-
-        bool validId(const Json& id) {
-            return id.is_string() || id.is_number_integer();
-        }
 
         nlohmann::json_schema::json_validator schemaValidator() {
             nlohmann::json_schema::json_validator validator(
@@ -135,7 +132,7 @@ namespace mcp::server {
     } // namespace
 
     detail::Response::Response(Json id, ProtocolEra era, CachePolicy cachePolicy, Output output, const utils::Timeval& timeout)
-        : id(validId(id) ? std::move(id) : Json())
+        : id(jsonrpc::messages::isValidId(id) ? std::move(id) : Json())
         , era(era)
         , cachePolicy(cachePolicy)
         , output(std::move(output))
@@ -556,16 +553,15 @@ namespace mcp::server {
         return result;
     }
 
-    std::shared_ptr<detail::Access::Response> Server::Impl::dispatchRequest(const Json& request,
+    std::shared_ptr<detail::Access::Response> Server::Impl::dispatchRequest(const jsonrpc::messages::Request& request,
                                                                             ProtocolEra era,
                                                                             detail::Access::Response::Output output,
                                                                             const utils::Timeval& timeout,
                                                                             std::optional<Principal> principal,
-                                                                            std::shared_ptr<detail::Channel> channel) const {
-        const Json id = request.is_object() ? request.value("id", Json()) : Json();
-        const std::string method = request.is_object() && request.contains("method") && request["method"].is_string()
-                                       ? request["method"].get<std::string>()
-                                       : std::string();
+                                                                            std::shared_ptr<detail::Channel> channel,
+                                                                            Mcp* protocol) const {
+        const Json& id = request.id;
+        const std::string& method = request.method;
         auto reply = std::make_shared<detail::Access::Response>(
             id,
             era,
@@ -573,6 +569,7 @@ namespace mcp::server {
                                                                                                    : CachePolicy::None,
             std::move(output),
             timeout);
+        reply->protocol = protocol;
         reply->toolRequest = method == "tools/call";
         reply->serverInfo = serverInfo;
         reply->closure = channel && era == ProtocolEra::PerRequest20260728 ? SubscriptionClosure::Cancel : SubscriptionClosure::Complete;
@@ -590,7 +587,7 @@ namespace mcp::server {
         }
 
         try {
-            const Json params = request.value("params", Json::object());
+            const Json params = request.params.value_or(Json::object());
             const Json meta = params.value("_meta", Json::object());
             const Json version = meta.is_object() ? meta.value(versionKey, Json()) : Json();
             reply->clientCapabilities = era == ProtocolEra::Initialization20251125 && channel ? channel->capabilities

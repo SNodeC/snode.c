@@ -40,9 +40,22 @@
 add_executable(jsonrpc-calculator Calculator.cpp Calculator.h main.cpp)
 target_link_libraries(
     jsonrpc-calculator
-    PRIVATE jsonrpc jsonrpc-server-websocket net-in-stream-legacy
-            net-un-stream-legacy net-stdio-stream http-server-express-legacy-in
+    PRIVATE jsonrpc
+            jsonrpc-server-websocket
+            jsonrpc-client-websocket
+            http-client
+            net-in-stream-legacy
+            net-un-stream-legacy
+            net-stdio-stream
+            http-server-express-legacy-in
 )
+set_target_properties(
+    jsonrpc-calculator
+    PROPERTIES
+        INSTALL_RPATH
+        "$ORIGIN/../${CMAKE_INSTALL_LIBDIR}/snode.c/jsonrpc;$ORIGIN/../${CMAKE_INSTALL_LIBDIR}/snode.c/web/http;$ORIGIN/../${CMAKE_INSTALL_LIBDIR}/snode.c/web/http/upgrade"
+)
+
 install(TARGETS jsonrpc-calculator RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
                                            COMPONENT apps
 )

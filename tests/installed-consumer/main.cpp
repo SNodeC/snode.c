@@ -46,6 +46,7 @@
 #include <core/socket/stream/SocketServer.h>
 #include <express/legacy/in/Server.h>
 #include <jsonrpc/JsonRpc.h>
+#include <jsonrpc/JsonRpcContext.h>
 #include <jsonrpc/SocketContext.h>
 #include <jsonrpc/client/SubProtocol.h>
 #include <jsonrpc/server/SubProtocol.h>
@@ -55,6 +56,7 @@
 #include <mcp/server/Server.h>
 #include <mcp/server/Tool.h>
 #include <mcp/server/http/Router.h>
+#include <mcp/server/stream/SocketContext.h>
 #include <mcp/server/stream/SocketContextFactory.h>
 #include <net/in/stream/legacy/SocketClient.h>
 #include <net/in/stream/legacy/SocketServer.h>
@@ -73,6 +75,33 @@
 #include <utils/Config.h>
 
 namespace {
+
+    class InstalledRpcContext final : public jsonrpc::JsonRpcContext {
+    public:
+        InstalledRpcContext()
+            : JsonRpcContext(new jsonrpc::JsonRpc("installed")) {
+        }
+
+        ~InstalledRpcContext() final;
+
+        void sendMessage(const std::string& message) final {
+            output = message;
+        }
+
+        void end() final {
+        }
+
+        void close() final {
+        }
+
+        core::socket::stream::SocketConnection* getSocketConnection() const final {
+            return nullptr;
+        }
+
+        std::string output;
+    };
+
+    InstalledRpcContext::~InstalledRpcContext() = default;
 
     class InstalledContext final : public core::socket::stream::SocketContext {
     public:
@@ -152,9 +181,19 @@ static_assert(std::is_base_of_v<web::websocket::server::SubProtocol, jsonrpc::se
 static_assert(std::is_base_of_v<web::websocket::client::SubProtocol, jsonrpc::client::SubProtocol>);
 
 int main([[maybe_unused]] int argc, char* argv[]) {
+    InstalledRpcContext rpc;
+    rpc.onConnected();
+    rpc.onMessage(R"({"jsonrpc":"2.0","id":"consumer","method":"missing"})");
+    const bool jsonrpcReady =
+        nlohmann::json::parse(rpc.output) ==
+        nlohmann::json::parse(R"({"jsonrpc":"2.0","id":"consumer","error":{"code":-32601,"message":"Method not found"}})");
+    rpc.onDisconnected();
     int result = 1;
     int pair[2]{};
     static_assert(std::is_base_of_v<core::socket::stream::SocketContextFactory, mcp::server::stream::SocketContextFactory>);
+    static_assert(std::is_same_v<decltype(std::declval<mcp::server::stream::SocketContext&>().getSocketConnection()),
+                                 core::socket::stream::SocketConnection*>);
+    static_assert(std::is_same_v<decltype(std::declval<mcp::server::stream::SocketContext&>().close()), void>);
     static_assert(sizeof(mcp::server::http::Router) >= sizeof(express::Router));
     mcp::server::Server server("installed-consumer", "test-version");
     server.tool(std::make_shared<InstalledTool>());
@@ -176,7 +215,7 @@ int main([[maybe_unused]] int argc, char* argv[]) {
         });
         const int loop = core::SNodeC::start();
         ::close(pair[1]);
-        result = loop == 0 && attached == 1 ? 0 : 1;
+        result = loop == 0 && attached == 1 && jsonrpcReady ? 0 : 1;
     }
 
     return result;

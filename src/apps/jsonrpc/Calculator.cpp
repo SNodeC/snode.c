@@ -46,9 +46,16 @@
 #include "jsonrpc/messages/ErrorCode.h"
 #include "jsonrpc/messages/Request.h"
 #include "jsonrpc/messages/Result.h"
+#include "log/SemanticLogger.h"
+#include "utils/Timeval.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <nlohmann/detail/json_ref.hpp>
 #include <nlohmann/json.hpp>
+#include <nlohmann/json_fwd.hpp>
+#include <optional>
+#include <string>
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace apps::jsonrpc {

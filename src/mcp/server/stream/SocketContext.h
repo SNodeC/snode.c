@@ -50,6 +50,10 @@ namespace mcp::server {
     class Mcp;
 } // namespace mcp::server
 
+namespace core::socket::stream {
+    class SocketConnection;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 #include <string>
 #endif // DOXYGEN_SHOULD_SKIP_THIS

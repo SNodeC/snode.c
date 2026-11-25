@@ -47,11 +47,19 @@
 #include "jsonrpc/messages/Notification.h"
 #include "jsonrpc/messages/Request.h"
 #include "jsonrpc/messages/Result.h"
+#include "mcp/server/Server.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include <algorithm>
+#include <cmath>
+#include <cstdint>
+#include <functional>
 #include <map>
+#include <nlohmann/detail/json_ref.hpp>
+#include <set>
 #include <utility>
+#include <vector>
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace mcp::server {
@@ -130,8 +138,8 @@ namespace mcp::server {
     }
 
     Mcp::~Mcp() {
-        finish();
         state->owner = nullptr;
+        finish();
     }
 
     void Mcp::finish() {
@@ -178,10 +186,7 @@ namespace mcp::server {
     Json Mcp::errorResponse(const Json& id, ProtocolEra era, int code, const std::string& message, Json data) {
         Json value =
             jsonrpc::messages::Error{id, code, message, data.is_null() ? std::nullopt : std::optional<Json>(std::move(data))}.toJson();
-        if (id.is_null() && era == ProtocolEra::PerRequest20260728) {
-            value.erase("id");
-        }
-        return value;
+        return wire(std::move(value), era);
     }
 
     bool Server::Impl::validRequest(const Json& request) {
@@ -189,7 +194,11 @@ namespace mcp::server {
     }
 
     Json Mcp::wire(Json value) const {
-        if (state->era == ProtocolEra::PerRequest20260728 && value.contains("error") && value.value("id", Json()).is_null()) {
+        return wire(std::move(value), state->era);
+    }
+
+    Json Mcp::wire(Json value, ProtocolEra era) {
+        if (era == ProtocolEra::PerRequest20260728 && value.contains("error") && value.value("id", Json()).is_null()) {
             value.erase("id");
         }
         return value;
@@ -205,7 +214,7 @@ namespace mcp::server {
 
     std::shared_ptr<Response> Mcp::receive(const Json& request, Response::Output sink) {
         state->sink = std::move(sink);
-        const_cast<jsonrpc::JsonRpcContext*>(getJsonRpcContext())->onMessage(request.dump());
+        jsonRpcContext->onMessage(request.dump());
         auto reply = std::move(state->reply);
         if (reply) {
             state->pending.erase(reply->id);
@@ -220,7 +229,7 @@ namespace mcp::server {
         std::erase_if(state->pending, [](const auto& entry) {
             return entry.second->done;
         });
-        const Json envelope = request.toJson();
+        const bool valid = validRequest(request.toJson());
         const Json params = request.params.value_or(Json::object());
         const Json meta = params.is_object() ? params.value("_meta", Json()) : Json();
         const bool hasMeta = meta.is_object() && (meta.contains(versionKey) || meta.contains(capabilitiesKey));
@@ -239,14 +248,12 @@ namespace mcp::server {
             }
         };
         std::shared_ptr<Response> reply;
-        if (!validRequest(envelope) || state->pending.size() >= 64) {
+        if (!valid || state->pending.size() >= 64) {
             reply = std::make_shared<Response>(request.id, era, CachePolicy::None, output, state->timeout);
-            reply->error(jsonrpc::messages::InvalidRequest,
-                         !validRequest(envelope) ? "Invalid Request" : "Duplicate id or in-flight limit");
+            reply->error(jsonrpc::messages::InvalidRequest, !valid ? "Invalid Request" : "Duplicate id or in-flight limit");
         } else {
-            reply = state->registry.dispatchRequest(envelope, era, output, state->timeout, state->principal, state->channel);
+            reply = state->registry.dispatchRequest(request, era, output, state->timeout, state->principal, state->channel, this);
         }
-        reply->protocol = this;
         if (!reply->done) {
             state->pending.emplace(request.id, reply);
         }
@@ -256,9 +263,17 @@ namespace mcp::server {
     }
 
     void Mcp::output(const Json& value, bool terminal, const Response::Output& sink, const Json& id) {
-        const auto previous = std::exchange(state->sink, sink);
+        // HTTP's typed callback retains its JSON number types across wire serialization.
+        const Response::Output typed = sink ? Response::Output([sink, value](const Json&, bool done) {
+            sink(value, done);
+        })
+                                            : sink;
+        const auto previous = std::exchange(state->sink, typed);
         if (value.is_null()) {
             discardRequest(id);
+            if (sink) {
+                sink(nullptr, terminal);
+            }
         } else if (value.contains("result")) {
             sendResult(value["id"], value["result"]);
         } else if (value.contains("error")) {
@@ -288,6 +303,21 @@ namespace mcp::server {
         }
     }
 
+    bool Mcp::validateResult(const jsonrpc::messages::Result& result) const {
+        bool accepted = false;
+        if (state->channel && result.result.is_object()) {
+            const auto found = state->channel->inputs.find(result.id.dump());
+            if (found != state->channel->inputs.end()) {
+                const Json action = result.result.value("action", Json());
+                const Json content = result.result.value("content", Json());
+                const bool validContent = content.is_null() || content.is_object();
+                accepted = (action == "accept" && (!found->second.requestedSchema.is_null() || validContent)) ||
+                           ((action == "decline" || action == "cancel") && validContent);
+            }
+        }
+        return accepted;
+    }
+
     void Mcp::onResult(const jsonrpc::messages::Result& result) {
         state->accepted = state->channel && state->channel->complete(result.toJson());
     }
@@ -298,11 +328,7 @@ namespace mcp::server {
 
     bool Mcp::respond(const Json& message) {
         state->accepted = false;
-        const auto result = message.is_object() ? message.value("result", Json()) : Json();
-        const auto action = result.is_object() ? result.value("action", Json()) : Json();
-        if (!message.contains("result") || action == "accept" || action == "decline" || action == "cancel") {
-            const_cast<jsonrpc::JsonRpcContext*>(getJsonRpcContext())->onMessage(message.dump());
-        }
+        jsonRpcContext->onMessage(message.dump());
         return state->accepted;
     }
 
@@ -331,6 +357,8 @@ namespace mcp::server {
                 if (const auto response = found->second.response.lock(); response && response->protocol != nullptr) {
                     const auto owner = response->protocolOwner;
                     accepted = response->protocol->respond(message);
+                } else {
+                    inputs.erase(found);
                 }
             }
         }
@@ -349,16 +377,14 @@ namespace mcp::server {
                     const Json failure = message.value("error", Json());
                     const Json action = result.is_object() ? result.value("action", Json()) : Json();
                     const Json content = result.is_object() ? result.value("content", Json()) : Json();
-                    bool failed = failure.is_object() && failure.value("code", Json()).is_number_integer() &&
-                                  failure.value("message", Json()).is_string();
+                    bool failed = !failure.is_null();
                     std::string validationError;
                     if (action == "accept" && !found->second.requestedSchema.is_null()) {
                         failed = !Access::Registry::validate(found->second.requestedSchema, content, validationError) || failed;
                     }
 
                     response->expire();
-                    if (!response->done && (failed || ((action == "accept" || action == "decline" || action == "cancel") &&
-                                                       (content.is_null() || content.is_object())))) {
+                    if (!response->done) {
                         accepted = true;
                         inputs.erase(message["id"].dump());
                         if (failed) {

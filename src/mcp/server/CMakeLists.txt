@@ -108,6 +108,7 @@ set_target_properties(
     mcp-server
     PROPERTIES VERSION ${SNode.C_VERSION}
                SOVERSION ${SNODEC_MCP_SOVERSION}
+               INSTALL_RPATH "$ORIGIN/../jsonrpc"
                OUTPUT_NAME snodec-mcp-server
 )
 install(

@@ -43,11 +43,17 @@
 #define MCP_SERVER_MCP_H
 
 #include "jsonrpc/JsonRpc.h"
+#include "mcp/server/Types.h"
 #include "mcp/server/detail/Server.h"
+#include "utils/Timeval.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <cstddef>
 #include <memory>
+#include <nlohmann/json.hpp>
 #include <optional>
+#include <string>
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace mcp::server {
@@ -72,6 +78,7 @@ namespace mcp::server {
         std::shared_ptr<detail::Response> receive(const Json& request, detail::Response::Output output);
         void deliver(const std::string& message);
         Json wire(Json value) const;
+        static Json wire(Json value, detail::ProtocolEra era);
         bool respond(const Json& message);
         void forget(const Json& id);
         static bool validRequest(const Json& request);
@@ -80,6 +87,7 @@ namespace mcp::server {
     private:
         void onRequest(const jsonrpc::messages::Request& request) final;
         void onNotification(const jsonrpc::messages::Notification& notification) final;
+        bool validateResult(const jsonrpc::messages::Result& result) const final;
         void onResult(const jsonrpc::messages::Result& result) final;
         void onError(const jsonrpc::messages::Error& error) final;
         void output(const Json& value, bool terminal, const detail::Response::Output& sink, const Json& id);

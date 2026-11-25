@@ -47,3 +47,5 @@ add_subdirectory(eventsource)
 add_subdirectory(database)
 
 add_subdirectory(mcp)
+
+add_subdirectory(jsonrpc)

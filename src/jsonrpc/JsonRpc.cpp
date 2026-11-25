@@ -52,7 +52,11 @@
 #include "log/Logger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <cmath>
+#include <functional>
 #include <limits>
+#include <nlohmann/detail/input/parser.hpp>
 #include <stdexcept>
 #include <utility>
 #endif // DOXYGEN_SHOULD_SKIP_THIS
@@ -76,7 +80,7 @@ namespace jsonrpc {
         const unsigned long generation = logger::LogManager::generation();
         if (!log_ || logGeneration_ != generation) {
             logGeneration_ = generation;
-            const auto* connection = context != nullptr ? context->getSocketConnection() : nullptr;
+            const auto* connection = jsonRpcContext != nullptr ? jsonRpcContext->getSocketConnection() : nullptr;
             log_.emplace(logger::LogScopeOwner(logger::LogOrigin::Framework,
                                                logger::LogBoundary::Connection,
                                                "jsonrpc",
@@ -92,12 +96,12 @@ namespace jsonrpc {
     }
 
     void JsonRpc::setJsonRpcContext(JsonRpcContext* context) {
-        this->context = context;
+        jsonRpcContext = context;
         log_.reset();
     }
 
     const JsonRpcContext* JsonRpc::getJsonRpcContext() const {
-        return context;
+        return jsonRpcContext;
     }
 
     const std::string& JsonRpc::getConnectionName() const {
@@ -147,8 +151,7 @@ namespace jsonrpc {
     bool JsonRpc::isRequest(const json& value) {
         return value.is_object() && value.value("jsonrpc", json()) == "2.0" && value.value("method", json()).is_string() &&
                (!value.contains("id") || messages::isValidId(value["id"])) &&
-               (!value.contains("params") || value["params"].is_object() || value["params"].is_array()) && !value.contains("result") &&
-               !value.contains("error");
+               (!value.contains("params") || value["params"].is_object() || value["params"].is_array());
     }
 
     bool JsonRpc::isResponse(const json& value) {
@@ -246,8 +249,11 @@ namespace jsonrpc {
     }
 
     void JsonRpc::_onResult(const messages::Result& result) {
-        if (cancelRequest(result.id)) {
-            onResult(result);
+        if (outgoing.contains(result.id)) {
+            if (validateResult(result)) {
+                cancelRequest(result.id);
+                onResult(result);
+            }
         } else {
             log().warn() << "unknown response id: " << result.id;
         }
@@ -268,6 +274,10 @@ namespace jsonrpc {
     void JsonRpc::onNotification([[maybe_unused]] const messages::Notification& notification) {
     }
 
+    bool JsonRpc::validateResult([[maybe_unused]] const messages::Result& result) const {
+        return true;
+    }
+
     void JsonRpc::onResult([[maybe_unused]] const messages::Result& result) {
     }
 
@@ -284,9 +294,9 @@ namespace jsonrpc {
         return requestIdentifier;
     }
 
-    messages::Id JsonRpc::sendRequest(const std::string& method, std::optional<json> params, const utils::Timeval& timeout) {
+    messages::Id JsonRpc::sendRequest(const std::string& method, const json& params, const utils::Timeval& timeout) {
         const auto id = getRequestIdentifier();
-        sendRequest(messages::Request{id, method, std::move(params)}, timeout);
+        sendRequest(messages::Request{id, method, params.is_null() ? std::nullopt : std::optional<json>(params)}, timeout);
         return id;
     }
 
@@ -321,8 +331,8 @@ namespace jsonrpc {
         return present;
     }
 
-    void JsonRpc::sendNotification(const std::string& method, std::optional<json> params) {
-        const messages::Notification notification{method, std::move(params)};
+    void JsonRpc::sendNotification(const std::string& method, const json& params) {
+        const messages::Notification notification{method, params.is_null() ? std::nullopt : std::optional<json>(params)};
         if (isRequest(notification.toJson())) {
             send(notification.toJson());
         } else {
@@ -336,6 +346,10 @@ namespace jsonrpc {
 
     void JsonRpc::sendError(const messages::Id& id, std::int64_t code, const std::string& message, std::optional<json> data) {
         answer(id, messages::Error{id, code, message, std::move(data)}.toJson());
+    }
+
+    void JsonRpc::sendError(const messages::Id& id, std::int64_t code, const std::string& message, const json& data) {
+        sendError(id, code, message, std::optional<json>(data));
     }
 
     void JsonRpc::answer(const messages::Id& id, const json& response) {
@@ -381,8 +395,8 @@ namespace jsonrpc {
     }
 
     void JsonRpc::send(const json& value) {
-        if (context != nullptr) {
-            context->sendMessage(value.dump());
+        if (jsonRpcContext != nullptr) {
+            jsonRpcContext->sendMessage(value.dump());
         }
     }
 

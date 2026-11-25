@@ -58,11 +58,13 @@ namespace jsonrpc {
 } // namespace jsonrpc
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include <cstddef>
 #include <cstdint>
 #include <map>
 #include <memory>
 #include <nlohmann/json.hpp>
+#include <nlohmann/json_fwd.hpp>
 #include <optional>
 #include <string>
 #endif // DOXYGEN_SHOULD_SKIP_THIS
@@ -83,12 +85,13 @@ namespace jsonrpc {
         virtual void onDisconnected();
         virtual bool onSignal(int sig);
 
-        messages::Id sendRequest(const std::string& method,
-                                 std::optional<nlohmann::json> params = {},
-                                 const utils::Timeval& timeout = utils::Timeval(0));
-        void sendNotification(const std::string& method, std::optional<nlohmann::json> params = {});
+        messages::Id
+        sendRequest(const std::string& method, const nlohmann::json& params = nullptr, const utils::Timeval& timeout = utils::Timeval(0));
+        void sendNotification(const std::string& method, const nlohmann::json& params = nullptr);
         void sendResult(const messages::Id& id, const nlohmann::json& result);
         void sendError(const messages::Id& id, std::int64_t code, const std::string& message, std::optional<nlohmann::json> data = {});
+
+        void sendError(const messages::Id& id, std::int64_t code, const std::string& message, const nlohmann::json& data);
 
         const std::string& getConnectionName() const;
         const JsonRpcContext* getJsonRpcContext() const;
@@ -99,6 +102,8 @@ namespace jsonrpc {
     protected:
         virtual void onRequest(const messages::Request& request);
         virtual void onNotification(const messages::Notification& notification);
+        /// Protocol-specific result validation precedes consuming the outstanding entry.
+        virtual bool validateResult(const messages::Result& result) const;
         virtual void onResult(const messages::Result& result);
         virtual void onError(const messages::Error& error);
         virtual void onRequestTimeout(const messages::Id& id);
@@ -133,7 +138,6 @@ namespace jsonrpc {
         void send(const nlohmann::json& value);
 
         std::string connectionName;
-        JsonRpcContext* context = nullptr;
         std::map<messages::Id, std::shared_ptr<Batch>> incoming;
         std::map<messages::Id, core::timer::Timer> outgoing;
         std::int64_t requestIdentifier = 0;
@@ -143,6 +147,9 @@ namespace jsonrpc {
         bool connected = false;
         mutable std::optional<logger::BoundaryLogger> log_;
         mutable unsigned long logGeneration_ = 0;
+
+    protected:
+        JsonRpcContext* jsonRpcContext = nullptr;
 
         friend class JsonRpcContext;
     };

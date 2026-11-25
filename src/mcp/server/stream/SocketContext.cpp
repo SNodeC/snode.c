@@ -43,12 +43,19 @@
 
 #include "Log.h"
 #include "core/socket/stream/SocketConnection.h"
+#include "core/socket/stream/SocketContext.h"
 #include "mcp/server/Config.h"
 #include "mcp/server/Mcp.h"
+#include "mcp/server/Types.h"
+#include "mcp/server/detail/Server.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include <algorithm>
+#include <map>
+#include <memory>
 #include <nlohmann/json.hpp>
+#include <optional>
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace mcp::server::stream {

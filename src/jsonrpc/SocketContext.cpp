@@ -45,11 +45,20 @@
 #include "jsonrpc/messages/Error.h"
 #include "jsonrpc/messages/ErrorCode.h"
 
+namespace core::socket::stream {
+    class SocketConnection;
+}
+
+#include "log/SemanticLogger.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include <algorithm>
 #include <cctype>
 #include <charconv>
+#include <nlohmann/json.hpp>
 #include <system_error>
+#include <utility>
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace jsonrpc {
@@ -105,6 +114,7 @@ namespace jsonrpc {
     }
 
     void SocketContext::framingError() {
+        Super::frameworkLog().error() << "invalid JSON-RPC stream framing";
         failed = true;
         buffer.clear();
         close();

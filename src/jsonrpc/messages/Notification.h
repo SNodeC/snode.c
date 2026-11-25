@@ -42,11 +42,10 @@
 #ifndef JSONRPC_MESSAGES_NOTIFICATION_H
 #define JSONRPC_MESSAGES_NOTIFICATION_H
 
-#include "jsonrpc/messages/Id.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-#include <cstdint>
+
 #include <nlohmann/json.hpp>
+#include <nlohmann/json_fwd.hpp>
 #include <optional>
 #include <string>
 #endif // DOXYGEN_SHOULD_SKIP_THIS

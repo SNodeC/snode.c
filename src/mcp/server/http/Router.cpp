@@ -48,6 +48,8 @@
 #include "core/pipe/Source.h"
 #include "core/timer/Timer.h"
 #include "express/middleware/JsonMiddleware.h"
+#include "jsonrpc/JsonRpc.h"
+#include "jsonrpc/messages/Id.h"
 #include "mcp/server/Config.h"
 #include "mcp/server/Mcp.h"
 #include "mcp/server/Types.h"
@@ -176,7 +178,7 @@ namespace mcp::server::http {
         fail(const std::shared_ptr<express::Response>& response, const Json& request, ProtocolEra era, int code, const std::string& text) {
             const Json id = request.is_object() ? request.value("id", Json()) : Json();
             WireReply(
-                id.is_string() || id.is_number_integer() ? id : Json(),
+                jsonrpc::messages::isValidId(id) ? id : Json(),
                 era,
                 CachePolicy::None,
                 [response](const Json& value, bool) {
@@ -616,15 +618,12 @@ namespace mcp::server::http {
                         fail(res, request, headerEra, -32600, "Invalid Request");
                     }
                 } else if (!Mcp::validRequest(request)) {
-                    Access::registry(state->server).dispatch(request, headerEra, [res](const Json& value, bool) {
-                        res->status(WireServer::httpStatus(value)).json(value);
-                    });
+                    fail(res, request, headerEra, -32600, "Invalid Request");
                 } else {
-                    const Json params =
-                        request.is_object() && request.value("params", Json()).is_object() ? request["params"] : Json::object();
+                    const Json params = request.value("params", Json::object());
                     const Json meta = params.value("_meta", Json::object());
                     const bool modernMeta = meta.is_object() && (meta.contains(versionKey) || meta.contains(capabilitiesKey));
-                    const Json method = request.is_object() ? request.value("method", Json()) : Json();
+                    const Json& method = request["method"];
                     const ProtocolEra era = !modernMeta && (headerEra == ProtocolEra::Initialization20251125 ||
                                                             (req->get("MCP-Protocol-Version").empty() && method == "initialize"))
                                                 ? ProtocolEra::Initialization20251125
@@ -633,7 +632,7 @@ namespace mcp::server::http {
                     const Json version = meta.is_object() ? meta.value(versionKey, Json()) : Json();
                     const bool needsName = method == "tools/call" || method == "prompts/get" || method == "resources/read";
                     const Json name = params.value(method == "resources/read" ? "uri" : "name", Json());
-                    const bool notification = request.is_object() && !request.contains("id");
+                    const bool notification = !request.contains("id");
                     if (!accepts(accept, "application/json") || !accepts(accept, "text/event-stream")) {
                         res->status(406).end();
                     } else if (era == ProtocolEra::PerRequest20260728 && !notification &&

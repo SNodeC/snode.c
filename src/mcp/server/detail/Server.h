@@ -54,7 +54,11 @@
 
 namespace jsonrpc {
     class JsonRpcContext;
-}
+
+    namespace messages {
+        struct Request;
+    }
+} // namespace jsonrpc
 
 namespace mcp::server {
     class Mcp;
@@ -175,12 +179,13 @@ namespace mcp::server {
                                                            const utils::Timeval& timeout = utils::Timeval(30),
                                                            std::optional<Principal> principal = {},
                                                            std::shared_ptr<detail::Channel> channel = {}) const;
-        std::shared_ptr<detail::Access::Response> dispatchRequest(const Json& request,
+        std::shared_ptr<detail::Access::Response> dispatchRequest(const jsonrpc::messages::Request& request,
                                                                   detail::ProtocolEra era,
                                                                   detail::Access::Response::Output output,
                                                                   const utils::Timeval& timeout = utils::Timeval(30),
                                                                   std::optional<Principal> principal = {},
-                                                                  std::shared_ptr<detail::Channel> channel = {}) const;
+                                                                  std::shared_ptr<detail::Channel> channel = {},
+                                                                  Mcp* protocol = nullptr) const;
         void resourceUpdated(const std::string& uri);
         static bool checkSchema(const Json& schema, std::string& error);
         static bool validate(const Json& schema, const Json& value, std::string& error);

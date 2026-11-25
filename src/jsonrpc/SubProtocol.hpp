@@ -90,7 +90,7 @@ namespace jsonrpc {
     template <typename WSRole>
     void SubProtocol<WSRole>::onMessageStart(int opCode) {
         message.clear();
-        rejected = opCode != web::websocket::SubProtocolContext::OpCode::TEXT;
+        rejected = rejected || opCode != web::websocket::SubProtocolContext::OpCode::TEXT;
         if (rejected) {
             Super::sendClose(1003);
         }

@@ -50,6 +50,7 @@ set_target_properties(
     jsonrpc-client-websocket
     PROPERTIES VERSION ${SNode.C_VERSION}
                SOVERSION ${SNODEC_SOVERSION}
+               INSTALL_RPATH "$ORIGIN;$ORIGIN/../web/http/upgrade"
                OUTPUT_NAME snodec-jsonrpc-client-websocket
 )
 install(

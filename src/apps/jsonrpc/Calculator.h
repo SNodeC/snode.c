@@ -43,6 +43,13 @@
 #define APPS_JSONRPC_CALCULATOR_H
 
 #include "jsonrpc/JsonRpc.h"
+#include "jsonrpc/messages/Id.h"
+
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <map>
+#include <nlohmann/json.hpp>
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace apps::jsonrpc {
 
