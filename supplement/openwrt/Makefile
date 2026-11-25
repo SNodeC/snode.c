@@ -10,7 +10,7 @@ PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/SNodeC/snode.c.git
 PKG_SOURCE_VERSION:=$(or $(SNODEC_SOURCE_TAG),v$(PKG_VERSION))
 # Fetch only the pinned build dependency, not documentation/feed submodules.
-PKG_SOURCE_SUBMODULES:=src/mcp/server/json-schema-validator
+PKG_SOURCE_SUBMODULES:=src/mcp/json-schema-validator
 
 PKG_MAINTAINER:=Volker Christian <me@vchrist.at>
 PKG_LICENSE:=LGPL-3.0-or-later
