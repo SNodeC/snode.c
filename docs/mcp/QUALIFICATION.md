@@ -1,16 +1,88 @@
-# Optional-feature qualification
+# MCP qualification
 
-This record describes the initial optional-feature series at `0292f96bc`; subsequent review fixes add their own regression tests and qualification evidence.
+The current application qualification is described below. The initial optional-feature record is retained at the end as historical evidence; it does not validate later revisions.
+
+This record covers the current application tour and preserves the initial optional-feature series at `0292f96bc` as history. The application guide, including HTTPS and the public API inventory, is [SHOWCASE.md](SHOWCASE.md).
 
 The optional-feature implementation targets the official 2025-11-25 and 2026-07-28 schemas. The [API addendum](API-PROPOSAL.md#optional-feature-implementation-addendum) records the revision-specific wire decisions and normative references; the [guide](README.md) describes the APIs, bounds and transport ownership. Sampling, roots and modern logging remain excluded.
 
-## Reproducible build discipline
+## Current application qualification
+
+The original `snodec-dev-stdio`, independent `mcp-http`/`mcp-https` instances in `snodec-dev-http`, and `snodec-mcp-client client --command tour` demonstrate the implemented module. See [SHOWCASE.md](SHOWCASE.md), the [API inventory](SHOWCASE-API.md) and the selected synthetic [wire examples](SHOWCASE-WIRE.json). Sampling and roots remain excluded; logging and replay apply only to 2025-11-25. MCP SOVERSION remains 4.
+
+Configure, build and test strictly sequentially in separate external GCC and strict Clang+ASan build directories. Enable applications, tests, control tests and `CHECK_INCLUDES`. Run every test with `TMPDIR=/tmp/snc`; Python tests use `python3 -B`. Strict Clang uses `-Weverything -Werror`, ASan and frame pointers, with `ASAN_OPTIONS=detect_leaks=1:halt_on_error=1:abort_on_error=1`. Existing third-party exclusions remain unchanged. The installed-consumer check stages its own prefix and loads the staged MCP and JSON-RPC libraries rather than a live installation.
+
+SNode.C's own C++ client is the end-to-end authority: six `McpShowcaseTour_*` tests exercise both protocol versions over stdio, HTTP and HTTPS. Six corresponding `McpShowcaseWire_*` tests preserve independent raw-wire assertions. `McpShowcaseInstancePolicyTest` checks that HTTP and HTTPS policies, registries and state are independent. The staged installed consumer compiles the concrete examples against exported components and runs both stdio tours.
+
+The owner retained the TypeScript SDK integration and disabled only `McpShowcaseSdk_2025-11-25_stdio` and `McpShowcaseSdk_2026-07-28_stdio`. SDK 2.4.0 loses the final progress callback when a stdio notification and result arrive together; earlier wire evidence contains all three ordered progress messages. The assertions remain intact. The two SDK HTTP showcase tests, `McpReadSdkTest` and `McpClientSdkTest` stay enabled using the already configured test dependency. No SDK checkout change, SDK build, SDK installation or SDK PR qualification is part of this work.
+
+### Replay retirement fix
+
+The invariant is that every operation retained by `State::replayStreams` retains valid replay state until `State` retires it. Previously, DELETE after GET SSE disconnection called `Operation::shutdown()`, which abandoned replay while its map entry remained. The later cleanup dereferenced cleared state in `Replay::prune`; the local before-fix ASan regression aborted. Removing that premature abandonment leaves retirement with the existing `State::cleanReplay` owner and its teardown. This deletes three production lines without introducing a timer, flag, second owner or null-check workaround.
+
+`McpHttpReplayTest` and the new `McpTlsReplayTest` exercise the shared router through the local HTTP/TLS application: disconnect GET SSE, DELETE, wait 1.2 seconds through the one-second cleanup interval, reject the deleted session with 404, initialize a fresh session, successfully list tools, and require clean shutdown. Existing POST/GET replay, expiry, eviction, principal/session binding, no duplicate execution and modern replay exclusion assertions remain enabled. The common fixture helper places MCP options in their owning section before TLS options. The four existing database Python launcher registrations also use `-B`, so all 76 Python CTest commands meet the bytecode-suppression requirement without changing test assertions.
+
+### Other reviewed fixes already on the branch
+
+`utils::SubCommand::newSubCommand` forwards constructor arguments instead of dropping them; `SubCommandForwardingTest` verifies the public construction interface. The stdio endpoint headers export their inline dependencies for include analysis. The HTTP application constructs separate registries and configuration owners for its named plain/TLS transports; `McpShowcaseInstancePolicyTest` exercises different policies and state in one process. The C++ tour reports each request and checks complete removal from all four dynamic inventories. Search responsiveness starts after protocol readiness, separating process startup from the concurrent-read budget. The staged installed consumer includes private MCP and JSON-RPC library directories in its runtime search path; its compilation and both installed stdio tours verify exported consumption.
+
+### Feature and native support inventory
+
+All automated rows below apply to both eras over stdio/HTTP/HTTPS where the feature exists. Native observations refer only to the negotiated era and tested stdio/HTTP invocations. They establish observed interoperability, not support for every future client version.
+
+| Feature / demonstration | Automated boundary | Claude Code 2.1.331 | Codex CLI 0.162.1 |
+| --- | --- | --- | --- |
+| Identity / negotiation / metadata | Tour + wire negotiation | Negotiated 2026-07-28 | Offered 2025-06-18; negotiated 2025-11-25 |
+| Text, tool/protocol errors, structured validation, schema | Tour + wire valid/invalid cases | Ordinary calls and expected errors observed | Ordinary calls and expected errors observed |
+| All content variants / `content` | Tour + wire owned values and envelopes | Succeeded | “Unexpected response type”; decoding cause **UNVERIFIED** |
+| Principal / header mirroring / HTTP auth and Origin | Tour + wire; instance-policy test | Ordinary calls observed; exhaustive policy controls not exposed | Ordinary calls observed; exhaustive policy controls not exposed |
+| Four paginated inventories / catalogue entries | Tour follows complete pages; wire cursors | Prompt slash-command discovery followed four pages; no broader native pagination claim | One resource inventory page reported “Unexpected response type”; cause **UNVERIFIED** |
+| Progress / cancellation / deadlines / `work` | Tour hooks, cancel, timeout and continued use | No interactive cancellation check claimed | No interactive cancellation check claimed |
+| Optional/required tasks and task input | Tour + wire creation, get/result/list/cancel/update and polling | Required calls omitted per-request tasks extension; -32021 | Required tasks not augmented; rejected |
+| Form, URL, rounds, parallel, resource/prompt input | Tour + wire independent asynchronous replies | Headless elicitation returned cancellation without a form | Headless elicitation returned cancellation |
+| Text/blob/changing resources, templates, completion | Tour + wire reads, RFC 6570, completion, updates | Resource read not exposed in these print-mode runs | Five requested resource reads succeeded; completion/subscription controls not exposed |
+| Conversation and embedded-resource prompt | Tour + wire get and completion | MCP slash command succeeded over stdio and HTTP; observed `prompts/get`, text and embedded resource | Prompt retrieval not exposed |
+| Dynamic registration/removal of all four kinds | Tour full inventories/removal + wire notifications | Refresh delayed; HTTP eventually called `dynamic.tool` | Dynamic refresh not exposed |
+| Legacy logging / modern exclusion | Tour + wire logging; omitted/rejected in modern era | Excluded in negotiated modern era | Ordinary logging tool invoked; level control not exposed |
+| Legacy sessions/replay / modern exclusion | C++ reconnect fault injection + wire + HTTP/TLS retirement regressions | Excluded in negotiated modern era | No native forced reconnect claimed |
+| Transport lifecycle and installed consumption | Component lifecycle tests + staged installed consumer | Stdio/HTTP ordinary invocations completed | Stdio/HTTP ordinary invocations completed |
+
+The separate Claude MCP slash-command checks used `/mcp__showcase__conversation alpha` over stdio and HTTP. Both followed four `prompts/list` pages and sent `prompts/get` with `name=conversation` and arguments `name=alpha`; the response contained `Hello alpha` and the embedded `showcase://text` resource with `SNode.C`. The first restricted-environment attempt failed before protocol traffic and is excluded from successful evidence.
+
+Native settings and authentication were not changed for qualification. Per-invocation MCP definitions target the local application; Claude-managed runtime metadata updates are allowed. Protocol observations, rather than CLI exit status or generated prose alone, establish success. Captures committed as documentation contain demonstration data only; native credentials, authorization headers, account/session metadata and opaque network captures are excluded.
+
+Interactive cancellation remains a manual owner check in the native clients. Automated C++ tests verify protocol cancellation and continued operation. Native task controls, completion, subscriptions, forced replay and prompt retrieval remain **UNVERIFIED** where the client's tested interface did not expose them. Headless cancellation is not evidence of a visible form or an interactive cancellation UI.
+
+Inspector recorded 70 invocations: 66 supported invocations succeeded and four `tasks/list` invocations were rejected by the CLI before dispatch. Those four are unsupported controls, not server passes. Inspector one-shot calls do not establish notification UI or reconnect behavior.
+
+### Final suite results
+
+| Check | Result |
+| --- | --- |
+| GCC 16.2 Debug full suite | 392/392 enabled tests passed; 2 owner-disabled SDK stdio cases; zero skips; 307.10 seconds |
+| Clang 21.1.8 strict + ASan full suite | 392/392 enabled tests passed; the same 2 disabled cases; zero skips; 363.82 seconds; leak detection and abort-on-error enabled |
+| Era / transport matrix | All six C++ tours and all six raw-wire tests passed on both toolchains: 2025-11-25 and 2026-07-28 over stdio, HTTP and HTTPS |
+| Replay retirement | HTTP and HTTPS regressions passed on both toolchains, including subsequent requests and clean shutdown |
+| Installed consumption | Staged exported components, private runtime libraries, example compilation and both installed stdio tours passed in both full suites |
+| Include analysis | `CHECK_INCLUDES=ON`; fresh strict router compilation and qualifying build logs reported zero add/remove or compiler diagnostics |
+| Formatting | 1,037 C++ files and six changed CMake files passed the committed formatter checks |
+| Whitespace | `git diff --check` passed |
+
+The original baseline contained 375 registrations, including `McpReadSdkTest` and `McpClientSdkTest`. All 375 remain. Nineteen were added: six `McpShowcaseTour_*`, six `McpShowcaseWire_*`, four `McpShowcaseSdk_*`, `McpShowcaseInstancePolicyTest`, `SubCommandForwardingTest` and `McpTlsReplayTest`. Relative to the later 393-test inventory, only `McpTlsReplayTest` was added. GCC and Clang have identical 394-test inventories, with 392 enabled and the two SDK stdio showcase cases disabled. Under the owner's revised decision, **no SDK tests were removed**. The enabled SDK read, client and two HTTP showcase cases passed on both toolchains. All 76 Python test commands include `-B`; control tests remain enabled.
+
+The earlier frozen GCC and strict Clang+ASan runs each passed 391/393 with zero skips; the two failures were the SDK stdio progress cases. They are baseline evidence only and do not validate the replay change. The current owner decision retains these tests as disabled rather than removing SDK coverage. No test assertion was weakened.
+
+## Historical optional-feature record
+
+The remainder of this section records `0292f96bc` and its original test environment. SDK package requirements and suite counts here are historical, not instructions for the current qualification.
+
+### Historical build discipline
 
 Use separate external GCC and Clang build directories. Configure, build and test each directory sequentially: Doxygen configuration writes into the source tree. Enable `SNODEC_CONTROL_BUILD_TESTS`, applications and `CHECK_INCLUDES`; set `SNODEC_MCP_SDK_ROOT` to the installed official client package. The SDK regression also needs the adjacent official server package. All npm qualification dependencies belong in temporary storage, never the checkout. Run CTest with a short `TMPDIR` and `-j 1`.
 
 The strict Clang configuration uses the repository warning baseline with `-Weverything -Werror`, AddressSanitizer and frame pointers. Run with `ASAN_OPTIONS=detect_leaks=1:halt_on_error=1:abort_on_error=1`. Existing third-party warning and include-analysis exclusions remain unchanged. Formatting checks use the committed configurations and exclude the schema-validator submodule.
 
-## Coverage
+### Historical coverage
 
 | Feature | SNode.C client/server, both eras and transports | Official SDK client against SNode.C server | SNode.C client against official SDK server |
 | --- | --- | --- | --- |
@@ -29,7 +101,7 @@ Official package versions used: `@modelcontextprotocol/client` 2.4.0, `@modelcon
 
 Inspector 2.13.0 passed 42 supported command checks across both eras and transports: strict tool inventories, ordinary/task-backed tool calls, custom Unicode parameter headers, resource/template lists, resource reads, prompts and legacy logging levels. Its one-shot CLI rejects `tasks/list` before sending a request; two such attempts are recorded as unsupported, not server passes. Task listing and lifecycle were independently checked with the official tasks extension. One-shot Inspector commands do not establish notification UI or reconnect behavior.
 
-## Native clients
+### Historical native clients
 
 Native gates use normal user settings/authentication with per-invocation endpoint overrides to the uninstalled build. Persisted MCP server definitions remain unchanged. Claude may update its normal runtime metadata. Each assertion below is based on observed MCP wire traffic rather than only the CLI exit status or generated answer.
 
@@ -48,13 +120,13 @@ Native gates use normal user settings/authentication with per-invocation endpoin
 
 Neither native CLI was forced into an era it did not negotiate. The complementary era/transport combinations are covered by the SNode.C and official SDK tests. An early observer run let the HTTP fixture disappear and Claude returned exit zero with a connection error; those HTTP invocations were rejected as evidence and repeated with isolated server/observer processes. The repeated requests and prompt retrieval were verified on the wire. An exit-zero native invocation alone is not a gate.
 
-## Bounds and deliberate differences
+### Historical bounds and deliberate differences
 
 The task backend is bounded process-local storage, retaining work across transport disconnects within the process lifetime; no disk or multi-process durability is claimed. The spawned-stdio binding requires Linux pidfd support, using a read receiver and waitpid without taking over global SIGCHLD policy. HTTP exposes separate Http/Https template bindings; the demonstration CLI uses plain HTTP or spawned stdio. OAuth acquisition remains the embedding application's responsibility; the HTTP token supplier is called per exchange.
 
 Modern HTTP resumability is deliberately absent because the 2026 transport excludes it. The legacy task metadata/error-schema conflict is documented in the guide; exact underlying error values are preserved. The unreleased MCP SOVERSION remains 4. No tag or release is created.
 
-## Recorded suite results
+### Historical recorded suite results
 
 | Check | Result |
 | --- | --- |

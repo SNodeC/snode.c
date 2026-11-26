@@ -1,10 +1,10 @@
-# SNode.C MCP server
+# SNode.C MCP
 
-The in-tree MCP module provides one registry and dispatcher with stdio and Streamable HTTP adapters. Its first application is a SNode.C development assistant with read-only source access: `api.find`, `api.read`, `skeleton.preview`, the `snodec://development/house-style` resource, and the `snodec-review` prompt. It does not execute commands, inspect app configurations, build examples, or write files.
+The in-tree MCP module provides shared protocol values, a server registry/dispatcher and a typed client, with stdio and Streamable HTTP/HTTPS adapters. Its application combines a SNode.C development assistant with a complete tour of the implemented server/client features. The original read-only source tools are `api.find`, `api.read`, `skeleton.preview`, the `snodec://development/house-style` resource, and the `snodec-review` prompt. It does not execute commands, inspect app configurations, build examples, or write files.
 
 ## Stability
 
-The MCP libraries (`mcp-server` and `mcp-server-http`), their installed headers under `mcp/server`, and the `snodec-dev` applications are EXPERIMENTAL. Their API and ABI may change in a minor SNode.C release. The MCP libraries have their own SOVERSION, incremented on every MCP ABI break independently of the SNode.C core; their VERSION continues to follow the SNode.C release version. MCP changes alone never require a major SNode.C release. The compatibility policy for all other SNode.C libraries is unchanged.
+The MCP libraries (`mcp`, `mcp-server`, `mcp-server-http`, `mcp-client` and `mcp-client-http`), their installed headers under `mcp/`, and the `snodec-dev` applications are EXPERIMENTAL. Their API and ABI may change in a minor SNode.C release. The MCP libraries have their own SOVERSION, incremented on every MCP ABI break independently of the SNode.C core; their VERSION continues to follow the SNode.C release version. MCP changes alone never require a major SNode.C release. The compatibility policy for all other SNode.C libraries is unchanged.
 
 ## Build and consume
 
@@ -49,7 +49,7 @@ snodec-dev-http --config-file /dev/null --daemonize=false \
   mcp --header-root "$HEADER_ROOT"
 ```
 
-Options use the existing CLI11 instance/config-file mechanism. Stdio's section is `mcp`; HTTP's section is `mcp-http mcp`. Use `snodec-dev-http mcp-http mcp --help` or the corresponding stdio section help. Use `--config-file FILE` for a persistent configuration; `/dev/null` above selects an isolated empty configuration. Root log options precede instance sections.
+The same executable also provides the `mcp-https` instance on port 3338; it stays disabled until both `tls --cert` and `--cert-key` are configured. See the [TLS and authorization tour](SHOWCASE.md). Options use the existing CLI11 instance/config-file mechanism. Stdio's section is `mcp`; HTTP's section is `mcp-http mcp`. Use `snodec-dev-http mcp-http mcp --help` or the corresponding stdio section help. Use `--config-file FILE` for a persistent configuration; `/dev/null` above selects an isolated empty configuration. Root log options precede instance sections.
 
 | MCP option | Default | Bound / meaning |
 | --- | --- | --- |
@@ -58,18 +58,19 @@ Options use the existing CLI11 instance/config-file mechanism. Stdio's section i
 | `--search-bytes` | 8388608 | 1–67108864 bytes per search |
 | `--maximum-message-bytes` | 1048576 | 1–16777216 bytes per message |
 | `--maximum-output-bytes` | 1048576 | 1024–16777216 queued MCP output bytes |
+| `--page-size` | 3 in this application | 1–128; library default remains 128 |
 | `--deadline-ms` | 30000 | 1–300000 ms for ordinary requests |
 | `--allowed-origin` | Empty | Repeatable exact browser Origin allowlist |
 
 Restart to change the selected header root and search budgets. Header traversal uses descriptor-relative opens, rejects symlinks and `..`, reads regular `.h`/`.hpp` files only, and bounds directory entries to 8192, queued directories to 512, and path depth to 16. A slice processes at most eight directory entries or one 16 KiB read, then yields through `core::timer::Timer::singleshotTimer`. Cancellation and deadlines are checked between slices. This bounds synchronous work; regular-file reads can still wait on the underlying filesystem.
 
-`api.find` is a case-sensitive literal search with a required `query` of 1–128 Unicode code points and optional `limit` of 1–100 (default 20). It returns relative paths, one-based lines, byte offsets, and a conservative `truncated` flag. `api.read` requires a relative `path`, with optional byte `offset` (0–67108864) and `bytes` (1–65536, default 16384). Reads must form valid UTF-8. `skeleton.preview` accepts `kind` equal to `application` or `module` and returns proposed file text; it performs no writes. The review prompt accepts `code` as a string of at most 16384 bytes.
+`api.find` is a case-sensitive literal search with a required `query` of 1–128 Unicode code points and optional `limit` of 1–100 (default 20). It returns relative paths, one-based lines, byte offsets, and a conservative `truncated` flag. `api.read` requires a relative `path`, with optional byte `offset` (0–67108864) and `bytes` (1–65536, default 16384). Reads must form valid UTF-8. `skeleton.preview` accepts `kind` equal to `application` or `module` and returns proposed file text; it performs no writes. The review prompt accepts `code` as a string of at most 16384 bytes. The additional synthetic demonstrations mutate only process-local data. See the [feature tour](SHOWCASE.md) and [public API inventory](SHOWCASE-API.md).
 
 HTTP sets `ConfigHttpServer::setAllowPipelining(false)` and `setMaximumPendingRequests(1)` before initialization. Its explicit connection default is `--maximum-write-queue-bytes 1048576`, under `mcp-http connection`; this bounds the framework's write-queue high watermark, not a hard allocation cap. The MCP source queue has its own output-byte limit. HTTP/1.x responses remain sequential. Parser defaults are 1 MiB body, 64 KiB headers, and 100 header fields; the router also checks its own message limit. At most 64 live HTTP operations or stdio requests are accepted.
 
 ## Protocol eras and wire behavior
 
-The modern era is [2026-07-28](https://modelcontextprotocol.io/specification/2026-07-28/basic/index). Every request carries `_meta` with `io.modelcontextprotocol/protocolVersion` and `io.modelcontextprotocol/clientCapabilities`. `server/discover` supplies server information and capabilities; responses use the modern result envelopes and caching hints (`ttlMs: 0`, private scope where required). This server advertises no list-change or subscription capabilities.
+The modern era is [2026-07-28](https://modelcontextprotocol.io/specification/2026-07-28/basic/index). Every request carries `_meta` with `io.modelcontextprotocol/protocolVersion` and `io.modelcontextprotocol/clientCapabilities`. `server/discover` supplies server information and capabilities; responses use the modern result envelopes and caching hints (`ttlMs: 0`, private scope where required). The registry advertises list-change and resource subscription capabilities; modern consumers opt in through `subscriptions/listen`.
 
 Modern HTTP requires `Content-Type: application/json`, an `Accept` containing both `application/json` and `text/event-stream`, and matching `MCP-Protocol-Version`, `Mcp-Method`, and, for named calls, `Mcp-Name` headers. Header names are case-insensitive. Names requiring encoding use the canonical `=?base64?BASE64?=` sentinel; names literally matching that sentinel are encoded too. Notifications receive HTTP 202 with an empty body. GET and DELETE return 405. There is no GET stream, session ID, replay store, or session state. See the [Streamable HTTP specification](https://modelcontextprotocol.io/specification/2026-07-28/basic/transports/streamable-http).
 
@@ -81,7 +82,7 @@ The compatibility era is [2025-11-25](https://modelcontextprotocol.io/specificat
 
 Modern HTTP uses source-backed SSE for HTTP/1.1 `tools/call` and `subscriptions/listen`, and JSON for the other methods. Every SSE event contains a complete JSON message and ends with a blank line. The source completes through EOF, producing the final chunk terminator; streamed responses never use `json()` or `send()`. Closing an HTTP stream cancels its pending modern work. Stdio cancellation is request-ID based. During shutdown the server completes HTTP subscription streams with a correlated successful result before EOF; stdio uses its permitted subscription cancellation notification while the transport can still write.
 
-`subscriptions/listen` honors `notifications.resourceSubscriptions` URI arrays, acknowledges the supported subset before updates, and tags messages with the original subscription ID. `Server::resourceUpdated(uri)` reports application-owned changes; it does not install filesystem watchers. Each subscription/channel accepts at most 128 URIs; the registry bounds live request subscriptions and legacy channels separately to 1,024 each. HTTP legacy sessions are limited to 64 and expire after 30 minutes of inactivity when subsequent requests prune the session table. Disconnect/cancel releases interests. No list-change notifications are advertised because registration is sealed.
+`subscriptions/listen` honors `notifications.resourceSubscriptions` URI arrays, acknowledges the supported subset before updates, and tags messages with the original subscription ID. `Server::resourceUpdated(uri)` reports application-owned changes; it does not install filesystem watchers. Each subscription/channel accepts at most 128 URIs; the registry bounds live request subscriptions and legacy channels separately to 1,024 each. HTTP legacy sessions are limited to 64 and expire after 30 minutes of inactivity when subsequent requests prune the session table. Disconnect/cancel releases interests. List-change notifications follow the negotiated notification channel and opt-in filter.
 
 ## Supported schema dialects
 
@@ -93,7 +94,7 @@ Validation never fetches network references. References must resolve within the 
 
 ## Embedding and security
 
-Subclass `mcp::server::Tool`, `Resource` or `Prompt` and override `call`, `read` or `get`. Each base owns its typed definition and exposes it through `getDefinition`; register a shared instance with `Server::tool`, `resource` or `prompt`. The server retains the instance for its lifetime, validates the definition transactionally and throws a named `RegistrationError` on failure. Registration is sealed on transport attachment. Constructors and handlers run on the event-loop thread; retain a shared reply for asynchronous work and keep the server alive until attached transports and requests drain.
+Subclass `mcp::server::Tool`, `Resource` or `Prompt` and override `call`, `read` or `get`. Each base owns its typed definition and exposes it through `getDefinition`; register a shared instance with `Server::tool`, `resource` or `prompt`. The server retains the instance for its lifetime, validates the definition transactionally and throws a named `RegistrationError` on failure. Registration and removal remain available on the event-loop thread after attachment. Constructors and handlers run on the event-loop thread; retain a shared reply for asynchronous work and keep the server alive until attached transports and requests drain.
 
 Parse schema raw strings once during construction. Use fully expanded JSON in natural schema order (`type`, `properties`, `required`, then the remaining keys), exactly as `nlohmann::ordered_json::parse(text).dump(4)` writes it; malformed schema text must throw `RegistrationError` naming the registration and `inputSchema` or `outputSchema`. The constructor function-try-block below catches parsing failures during base initialization. Demo classes use the equivalent application-local `parseSchema` helper.
 
@@ -183,7 +184,7 @@ Use a short external temporary directory for all CTest runs because database fix
 
 ## Additional server features
 
-`ResourceTemplate` is the primary class-based form for parameterized resources, with `Server::resourceTemplate(definition, handler)` as the short form. Scalar RFC 6570 `{variable}` and `{+variable}` expressions are supported; other operators, modifiers and adjacent ambiguous expressions fail registration with a named `RegistrationError`. Exact resources win before templates, which match in registration order. Percent escapes are decoded once; `ResourceRead::variables` owns the resulting values. Application confinement still applies after decoding. `resources/templates/list` works in both eras.
+Derive `ResourceTemplate` for parameterized resources and register its shared instance through `Server::resourceTemplate`. Scalar RFC 6570 `{variable}` and `{+variable}` expressions are supported; other operators, modifiers and adjacent ambiguous expressions fail registration with a named `RegistrationError`. Exact resources win before templates, which match in registration order. Percent escapes are decoded once; `ResourceRead::variables` owns the resulting values. Application confinement still applies after decoding. `resources/templates/list` works in both eras.
 
 `PromptArgument::complete` and `ResourceTemplateDefinition::variables` carry `CompletionHandler` callbacks. They receive `CompletionRequest` (including previously resolved arguments) and `CompletionReply`. Complete with `CompletionResult`; the library caps wire values at 100, preserves optional totals and marks omitted extra values through `hasMore`. Only registries with completers advertise `completions`. The server limits completion requests to 128 per second and reports excess work with an implementation-specific error (`-32000`, HTTP 429). Keep completers bounded and protect suggestions using `request.context.getPrincipal()`.
 
@@ -235,13 +236,13 @@ The HTTP binding implements the [2025 transport](https://modelcontextprotocol.io
 
 SSE parsing is shared with the HTTP EventSource implementation. HTTP transfer decoding remains in `web::http`, including chunked responses; UTF-8 BOM, CR/LF/CRLF delimiters, event ids, retry values and partial messages are handled by the shared bounded parser. The binding admits at most 64 simultaneous/queued exchanges and 8 MiB JSON response bodies; SSE lines are bounded to 256 KiB and event data to 1 MiB. Legacy interrupted SSE streams retry the same stream via GET and Last-Event-ID, up to eight times, without resending POST. Expired/evicted streams report failure. Modern disconnects cancel the exchange; applications may issue a fresh listen request. Modern streams never use Last-Event-ID.
 
-The `snodec-mcp-client` demonstration lists tools by default and also supports `--command resources`, `templates`, `prompts`, `call`, `read`, `prompt`, `listen`, `log` or an extension method. Use `--name` for a tool/prompt name or resource URI and `--arguments` for a JSON object. `--legacy true` pins 2025; automatic discovery/fallback is the default. `--task true` requests legacy task augmentation. `--watch true` keeps receiving notifications. Typed result hooks print JSON; notifications, task status, logs and progress are displayed. `MCP_BEARER_TOKEN` supplies the demonstration's HTTP access token.
+The `snodec-mcp-client` demonstration keeps its application options in the `client` subcommand and reuses each named transport's `remote` and `tls` configuration for addresses and certificates. `client --command tour` executes the [complete feature tour](SHOWCASE.md). It lists tools by default and also supports `--command resources`, `templates`, `prompts`, `call`, `read`, `prompt`, `listen`, `log` or an extension method. Use `--name` for a tool/prompt name or resource URI and `--arguments` for a JSON object. `--legacy true` pins 2025; automatic discovery/fallback is the default. `--task true` requests legacy task augmentation. `--watch true` keeps receiving notifications. Typed result hooks print JSON; notifications, task status, logs and progress are displayed. `MCP_BEARER_TOKEN` supplies the demonstration's HTTP access token.
 
 ```sh
-snodec-mcp-client --config-file /dev/null --quiet --server snodec-dev-stdio --command tools
-snodec-mcp-client --config-file /dev/null --quiet --host 127.0.0.1 --port 8080 --command tools
-snodec-mcp-client --config-file /dev/null --quiet --host 127.0.0.1 --port 8080 --command call --name api.find --arguments '{"query":"SNodeC","limit":1}'
-snodec-mcp-client --config-file /dev/null --quiet --command listen --arguments '{"toolsListChanged":true,"resourceSubscriptions":["snodec://development/review-label"]}' --watch true
+snodec-mcp-client --config-file /dev/null --quiet client --server snodec-dev-stdio --command tools
+snodec-mcp-client --config-file /dev/null --quiet client --command tools mcp-client-http remote --host 127.0.0.1 --port 3337
+snodec-mcp-client --config-file /dev/null --quiet client --command call --name api.find --arguments '{"query":"SNodeC","limit":1}' mcp-client-http remote --host 127.0.0.1 --port 3337
+snodec-mcp-client --config-file /dev/null --quiet client --command listen --arguments '{"toolsListChanged":true,"resourceSubscriptions":["snodec://development/review-label"]}' --watch true mcp-client-http remote --host 127.0.0.1 --port 3337
 ```
 
 For embedding, derive once and select the binding independently:
