@@ -48,7 +48,7 @@ if(TARGET snodec::db-mariadb)
         add_test(
             NAME MariaDBConnectionLoss-${mode}
             COMMAND
-                ${Python3_EXECUTABLE}
+                ${Python3_EXECUTABLE} -B
                 ${CMAKE_CURRENT_SOURCE_DIR}/MariaDBFixture.py
                 $<TARGET_FILE:MariaDBConnectionLossTest> ${mode}
         )
@@ -75,7 +75,7 @@ if(TARGET snodec::db-mariadb)
         add_test(
             NAME MariaDBConnect-${mode}
             COMMAND
-                ${Python3_EXECUTABLE}
+                ${Python3_EXECUTABLE} -B
                 ${CMAKE_CURRENT_SOURCE_DIR}/MariaDBFixture.py
                 $<TARGET_FILE:MariaDBConnectTest> ${mode}
         )
@@ -93,7 +93,7 @@ if(TARGET snodec::db-mariadb)
         add_test(
             NAME MariaDBQuery-${mode}
             COMMAND
-                ${Python3_EXECUTABLE}
+                ${Python3_EXECUTABLE} -B
                 ${CMAKE_CURRENT_SOURCE_DIR}/MariaDBFixture.py
                 $<TARGET_FILE:MariaDBQueryTest> ${mode}
         )
@@ -125,7 +125,7 @@ if(TARGET snodec::db-mariadb)
         add_test(
             NAME MariaDBAbort-${mode}
             COMMAND
-                ${Python3_EXECUTABLE}
+                ${Python3_EXECUTABLE} -B
                 ${CMAKE_CURRENT_SOURCE_DIR}/MariaDBFixture.py
                 $<TARGET_FILE:MariaDBAbortTest> ${mode}
         )
