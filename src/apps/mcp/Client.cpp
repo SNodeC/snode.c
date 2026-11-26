@@ -151,7 +151,7 @@ namespace apps::mcp {
                 listTools();
             },
             [](const Json& value) {
-                return value.size() >= 27 && hasName(value, "schema") && hasName(value, "catalogue.8") && !hasName(value, "dynamic.tool");
+                return value.size() == 33 && hasName(value, "schema") && hasName(value, "catalogue.8") && !hasName(value, "dynamic.tool");
             });
         add(
             "resources.pagination",
@@ -244,7 +244,7 @@ namespace apps::mcp {
             Outcome::Result);
         add(
             "headers",
-            "tools/call headers; region=eu",
+            "tools/call headers; project the region parameter",
             [this] {
                 callTool("headers", {{"region", "Hello, 世界"}});
             },
@@ -292,7 +292,7 @@ namespace apps::mcp {
             });
         add(
             "template.scalar",
-            "resources/read showcase://greeting/alpha",
+            "resources/read showcase://greeting/{name}",
             [this] {
                 readResource("showcase://greeting/Ada");
             },
@@ -310,7 +310,7 @@ namespace apps::mcp {
             });
         add(
             "prompt",
-            "prompts/get conversation; name=alpha",
+            "prompts/get conversation(name)",
             [this] {
                 getPrompt("conversation", {{"name", "Ada"}});
             },
@@ -424,7 +424,7 @@ namespace apps::mcp {
         add("dynamic.resource.read", "resources/read showcase://dynamic", [this] {
             readResource("showcase://dynamic");
         });
-        add("dynamic.template.read", "resources/read showcase://dynamic/value", [this] {
+        add("dynamic.template.read", "resources/read showcase://dynamic/{value}", [this] {
             readResource("showcase://dynamic/hello");
         });
         add("dynamic.prompt.get", "prompts/get dynamic", [this] {
@@ -445,6 +445,33 @@ namespace apps::mcp {
             },
             [](const Json& value) {
                 return !hasName(value, "dynamic.tool");
+            });
+        add(
+            "dynamic.resources.absent",
+            "resources/list; confirm resource removal",
+            [this] {
+                listResources();
+            },
+            [](const Json& value) {
+                return value.size() == 15 && !hasName(value, "dynamic");
+            });
+        add(
+            "dynamic.templates.absent",
+            "resources/templates/list; confirm template removal",
+            [this] {
+                listResourceTemplates();
+            },
+            [](const Json& value) {
+                return value.size() == 12 && !hasName(value, "dynamic");
+            });
+        add(
+            "dynamic.prompts.absent",
+            "prompts/list; confirm prompt removal",
+            [this] {
+                listPrompts();
+            },
+            [](const Json& value) {
+                return value.size() == 12 && !hasName(value, "dynamic");
             });
         const auto input = [this](const Json& value) {
             return value.at("structuredContent").at("action") == (config.getAnswerAction() == ::mcp::ElicitationAction::Accept ? "accept"
