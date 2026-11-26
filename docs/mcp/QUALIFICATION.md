@@ -8,7 +8,7 @@ The optional-feature implementation targets the official 2025-11-25 and 2026-07-
 
 ## Reply compile-check placement
 
-The reply/result compile contract is now registered as `McpReplyTypeTest` and runs only through CTest. Project configuration performs none of its compiler invocations. The existing three matching combinations must compile and six mismatches must fail; all nine checks run before CMake reports any errors. The test uses the configured compiler and flags in its own build directory. This adds one CTest registration (399 total, 397 enabled, with the same two SDK stdio cases disabled), without production changes.
+The reply/result compile contract is now registered as `McpReplyTypeTest` and runs only through CTest. Project configuration performs none of its compiler invocations. The existing three matching combinations must compile and six mismatches must fail; all nine checks run even when some fail, and CMake returns failure after processing them. The test uses the configured compiler and flags in its own build directory. This adds one CTest registration (399 total, 397 enabled, with the same two SDK stdio cases disabled), without production changes.
 
 Focused verification passed all 24 MCP unit tests on GCC and strict Clang+ASan, including the relocated test. An intentionally broken include path made the test fail and still produced all nine compile logs, verifying the positive controls and complete execution. Formatting and `git diff --check` passed. The full-suite results below predate this test-only relocation and retain their original counts.
 
