@@ -23,6 +23,24 @@ if(NOT install_result EQUAL 0)
     )
 endif()
 
+# Check the installed HTTP library's own dependency paths without the private
+# library directories supplied to the consumer tests below.
+find_program(runtime_loader NAMES ldd REQUIRED)
+execute_process(
+    COMMAND
+        "${CMAKE_COMMAND}" -E env --unset=LD_LIBRARY_PATH "${runtime_loader}"
+        "${libdir}/snode.c/mcp/${SNODEC_MCP_HTTP_LIBRARY}"
+    RESULT_VARIABLE loader_result
+    OUTPUT_VARIABLE loader_output
+    ERROR_VARIABLE loader_error
+)
+if(NOT loader_result EQUAL 0 OR loader_output MATCHES "not found")
+    message(
+        FATAL_ERROR
+            "installed MCP HTTP dependency loading failed\n${loader_output}\n${loader_error}"
+    )
+endif()
+
 if(SNODEC_BUILD_APPS)
     foreach(skill_file IN ITEMS SKILL.md references/structure.md
                                 references/mcp-usage.md
