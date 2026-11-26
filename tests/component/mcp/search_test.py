@@ -72,8 +72,12 @@ def verify(result, root):
 
 
 def stdio(executable, directory, root, listening):
+    startup = time.monotonic()
     client = Client(executable, ["--config-file", "/dev/null", "mcp", "--header-root", str(root)], directory)
     try:
+        client.send(request("server/discover", "ready"))
+        assert client.receive(timeout=BUDGET["stdio"])["id"] == "ready"
+        startup = time.monotonic() - startup
         if listening:
             client.send(request("subscriptions/listen", "listen"))
             assert client.receive()["method"] == "notifications/subscriptions/acknowledged"
@@ -90,7 +94,7 @@ def stdio(executable, directory, root, listening):
         elapsed = time.monotonic() - started
         assert response["id"] == 50 and elapsed < BUDGET["stdio"], (elapsed, response)
         verify(response["result"], root)
-        print(f"PASS: stdio listen={listening} search={elapsed:.3f}s concurrent-read={latency:.3f}s", flush=True)
+        print(f"PASS: stdio listen={listening} startup={startup:.3f}s search={elapsed:.3f}s concurrent-read={latency:.3f}s", flush=True)
     finally:
         client.finish(signal.SIGTERM if listening else None)
 
