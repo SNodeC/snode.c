@@ -326,6 +326,14 @@ if(SNODEC_MCP_SDK_ROOT)
                 McpShowcaseSdk_${era}_${transport}
                 PROPERTIES LABELS "mcp;component;showcase;sdk" TIMEOUT 50
             )
+            # SDK 2.4.0 loses the final stdio progress callback when the
+            # notification and response arrive together. Keep the assertions;
+            # the owner disabled these two cases pending an upstream fix.
+            if(transport STREQUAL "stdio")
+                set_tests_properties(
+                    McpShowcaseSdk_${era}_${transport} PROPERTIES DISABLED TRUE
+                )
+            endif()
         endforeach()
     endforeach()
 endif()
