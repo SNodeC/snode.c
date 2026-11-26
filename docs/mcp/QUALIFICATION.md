@@ -26,6 +26,8 @@ The owner-requested schema-validator update retains exact integer and zero decis
 
 Native observations in the historical sections were recorded before this separation. They are not new native-client runs of the separate executables. Native decoding causes and unexposed controls retain their original UNVERIFIED status; automated protocol coverage is recorded independently.
 
+A focused metadata check on 2026-11-26 confirmed that the installed showcase's stdio `text` response includes `_meta["showcase/result"] = "text"` in both protocol versions. Native calls through the connected `showcase-stdio` and `showcase-http` tools exposed only the text content, without result metadata. The active Codex backend was verified from its running executable as `0.171.0-alpha.13`; the older CLI on PATH does not identify this session. Its [release source](https://github.com/openai/codex/blob/rust-v0.171.0-alpha.13/codex-rs/tools/src/tool_output.rs#L239) explicitly removes private MCP result `_meta` before exposing results to Code Mode. This model-visible omission is therefore distinct from server delivery, which the raw-wire tests explicitly assert for both eras and all three transports.
+
 | Check | Separation result |
 | --- | --- |
 | GCC 16.2 Debug, full clean build and full CTest | 396/396 enabled tests passed; 398 registered, two owner-disabled SDK stdio cases, zero skips; 301.13 seconds |
