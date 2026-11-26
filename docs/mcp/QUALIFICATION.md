@@ -1,14 +1,43 @@
 # MCP qualification
 
-The current application qualification is described below. The initial optional-feature record is retained at the end as historical evidence; it does not validate later revisions.
+The current separation qualification is described below; earlier application qualification is historical. The initial optional-feature record is retained at the end as historical evidence; it does not validate later revisions.
 
 This record covers the current application tour and preserves the initial optional-feature series at `0292f96bc` as history. The application guide, including HTTPS and the public API inventory, is [SHOWCASE.md](SHOWCASE.md).
 
 The optional-feature implementation targets the official 2025-11-25 and 2026-07-28 schemas. The [API addendum](API-PROPOSAL.md#optional-feature-implementation-addendum) records the revision-specific wire decisions and normative references; the [guide](README.md) describes the APIs, bounds and transport ownership. Sampling, roots and modern logging remain excluded.
 
-## Current application qualification
+## Separate executable qualification
 
-The original `snodec-dev-stdio`, independent `mcp-http`/`mcp-https` instances in `snodec-dev-http`, and `snodec-mcp-client client --command tour` demonstrate the implemented module. See [SHOWCASE.md](SHOWCASE.md), the [API inventory](SHOWCASE-API.md) and the selected synthetic [wire examples](SHOWCASE-WIRE.json). Sampling and roots remain excluded; logging and replay apply only to 2025-11-25. MCP SOVERSION remains 4.
+The development assistant (`snodec-dev-stdio`, `snodec-dev-http` and its installed skill) is restored to the `69b16419a` functional surface. The dedicated `snodec-mcp-showcase-stdio` and `snodec-mcp-showcase-http` executables own synthetic registrations, page size three, task limits, demo authorization, protected-resource metadata, `/showcase/approve`, replay sizing and independent named HTTP/HTTPS instances. The development assistant keeps page size 128 and the baseline task settings, `/mcp` route and CLI. All concrete registrations and transport code are shared without copying implementations.
+
+The development registration set is four tools (`api.find`, `api.read`, `skeleton.preview`, `review.label`), two resources (`snodec://development/house-style`, `snodec://development/review-label`), prompt `snodec-review`, and template `snodec://development/style/{section}`. Four `McpDevelopmentInventory_*` gates check the exact sets, one page, absence of showcase entries, absence of synthetic HTTP routes and absence of showcase CLI options, for both eras and both dev transports.
+
+The six typed C++ client tours, six raw-wire cases, SDK showcase cases and HTTP/HTTPS instance policy test target the dedicated executables. Staged installed-consumer tours use the installed showcase binary. Common router fixture tests remain library controls. The two SDK stdio progress cases remain disabled with their existing owner-decision comment; their assertions are preserved.
+
+The development skill and all development handler definitions match `69b16419a`. The registration statements and stdio lifetime were extracted into shared functions without functional changes. The stdio include-analysis corrections, `SubCommand` perfect forwarding and replay-retirement library fix remain. No showcase identity, policy, inventory, task setting or small page default remains in the dev assistant.
+
+The owner-requested schema-validator update retains exact integer and zero decisions without floating-point equality diagnostics. Its numeric regression covers adjacent fractions, signed zero and overflowing `multipleOf` quotients. Required draft-07 (972/972) and 2020-12 (1319/1319) conformance passed; the existing optional 2019-09 cross-draft limitation remains.
+
+Native observations in the historical sections were recorded before this separation. They are not new native-client runs of the separate executables. Native decoding causes and unexposed controls retain their original UNVERIFIED status; automated protocol coverage is recorded independently.
+
+| Check | Separation result |
+| --- | --- |
+| GCC 16.2 Debug, full clean build and full CTest | 396/396 enabled tests passed; 398 registered, two owner-disabled SDK stdio cases, zero skips; 301.13 seconds |
+| Clang 21.1.8 strict + ASan, full clean build and full CTest | 396/396 enabled tests passed; identical inventory and disabled cases, zero skips; 357.31 seconds; leak detection, halt-on-error and abort-on-error enabled |
+| Protocol / transport matrix | Six C++ tours and six raw-wire cases passed on both toolchains: both eras over stdio, HTTP and HTTPS |
+| Dev surface | All four exact-inventory gates passed on both toolchains; manual stdio probe confirmed four dev tools on one page and 33 showcase tools over eleven pages |
+| HTTP/HTTPS policy and retirement | Independent showcase instances and both shared-router retirement regressions passed on both toolchains |
+| Installed consumption | Staged exported components, concrete examples and both installed showcase stdio tours passed on both toolchains |
+| Include analysis and formatting | Zero IWYU corrections; twelve touched C++ files and five CMake files passed formatting checks; `git diff --check` passed |
+| Wire examples | Twenty-two selected exchanges recaptured from both typed stdio tours; four-space JSON retained; no local paths or native credentials |
+
+The starting local merge had 394 test registrations. This separation adds exactly four `McpDevelopmentInventory_*` registrations and removes none, yielding 398 registrations and 396 enabled tests. All 375 original baseline registrations remain, as do all six SDK tests. The two SDK stdio showcase cases retain their owner-disabled status and existing explanatory comment; SDK read, client and HTTP showcase cases passed. Control tests remain enabled and every Python test command uses `-B`.
+
+The final GCC clean build has no compiler warnings. Strict Clang retains the existing third-party validator warning exception; its other pre-existing warnings remain visible, with no floating-point equality diagnostics or SNode.C application warnings. No warning or analysis setting was weakened for this change.
+
+## Historical combined-application qualification
+
+Before separation, the combined `snodec-dev-stdio`, independent `mcp-http`/`mcp-https` instances in `snodec-dev-http`, and `snodec-mcp-client client --command tour` demonstrated the implemented module. See [SHOWCASE.md](SHOWCASE.md), the [API inventory](SHOWCASE-API.md) and the selected synthetic [wire examples](SHOWCASE-WIRE.json). Sampling and roots remain excluded; logging and replay apply only to 2025-11-25. MCP SOVERSION remains 4.
 
 Configure, build and test strictly sequentially in separate external GCC and strict Clang+ASan build directories. Enable applications, tests, control tests and `CHECK_INCLUDES`. Run every test with `TMPDIR=/tmp/snc`; Python tests use `python3 -B`. Strict Clang uses `-Weverything -Werror`, ASan and frame pointers, with `ASAN_OPTIONS=detect_leaks=1:halt_on_error=1:abort_on_error=1`. Existing third-party exclusions remain unchanged. The installed-consumer check stages its own prefix and loads the staged MCP and JSON-RPC libraries rather than a live installation.
 

@@ -40,12 +40,6 @@
 configure_file(config.h.in mcp-config.h @ONLY)
 add_library(
     snodec-dev-tools STATIC
-    HttpConfig.h
-    HttpConfig.cpp
-    Features.h
-    FeatureContent.cpp
-    FeatureInteractions.cpp
-    FeatureResources.cpp
     Tools.cpp
     Tools.h
     FindTool.cpp
@@ -65,22 +59,25 @@ add_library(
     ReviewLabelTool.cpp
     ReviewLabelTool.h
 )
-target_include_directories(snodec-dev-tools PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
+target_include_directories(
+    snodec-dev-tools PUBLIC ${CMAKE_CURRENT_BINARY_DIR}
+                            ${CMAKE_CURRENT_SOURCE_DIR}
+)
+add_library(mcp-app-stdio STATIC Stdio.cpp Stdio.h)
+target_link_libraries(
+    mcp-app-stdio PUBLIC snodec-dev-tools snodec::net-stdio-stream
+)
 target_link_libraries(snodec-dev-tools PUBLIC snodec::mcp-server)
 foreach(transport IN ITEMS stdio http)
     add_executable(snodec-dev-${transport} main.cpp)
     target_link_libraries(snodec-dev-${transport} PRIVATE snodec-dev-tools)
     if(transport STREQUAL "stdio")
         target_compile_definitions(snodec-dev-${transport} PRIVATE MCP_STDIO=1)
-        target_link_libraries(
-            snodec-dev-${transport} PRIVATE snodec::mcp-server
-                                            snodec::net-stdio-stream
-        )
+        target_link_libraries(snodec-dev-${transport} PRIVATE mcp-app-stdio)
     else()
         target_link_libraries(
-            snodec-dev-${transport}
-            PRIVATE snodec::mcp-server-http snodec::net-in-stream-legacy
-                    http-server-express-tls-in
+            snodec-dev-${transport} PRIVATE snodec::mcp-server-http
+                                            snodec::net-in-stream-legacy
         )
     endif()
     set_target_properties(
@@ -93,6 +90,8 @@ foreach(transport IN ITEMS stdio http)
             RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT apps
     )
 endforeach()
+
+add_subdirectory(showcase)
 
 install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/skill/snodec-development/

@@ -39,29 +39,21 @@
  * THE SOFTWARE.
  */
 
-#ifndef APPS_MCP_FEATURES_FEATURES_H
-#define APPS_MCP_FEATURES_FEATURES_H
-
-#include "mcp/server/Server.h"
+#pragma once
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string>
+#include <functional>
 
-#endif
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace apps::mcp::features {
+namespace mcp::server {
+    class Server;
+} // namespace mcp::server
 
-    ::mcp::Implementation implementation(std::string version);
-    ::mcp::Icon icon();
-    std::string encoded(const std::string& bytes);
-    ::mcp::Json emptySchema();
-    ::mcp::Json schema(const std::string& text);
-    ::mcp::server::ToolDefinition toolDefinition(std::string name, std::string description, ::mcp::Json input);
-    void registerContent(::mcp::server::Server& server);
-    void registerInteractions(::mcp::server::Server& server);
-    void registerResources(::mcp::server::Server& server);
+namespace apps::mcp {
+    class DevelopmentConfig;
 
-} // namespace apps::mcp::features
-
-#endif
+    int runStdio(
+        int argc, char* argv[], ::mcp::server::Server& server, DevelopmentConfig& config, const std::function<void()>& registerApplication);
+} // namespace apps::mcp

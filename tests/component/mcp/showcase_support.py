@@ -37,7 +37,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-"""Process support for the original MCP application's complete feature tour."""
+"""Process support for the separate MCP showcase's complete feature tour."""
 
 import json
 import os
@@ -73,7 +73,7 @@ class Server:
         until = time.monotonic() + 8
         while time.monotonic() < until and self.process.poll() is None and not expected <= ports.keys():
             text = self.log_path.read_text(errors="replace")
-            for kind, port in re.findall(r"development (HTTPS?) listening on 127\.0\.0\.1:(\d+)", text):
+            for kind, port in re.findall(r"showcase (HTTPS?) listening on 127\.0\.0\.1:(\d+)", text):
                 ports[kind] = int(port)
             time.sleep(0.02)
         assert expected <= ports.keys(), self.log_path.read_text(errors="replace")

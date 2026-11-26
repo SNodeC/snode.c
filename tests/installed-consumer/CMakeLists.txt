@@ -51,11 +51,11 @@ target_link_libraries(
 set(mcp_app_sources "${CMAKE_CURRENT_SOURCE_DIR}/../../src/apps/mcp")
 add_library(
     mcp-features STATIC
-    ${mcp_app_sources}/FeatureContent.cpp
-    ${mcp_app_sources}/FeatureInteractions.cpp
-    ${mcp_app_sources}/FeatureResources.cpp
+    ${mcp_app_sources}/showcase/FeatureContent.cpp
+    ${mcp_app_sources}/showcase/FeatureInteractions.cpp
+    ${mcp_app_sources}/showcase/FeatureResources.cpp
 )
-target_include_directories(mcp-features PUBLIC ${mcp_app_sources})
+target_include_directories(mcp-features PUBLIC ${mcp_app_sources}/showcase)
 target_link_libraries(mcp-features PUBLIC snodec::mcp-server)
 add_executable(mcp-feature-consumer features.cpp)
 target_link_libraries(mcp-feature-consumer PRIVATE mcp-features)

@@ -1,6 +1,6 @@
 # MCP showcase API inventory
 
-Baseline: `69b16419a`. Source inventory; execution results and native-client limitations are recorded in [QUALIFICATION.md](QUALIFICATION.md). Sampling and roots are deliberately excluded. Every implemented public feature is demonstrated in the existing `snodec-dev-*` application; `snodec-mcp-client client --command tour` drives its public client APIs.
+Baseline: `69b16419a`. Source inventory; execution results and native-client limitations are recorded in [QUALIFICATION.md](QUALIFICATION.md). Sampling and roots are deliberately excluded. Every implemented public feature is demonstrated in the separate `snodec-mcp-showcase-*` applications; `snodec-mcp-client client --command tour` drives its public client APIs.
 
 The invariant is one protocol implementation: the showcase consumes public MCP APIs and existing transport bindings; it must not implement a second MCP engine. Application state and timers live on the event loop and terminate with their request or server owner.
 
