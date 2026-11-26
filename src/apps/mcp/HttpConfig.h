@@ -44,6 +44,14 @@
 
 #include "Tools.h"
 
+namespace CLI {
+    class Option;
+}
+
+namespace utils {
+    class SubCommand;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 #include <cstddef>
 #include <string>

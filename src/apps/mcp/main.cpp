@@ -51,17 +51,14 @@
 #include "StyleTemplate.h"
 #include "Tools.h"
 #include "mcp-config.h"
-#include "mcp/server/Config.h"
 #include "mcp/server/Server.h"
 
 #ifdef MCP_STDIO
-// IWYU pragma: no_include "core/socket/Socket.hpp"
-// IWYU pragma: no_include "core/socket/stream/SocketConnection.hpp"
 #include "core/SNodeC.h"
 #include "core/socket/State.h"
 #include "mcp/server/Config.h"
 #include "mcp/server/stream/SocketContextFactory.h"
-#include "net/config/ConfigConnection.h"
+#include "net/config/ConfigConnection.h" // IWYU pragma: keep - directly used configuration base
 #include "net/stdio/SocketAddress.h"
 #include "net/stdio/stream/SocketEndpoint.h"
 #include "net/stdio/stream/config/ConfigSocketEndpoint.h"
@@ -83,28 +80,21 @@
 #else
 #include "HttpConfig.h"
 #include "core/SNodeC.h"
-#include "express/Request.h"
-#include "express/Response.h"
 #include "express/legacy/in/WebApp.h"
 #include "express/tls/in/WebApp.h"
 #include "mcp/Types.h"
 #include "mcp/server/http/Router.h"
-#include "net/config/ConfigConnection.h"
+#include "net/config/ConfigConnection.h" // IWYU pragma: keep - directly used configuration base
 #include "net/config/ConfigInstance.h"
-#include "utils/CLI11.hpp"
-#include "utils/Config.h"
 #include "web/http/ConfigHttpParser.h"
 #include "web/http/server/ConfigHttpServer.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef>
 #include <exception>
-#include <memory>
 #include <nlohmann/detail/json_ref.hpp>
 #include <nlohmann/json.hpp>
 #include <optional>
-#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -155,7 +145,7 @@ namespace {
         const Router router(
             server,
             config,
-            [token](const auto& request) -> Authorization {
+            [token](const std::shared_ptr<express::Request>& request) -> Authorization {
                 Authorization result = Unauthorized{"Bearer realm=\"showcase\"", "showcase:read"};
                 const std::string credential = request->get("Authorization");
                 if (token.empty()) {
@@ -172,7 +162,7 @@ namespace {
             options);
         router.mountMetadata(app);
         app.use("/mcp", router);
-        app.get("/showcase/approve", [](const auto&, const auto& response) {
+        app.get("/showcase/approve", [](const std::shared_ptr<express::Request>&, const std::shared_ptr<express::Response>& response) {
             response->send("Demonstration only. No identity, credentials or authorization state are changed.");
         });
     }
@@ -182,8 +172,8 @@ namespace {
 
 int main(int argc, char* argv[]) {
     int result = 1;
-    mcp::server::Server server(apps::mcp::features::implementation(SNODEC_DEV_VERSION), apps::mcp::instructions());
 #ifdef MCP_STDIO
+    mcp::server::Server server(apps::mcp::features::implementation(SNODEC_DEV_VERSION), apps::mcp::instructions());
     int protocolFd = ::fcntl(STDOUT_FILENO, F_DUPFD_CLOEXEC, 3);
     struct stat protocol{};
     struct stat diagnostics{};
@@ -233,6 +223,8 @@ int main(int argc, char* argv[]) {
 
 #else
     using WebApp = express::legacy::in::WebApp;
+    mcp::server::Server server(apps::mcp::features::implementation(SNODEC_DEV_VERSION), apps::mcp::instructions());
+    mcp::server::Server tlsServer(apps::mcp::features::implementation(SNODEC_DEV_VERSION), apps::mcp::instructions());
     const WebApp app("mcp-http");
     const express::tls::in::WebApp tls("mcp-https");
     app.getConfig()->Local::setHost("127.0.0.1")->setPort(3337);
@@ -250,9 +242,14 @@ int main(int argc, char* argv[]) {
             core::SNodeC::free();
             result = 0;
         } else {
-            registrations(server, *config);
+            if (!app.getConfig()->Instance::getDisabled()) {
+                registrations(server, *config);
+            }
+            if (certificates && !tls.getConfig()->Instance::getDisabled()) {
+                registrations(tlsServer, *tlsConfig);
+            }
             mount(app, server, *config);
-            mount(tls, server, *tlsConfig);
+            mount(tls, tlsServer, *tlsConfig);
             if (certificates) {
                 tls.listen([&listenFailure](const auto& address, const auto& state) {
                     if (state == core::socket::State::OK) {

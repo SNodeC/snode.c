@@ -41,6 +41,7 @@
 
 #include "HttpConfig.h"
 
+#include "Tools.h"
 #include "utils/CLI11.hpp"
 
 namespace apps::mcp {
