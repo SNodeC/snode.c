@@ -3,7 +3,9 @@ set(prefix "${stage}/prefix")
 set(libdir "${prefix}/${SNODEC_INSTALL_LIBDIR}")
 
 # Execute consumers against this temporary installation, not a system copy.
-set(ENV{LD_LIBRARY_PATH} "${libdir}:${libdir}/snode.c/web/http")
+set(ENV{LD_LIBRARY_PATH}
+    "${libdir}:${libdir}/snode.c/mcp:${libdir}/snode.c/jsonrpc:${libdir}/snode.c/web/http"
+)
 
 file(REMOVE_RECURSE "${stage}")
 file(MAKE_DIRECTORY "${stage}")
