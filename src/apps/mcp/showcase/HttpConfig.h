@@ -39,8 +39,8 @@
  * THE SOFTWARE.
  */
 
-#ifndef APPS_MCP_HTTPCONFIG_H
-#define APPS_MCP_HTTPCONFIG_H
+#ifndef APPS_MCP_SHOWCASE_HTTPCONFIG_H
+#define APPS_MCP_SHOWCASE_HTTPCONFIG_H
 
 #include "Tools.h"
 
@@ -78,4 +78,4 @@ namespace apps::mcp {
 
 } // namespace apps::mcp
 
-#endif // APPS_MCP_HTTPCONFIG_H
+#endif // APPS_MCP_SHOWCASE_HTTPCONFIG_H

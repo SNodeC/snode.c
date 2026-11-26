@@ -1,6 +1,6 @@
 # SNode.C MCP
 
-The in-tree MCP module provides shared protocol values, a server registry/dispatcher and a typed client, with stdio and Streamable HTTP/HTTPS adapters. Its application combines a SNode.C development assistant with a complete tour of the implemented server/client features. The original read-only source tools are `api.find`, `api.read`, `skeleton.preview`, the `snodec://development/house-style` resource, and the `snodec-review` prompt. It does not execute commands, inspect app configurations, build examples, or write files.
+The in-tree MCP module provides shared protocol values, a server registry/dispatcher and a typed client, with stdio and Streamable HTTP/HTTPS adapters. The `snodec-dev-stdio` and `snodec-dev-http` development assistants retain their original source-inspection tools, resources, prompt, template, configuration and skill. The separate `snodec-mcp-showcase-stdio` and `snodec-mcp-showcase-http` applications demonstrate the implemented server/client features; see the [feature tour](SHOWCASE.md).
 
 ## Stability
 
@@ -49,7 +49,7 @@ snodec-dev-http --config-file /dev/null --daemonize=false \
   mcp --header-root "$HEADER_ROOT"
 ```
 
-The same executable also provides the `mcp-https` instance on port 3338; it stays disabled until both `tls --cert` and `--cert-key` are configured. See the [TLS and authorization tour](SHOWCASE.md). Options use the existing CLI11 instance/config-file mechanism. Stdio's section is `mcp`; HTTP's section is `mcp-http mcp`. Use `snodec-dev-http mcp-http mcp --help` or the corresponding stdio section help. Use `--config-file FILE` for a persistent configuration; `/dev/null` above selects an isolated empty configuration. Root log options precede instance sections.
+The separate showcase HTTP executable provides the synthetic authorization policy and independent HTTP/HTTPS instances described in the [TLS and authorization tour](SHOWCASE.md). Options use the existing CLI11 instance/config-file mechanism. Stdio's section is `mcp`; HTTP's section is `mcp-http mcp`. Use `snodec-dev-http mcp-http mcp --help` or the corresponding stdio section help. Use `--config-file FILE` for a persistent configuration; `/dev/null` above selects an isolated empty configuration. Root log options precede instance sections.
 
 | MCP option | Default | Bound / meaning |
 | --- | --- | --- |
@@ -58,13 +58,13 @@ The same executable also provides the `mcp-https` instance on port 3338; it stay
 | `--search-bytes` | 8388608 | 1–67108864 bytes per search |
 | `--maximum-message-bytes` | 1048576 | 1–16777216 bytes per message |
 | `--maximum-output-bytes` | 1048576 | 1024–16777216 queued MCP output bytes |
-| `--page-size` | 3 in this application | 1–128; library default remains 128 |
+| `--page-size` | 128 | 1–128; library default remains 128 |
 | `--deadline-ms` | 30000 | 1–300000 ms for ordinary requests |
 | `--allowed-origin` | Empty | Repeatable exact browser Origin allowlist |
 
 Restart to change the selected header root and search budgets. Header traversal uses descriptor-relative opens, rejects symlinks and `..`, reads regular `.h`/`.hpp` files only, and bounds directory entries to 8192, queued directories to 512, and path depth to 16. A slice processes at most eight directory entries or one 16 KiB read, then yields through `core::timer::Timer::singleshotTimer`. Cancellation and deadlines are checked between slices. This bounds synchronous work; regular-file reads can still wait on the underlying filesystem.
 
-`api.find` is a case-sensitive literal search with a required `query` of 1–128 Unicode code points and optional `limit` of 1–100 (default 20). It returns relative paths, one-based lines, byte offsets, and a conservative `truncated` flag. `api.read` requires a relative `path`, with optional byte `offset` (0–67108864) and `bytes` (1–65536, default 16384). Reads must form valid UTF-8. `skeleton.preview` accepts `kind` equal to `application` or `module` and returns proposed file text; it performs no writes. The review prompt accepts `code` as a string of at most 16384 bytes. The additional synthetic demonstrations mutate only process-local data. See the [feature tour](SHOWCASE.md) and [public API inventory](SHOWCASE-API.md).
+`api.find` is a case-sensitive literal search with a required `query` of 1–128 Unicode code points and optional `limit` of 1–100 (default 20). It returns relative paths, one-based lines, byte offsets, and a conservative `truncated` flag. `api.read` requires a relative `path`, with optional byte `offset` (0–67108864) and `bytes` (1–65536, default 16384). Reads must form valid UTF-8. `skeleton.preview` accepts `kind` equal to `application` or `module` and returns proposed file text; it performs no writes. The review prompt accepts `code` as a string of at most 16384 bytes. The synthetic demonstrations in the separate showcase applications mutate only process-local data. See the [feature tour](SHOWCASE.md) and [public API inventory](SHOWCASE-API.md).
 
 HTTP sets `ConfigHttpServer::setAllowPipelining(false)` and `setMaximumPendingRequests(1)` before initialization. Its explicit connection default is `--maximum-write-queue-bytes 1048576`, under `mcp-http connection`; this bounds the framework's write-queue high watermark, not a hard allocation cap. The MCP source queue has its own output-byte limit. HTTP/1.x responses remain sequential. Parser defaults are 1 MiB body, 64 KiB headers, and 100 header fields; the router also checks its own message limit. At most 64 live HTTP operations or stdio requests are accepted.
 

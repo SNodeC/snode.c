@@ -55,8 +55,9 @@ namespace utils {
 }
 
 namespace mcp::server {
+    class Server;
     struct ToolCall;
-}
+} // namespace mcp::server
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -93,6 +94,7 @@ namespace apps::mcp {
         CLI::Option* searchBytes;
     };
 
+    void registerDevelopment(::mcp::server::Server& server, const DevelopmentConfig& config);
     std::string instructions();
 
 } // namespace apps::mcp

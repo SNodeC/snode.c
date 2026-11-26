@@ -1,12 +1,12 @@
 # MCP feature tour
 
-The original `snodec-dev-stdio` and `snodec-dev-http` applications demonstrate every feature implemented by SNode.C's shared MCP values, server, HTTP server, client and HTTP client components. The development assistant's source-inspection tools, previews, resources and review prompt remain available. Additional examples operate on generated or process-local data. They do not execute commands or write source/configuration files. All registrations use concrete `Tool`, `Resource`, `ResourceTemplate` or `Prompt` subclasses. There is one registry/dispatcher and one client engine, shared across transports.
+The separate `snodec-mcp-showcase-stdio` and `snodec-mcp-showcase-http` applications demonstrate every feature implemented by SNode.C's shared MCP values, server, HTTP server, client and HTTP client components. The development assistant's source-inspection tools, previews, resources and review prompt remain available. Additional examples operate on generated or process-local data. They do not execute commands or write source/configuration files. All registrations use concrete `Tool`, `Resource`, `ResourceTemplate` or `Prompt` subclasses. There is one registry/dispatcher and one client engine, shared across transports.
 
 The [public API inventory](SHOWCASE-API.md) maps the installed entry points to the examples and qualification. Sampling and roots are outside the implemented module. Logging is legacy-only. Native harness support is separate from server/library support; a harness need not expose every protocol operation to an LLM.
 
 ## Build and run
 
-Initialize submodules, install PCRE2, then use an external build directory as described in the [MCP README](README.md). These are the original applications; there is no separate showcase executable. Set `BUILD_DIR` and `HEADER_ROOT` for your environment. `HEADER_ROOT` is the directory containing installed `core/`, `express/`, etc.
+Initialize submodules, install PCRE2, then use an external build directory as described in the [MCP README](README.md). These dedicated showcase executables leave the development assistant unchanged. The development assistant retains its original four tools, two resources, one prompt and one resource template on a single page. Set `BUILD_DIR` and `HEADER_ROOT` for your environment. `HEADER_ROOT` is the directory containing installed `core/`, `express/`, etc.
 
 ```sh
 cmake -S . -B "$BUILD_DIR" -DSNODEC_BUILD_APPS=ON -DSNODEC_BUILD_TESTS=ON \
@@ -20,16 +20,16 @@ Run the client tour over stdio. The demonstration deadline is shortened to two s
 
 ```sh
 snodec-mcp-client --config-file /dev/null --quiet client --command tour \
-  --server snodec-dev-stdio \
+  --server snodec-mcp-showcase-stdio \
   --server-arguments '["--config-file","/dev/null","--quiet","mcp","--page-size","3","--deadline-ms","2000"]'
 ```
 
 Add `client --legacy true` to select 2025-11-25. A tour without that option selects 2026-07-28; ordinary client commands still default to automatic discovery/fallback. Supply `--answer non-sensitive-label` and `--answer-action accept|decline|cancel` in the `client` section to select canned input. Responses are asynchronous, and independent simultaneous input requests retain independent responders. Outside the tour, elicitation is declined by default.
 
-For HTTP, start the original server and run the client in a second terminal. Transport address options belong to the existing named instance's `remote` configuration, not application/root options.
+For HTTP, start the showcase server and run the client in a second terminal. Transport address options belong to the existing named instance's `remote` configuration, not application/root options.
 
 ```sh
-snodec-dev-http --config-file /dev/null \
+snodec-mcp-showcase-http --config-file /dev/null \
   mcp-http local --host 127.0.0.1 --port 3337 \
   mcp --header-root "$HEADER_ROOT" --page-size 3 --deadline-ms 2000
 snodec-mcp-client --config-file /dev/null --quiet \
@@ -43,7 +43,7 @@ snodec-mcp-client --config-file /dev/null --quiet \
 The same HTTP executable owns an independent `mcp-https` instance. Each named HTTP/TLS instance has its own registry, header root, limits, authorization and process-local resource/task state. It stays disabled until certificates are configured. Use your test certificate/key and trust its CA explicitly; do not disable verification. No key or certificate is shipped with the demonstration.
 
 ```sh
-snodec-dev-http --config-file /dev/null \
+snodec-mcp-showcase-http --config-file /dev/null \
   mcp-http local --host 127.0.0.1 --port 3337 \
   mcp --header-root "$HEADER_ROOT" --page-size 3 --deadline-ms 2000 \
   mcp-https local --host 127.0.0.1 --port 3338 \
@@ -86,7 +86,7 @@ Each client step prints its feature name, request summary and final result or ex
 | Logging | `logging` | Legacy `logging/setLevel`, request-context and server logging; modern logging is absent/rejected |
 | HTTP policy | `mcp-http mcp` / `mcp-https mcp` | Optional authorizer, protected-resource metadata, 401/403 challenges, exact Origin policy |
 | Legacy HTTP lifetime | Session ID, GET, DELETE, `Last-Event-ID` | Bounded replay for interrupted POST SSE and GET notification streams; modern never uses replay |
-| Transport shutdown | EOF, disconnect, client stop | Original stream framing/context and transport ownership; no separate showcase lifecycle engine |
+| Transport shutdown | EOF, disconnect, client stop | Shared stream framing/context and transport ownership |
 
 The URL-input example is an acknowledgement of the public `https://example.com/` page, not a real authentication or consent workflow. Its state never grants access. The label examples validate accepted content against a server-owned schema and treat retries/state as untrusted input.
 
@@ -95,7 +95,7 @@ The URL-input example is an acknowledgement of the public `https://example.com/`
 Authentication is disabled unless the instance's `mcp --demo-token` option is supplied. There is no default secret. This is an intentionally synthetic authorizer, not an OAuth server. With a configured token, the exact value grants access, `TOKEN:read` demonstrates insufficient scope, `TOKEN:forbidden` demonstrates forbidden, and other/missing values demonstrate unauthorized. Never reuse a real access token for this demonstration. Real applications validate issuer, audience/resource, expiry and scopes in their own `Authorize` callback.
 
 ```sh
-snodec-dev-http --config-file /dev/null \
+snodec-mcp-showcase-http --config-file /dev/null \
   mcp-http local --host 127.0.0.1 --port 3337 \
   mcp --header-root "$HEADER_ROOT" --demo-token "$DEMO_TOKEN" \
   --resource-uri http://127.0.0.1:3337/mcp \
@@ -117,12 +117,12 @@ Claude Code, top-level `mcpServers` in its user JSON (or a project `.mcp.json`):
 ```json
 {
     "mcpServers": {
-        "snodec-dev-stdio": {
+        "snodec-mcp-showcase-stdio": {
             "type": "stdio",
-            "command": "<installed-bindir>/snodec-dev-stdio",
+            "command": "<installed-bindir>/snodec-mcp-showcase-stdio",
             "args": ["--config-file", "/dev/null"]
         },
-        "snodec-dev-http": {
+        "snodec-mcp-showcase-http": {
             "type": "http",
             "url": "http://127.0.0.1:3337/mcp"
         }
@@ -133,11 +133,11 @@ Claude Code, top-level `mcpServers` in its user JSON (or a project `.mcp.json`):
 Codex, `config.toml` MCP entries ([official MCP commands](https://learn.chatgpt.com/docs/developer-commands#codex-mcp)):
 
 ```toml
-[mcp_servers.snodec-dev-stdio]
-command = "<installed-bindir>/snodec-dev-stdio"
+[mcp_servers.snodec-mcp-showcase-stdio]
+command = "<installed-bindir>/snodec-mcp-showcase-stdio"
 args = ["--config-file", "/dev/null"]
 
-[mcp_servers.snodec-dev-http]
+[mcp_servers.snodec-mcp-showcase-http]
 url = "http://127.0.0.1:3337/mcp"
 ```
 
@@ -196,7 +196,7 @@ The following two server envelopes show the input mechanisms. The associated cal
                         "theme": "light"
                     }
                 ],
-                "name": "snodec-dev",
+                "name": "snodec-mcp-showcase",
                 "title": "SNode.C MCP feature showcase",
                 "version": "3.0.0",
                 "websiteUrl": "https://github.com/SNodeC/snode.c"

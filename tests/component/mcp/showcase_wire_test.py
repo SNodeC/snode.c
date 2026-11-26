@@ -88,7 +88,7 @@ class Wire:
         initial = self.call("server/discover" if self.modern else "initialize",
                             {} if self.modern else {"protocolVersion": era, "clientInfo": {"name": "showcase-wire", "version": "1"}, "capabilities": CAPABILITIES})["result"]
         info = initial.get("serverInfo", initial.get("_meta", {}).get("io.modelcontextprotocol/serverInfo"))
-        assert info["name"] == "snodec-dev" and info["title"] and info["icons"] and info["websiteUrl"]
+        assert info["name"] == "snodec-mcp-showcase" and info["title"] and info["icons"] and info["websiteUrl"]
         assert initial["capabilities"]["resources"]["subscribe"] is True
         assert ("logging" in initial["capabilities"]) != self.modern
         assert initial["instructions"]

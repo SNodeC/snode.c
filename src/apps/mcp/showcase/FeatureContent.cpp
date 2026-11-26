@@ -77,7 +77,7 @@ namespace apps::mcp::features {
     }
 
     Implementation implementation(std::string version) {
-        return Implementation{"snodec-dev",
+        return Implementation{"snodec-mcp-showcase",
                               std::move(version),
                               "SNode.C MCP feature showcase",
                               "An executable tour of implemented MCP server and client features.",

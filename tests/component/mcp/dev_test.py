@@ -81,52 +81,8 @@ def run():
                              env=dict(os.environ, XDG_CONFIG_HOME=temporary, XDG_STATE_HOME=temporary), timeout=4)
         assert cli.returncode == 2 and cli.stdout == b"" and cli.stderr
         current = client()
-        inventory = []
-        cursor = None
-        pages = 0
-        while cursor is not None or pages == 0:
-            current.send(request("tools/list", 1000 + pages, {"cursor": cursor} if cursor is not None else {}))
-            page = current.receive()["result"]
-            assert len(page["tools"]) <= 3
-            inventory.extend(page["tools"])
-            cursor = page.get("nextCursor")
-            pages += 1
-        assert pages > 1 and len(inventory) == 33
-        assert {tool["name"] for tool in inventory} == {
-            'api.find',
-            'api.read',
-            'catalogue.0',
-            'catalogue.1',
-            'catalogue.2',
-            'catalogue.3',
-            'catalogue.4',
-            'catalogue.5',
-            'catalogue.6',
-            'catalogue.7',
-            'catalogue.8',
-            'content',
-            'dynamic',
-            'headers',
-            'input.form',
-            'input.parallel',
-            'input.rounds',
-            'input.task',
-            'input.url',
-            'logging',
-            'principal',
-            'protocol.error',
-            'review.label',
-            'schema',
-            'skeleton.preview',
-            'structured.invalid',
-            'structured.valid',
-            'task.optional',
-            'task.required',
-            'text',
-            'tool.error',
-            'update',
-            'work'
-        }
+        current.send(request("tools/list", 1))
+        assert {tool["name"] for tool in current.receive()["result"]["tools"]} == {"api.find", "api.read", "skeleton.preview", "review.label"}
 
         def call(name, arguments, ident=2):
             current.send(request("tools/call", ident, {"name": name, "arguments": arguments}))

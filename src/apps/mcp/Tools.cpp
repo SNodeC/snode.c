@@ -41,6 +41,14 @@
 
 #include "Tools.h"
 
+#include "FindTool.h"
+#include "HouseStyleResource.h"
+#include "ReadTool.h"
+#include "ReviewLabelResource.h"
+#include "ReviewLabelTool.h"
+#include "ReviewPrompt.h"
+#include "SkeletonPreviewTool.h"
+#include "StyleTemplate.h"
 #include "core/system/unistd.h"
 #include "core/timer/Timer.h"
 #include "mcp-config.h"
@@ -393,7 +401,6 @@ namespace apps::mcp {
 
     DevelopmentConfig::DevelopmentConfig(utils::SubCommand* parent)
         : ::mcp::server::Config(parent) {
-        setPageSize(3);
         headerRoot = addOption("--header-root", "Installed SNode.C header root", "directory", CLI::ExistingDirectory);
         setDefaultValue(headerRoot, std::string(MCP_HEADER_ROOT));
         searchFiles = addOption("--search-files", "Maximum headers per search", "count", std::size_t{4096}, CLI::Range(1, 8192));
@@ -410,6 +417,18 @@ namespace apps::mcp {
 
     std::size_t DevelopmentConfig::getSearchBytes() const {
         return searchBytes->as<std::size_t>();
+    }
+
+    void registerDevelopment(::mcp::server::Server& server, const DevelopmentConfig& config) {
+        server.tool(std::make_shared<FindTool>(config));
+        server.tool(std::make_shared<ReadTool>(config));
+        server.tool(std::make_shared<SkeletonPreviewTool>());
+        server.resource(std::make_shared<HouseStyleResource>());
+        server.prompt(std::make_shared<ReviewPrompt>());
+        server.resourceTemplate(std::make_shared<StyleTemplate>());
+        const auto label = std::make_shared<ReviewLabelResource>(server);
+        server.resource(label);
+        server.tool(std::make_shared<ReviewLabelTool>(label));
     }
 
     std::string instructions() {

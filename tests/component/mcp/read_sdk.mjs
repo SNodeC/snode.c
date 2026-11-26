@@ -59,41 +59,7 @@ try {
     await client.connect(transport);
     assert.equal(client.getNegotiatedProtocolVersion(), era);
     const tools = await client.listTools();
-    assert.deepEqual(tools.tools.map(tool => tool.name).sort(), [
-        'api.find',
-        'api.read',
-        'catalogue.0',
-        'catalogue.1',
-        'catalogue.2',
-        'catalogue.3',
-        'catalogue.4',
-        'catalogue.5',
-        'catalogue.6',
-        'catalogue.7',
-        'catalogue.8',
-        'content',
-        'dynamic',
-        'headers',
-        'input.form',
-        'input.parallel',
-        'input.rounds',
-        'input.task',
-        'input.url',
-        'logging',
-        'principal',
-        'protocol.error',
-        'review.label',
-        'schema',
-        'skeleton.preview',
-        'structured.invalid',
-        'structured.valid',
-        'task.optional',
-        'task.required',
-        'text',
-        'tool.error',
-        'update',
-        'work',
-    ]);
+    assert.deepEqual(tools.tools.map(tool => tool.name).sort(), ['api.find', 'api.read', 'review.label', 'skeleton.preview']);
     const result = await client.callTool({name: 'api.read', arguments: {path: 'core/SNodeC.h', offset: 2368, bytes: 200}});
     const expected = readFileSync(`${root}/core/SNodeC.h`).subarray(2368, 2568).toString();
     assert.equal(result.structuredContent.text, expected);

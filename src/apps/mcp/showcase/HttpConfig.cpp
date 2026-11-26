@@ -48,6 +48,7 @@ namespace apps::mcp {
 
     HttpConfig::HttpConfig(utils::SubCommand* parent, bool tls)
         : DevelopmentConfig(parent) {
+        setPageSize(3);
         token = addOption("--demo-token", "Optional demo bearer token; empty disables auth", "token", std::string{}, CLI::Validator{});
         issuer =
             addOption("--authorization-server", "Optional HTTPS authorization server metadata URL", "url", std::string{}, CLI::Validator{});

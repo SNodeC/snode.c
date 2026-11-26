@@ -156,7 +156,7 @@ if(SNODEC_BUILD_APPS)
             COMMAND
                 "${consumer_build}/mcp-tour-consumer" --config-file /dev/null
                 --quiet client --command tour --server
-                "${prefix}/bin/snodec-dev-stdio" --legacy ${legacy}
+                "${prefix}/bin/snodec-mcp-showcase-stdio" --legacy ${legacy}
                 --server-arguments
                 "[\"--config-file\",\"/dev/null\",\"--quiet\",\"mcp\",\"--page-size\",\"3\",\"--deadline-ms\",\"2000\",\"--header-root\",\"${prefix}/include/snode.c\"]"
             RESULT_VARIABLE tour_result
