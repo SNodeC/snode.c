@@ -39,6 +39,7 @@
 
 import http.client
 import json
+import ssl
 import sys
 import tempfile
 import time
@@ -46,14 +47,15 @@ import time
 import http_test
 
 
-def run(executable):
+def run(executable, tls):
     for events, retention in [(128, 60000), (2, 60000), (128, 20)]:
         with tempfile.TemporaryDirectory(prefix='mcp-replay-') as directory:
-            server = http_test.Server(executable, directory, False,
+            server = http_test.Server(executable, directory, tls,
                                      extra=['--fixture-replay-events', str(events), '--fixture-replay-ms', str(retention)], curl='curl')
             connections = []
             def connect(method, headers, value=None):
-                connection = http.client.HTTPConnection('127.0.0.1', server.port, timeout=4)
+                connection = (http.client.HTTPSConnection('127.0.0.1', server.port, timeout=4, context=ssl._create_unverified_context())
+                              if tls else http.client.HTTPConnection('127.0.0.1', server.port, timeout=4))
                 connections.append(connection)
                 connection.request(method, '/mcp', None if value is None else json.dumps(value), headers)
                 return connection, connection.getresponse()
@@ -133,6 +135,27 @@ def run(executable):
                     _, value = frame(second)
                     assert value['result']['structuredContent']['calls'] == 2, 'resume must not rerun the handler'
                     assert second.read() == b''
+                # DELETE must retire detached replay through the router's cleanup owner.
+                deleted = initialize()
+                deleted_headers = dict(fields, **{'Mcp-Session-Id':deleted})
+                detached, seeded = connect('GET', deleted_headers)
+                assert seeded.status == 200
+                deleted_event, empty = frame(seeded)
+                assert deleted_event and empty is None
+                seeded.close()
+                detached.close()
+                time.sleep(.1)
+                _, removed = connect('DELETE', deleted_headers)
+                assert removed.status == 204 and removed.read() == b''
+                # Cross the one-second cleanup interval before another request can clean it.
+                time.sleep(1.2)
+                assert server.process.poll() is None, 'server died after session deletion'
+                _, retired = connect('GET', dict(deleted_headers, **{'Last-Event-ID':deleted_event}))
+                assert retired.status == 404 and retired.read() == b''
+                alive = initialize()
+                value = {'jsonrpc':'2.0','id':'alive','method':'tools/list'}
+                status, _, body = server.curl(value, dict(post, **{'Mcp-Session-Id':alive}))
+                assert status == 200 and json.loads(body)['result']['tools']
                 # Modern GET remains unsupported even with Last-Event-ID.
                 _, modern = connect('GET', dict(fields, **{'MCP-Protocol-Version':'2026-07-28','Last-Event-ID':initial}))
                 assert modern.status == 405
@@ -140,8 +163,8 @@ def run(executable):
                 for connection in connections:
                     connection.close()
                 server.stop()
-    print('PASS: GET/POST replay, forced disconnect, exact stream/session binding, eviction, expiry, no duplicate execution, modern exclusion')
+    print('PASS: GET/POST replay, forced disconnect, exact stream/session binding, eviction, expiry, no duplicate execution, modern exclusion, DELETE cleanup and clean shutdown')
 
 
 if __name__ == '__main__':
-    run(sys.argv[1])
+    run(sys.argv[1], sys.argv[2] == 'Tls')

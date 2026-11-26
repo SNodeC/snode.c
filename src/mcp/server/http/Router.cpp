@@ -330,9 +330,6 @@ namespace mcp::server::http {
             }
 
             void shutdown() {
-                if (closed && replay) {
-                    abandon();
-                }
                 if (!closed && (reply || request.is_null())) {
                     if (reply) {
                         reply->cancel(CancelReason::Shutdown);

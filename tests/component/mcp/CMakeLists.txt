@@ -178,14 +178,17 @@ set_tests_properties(
                                   TIMEOUT 45
 )
 
-add_test(NAME McpHttpReplayTest
-         COMMAND ${MCP_PYTHON} -B ${CMAKE_CURRENT_SOURCE_DIR}/replay_test.py
-                 $<TARGET_FILE:McpHttpFixture>
-)
-set_tests_properties(
-    McpHttpReplayTest PROPERTIES LABELS "mcp;component;http;resumability"
-                                 TIMEOUT 30
-)
+foreach(variant IN ITEMS Http Tls)
+    add_test(
+        NAME Mcp${variant}ReplayTest
+        COMMAND ${MCP_PYTHON} -B ${CMAKE_CURRENT_SOURCE_DIR}/replay_test.py
+                $<TARGET_FILE:Mcp${variant}Fixture> ${variant}
+    )
+    set_tests_properties(
+        Mcp${variant}ReplayTest
+        PROPERTIES LABELS "mcp;component;http;resumability" TIMEOUT 30
+    )
+endforeach()
 
 add_test(
     NAME McpClientTransportTest
