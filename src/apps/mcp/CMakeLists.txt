@@ -100,7 +100,10 @@ install(
     COMPONENT apps
 )
 
-add_executable(snodec-mcp-client client.cpp)
+add_executable(
+    snodec-mcp-client client.cpp Client.cpp Client.h ClientConfig.cpp
+                      ClientConfig.h
+)
 target_link_libraries(snodec-mcp-client PRIVATE mcp-client mcp-client-http)
 set_target_properties(
     snodec-mcp-client
