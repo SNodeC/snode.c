@@ -63,3 +63,11 @@ foreach(
                    TIMEOUT 5
     )
 endforeach()
+
+snodec_add_test(SubCommandForwardingTest SubCommandForwardingTest.cpp)
+target_link_libraries(
+    SubCommandForwardingTest PRIVATE snodec-test-support snodec::utils
+)
+set_tests_properties(
+    SubCommandForwardingTest PROPERTIES LABELS "unit;utils;config" TIMEOUT 5
+)
