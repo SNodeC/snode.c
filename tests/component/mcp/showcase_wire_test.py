@@ -187,6 +187,9 @@ def check(wire):
     described = next(tool for tool in tools if tool["name"] == "text")
     assert described["title"] == "text" and described["icons"] and described["_meta"]["showcase/feature"] == "text"
     assert described["annotations"] == {"readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": False}
+    result = wire.call("tools/call", {"name": "text", "arguments": {}})["result"]
+    assert result["_meta"]["showcase/result"] == "text", result
+    assert result["content"] == [{"type": "text", "text": "Hello from the MCP showcase."}], result
     for args in [{"word": "123", "choice": 1}, {"word": "Ada", "choice": 3}, {"word": "Ada", "choice": 1, "extra": True}]:
         assert wire.call("tools/call", {"name": "schema", "arguments": args})["result"]["isError"] is True
     for uri, content, ttl, scope in [("showcase://text", "text", 1000, "public"), ("showcase://blob", "blob", 500, "private")]:

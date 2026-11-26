@@ -26,6 +26,8 @@ The owner-requested schema-validator update retains exact integer and zero decis
 
 Native observations in the historical sections were recorded before this separation. They are not new native-client runs of the separate executables. Native decoding causes and unexposed controls retain their original UNVERIFIED status; automated protocol coverage is recorded independently.
 
+A focused metadata check on 2026-11-26 confirmed that the installed showcase's stdio `text` response includes `_meta["showcase/result"] = "text"` in both protocol versions. Native calls through the connected `showcase-stdio` and `showcase-http` tools exposed only the text content, without result metadata. Server delivery and native exposure are separate observations: metadata delivery to the model remains **UNVERIFIED** through these connectors. The raw-wire tests explicitly assert the result metadata for both eras and all three transports.
+
 | Check | Separation result |
 | --- | --- |
 | GCC 16.2 Debug, full clean build and full CTest | 396/396 enabled tests passed; 398 registered, two owner-disabled SDK stdio cases, zero skips; 301.13 seconds |
