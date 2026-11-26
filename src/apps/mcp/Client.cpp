@@ -132,8 +132,9 @@ namespace apps::mcp {
         }
     }
 
-    void Client::add(std::string feature, std::function<void()> run, std::function<bool(const Json&)> check, Outcome outcome) {
-        steps.push_back({std::move(feature), std::move(run), std::move(check), outcome});
+    void Client::add(
+        std::string feature, std::string request, std::function<void()> run, std::function<bool(const Json&)> check, Outcome outcome) {
+        steps.push_back({std::move(feature), std::move(request), std::move(run), std::move(check), outcome});
     }
 
     void Client::plan() {
@@ -145,6 +146,7 @@ namespace apps::mcp {
         };
         add(
             "tools.pagination",
+            "tools/list; follow every page",
             [this] {
                 listTools();
             },
@@ -153,6 +155,7 @@ namespace apps::mcp {
             });
         add(
             "resources.pagination",
+            "resources/list; follow every page",
             [this] {
                 listResources();
             },
@@ -161,6 +164,7 @@ namespace apps::mcp {
             });
         add(
             "templates.pagination",
+            "resources/templates/list; follow every page",
             [this] {
                 listResourceTemplates();
             },
@@ -169,6 +173,7 @@ namespace apps::mcp {
             });
         add(
             "prompts.pagination",
+            "prompts/list; follow every page",
             [this] {
                 listPrompts();
             },
@@ -177,12 +182,14 @@ namespace apps::mcp {
             });
         add(
             "text",
+            "tools/call text",
             [this] {
                 callTool("text");
             },
             text);
         add(
             "tool.error",
+            "tools/call tool.error; expect isError",
             [this] {
                 callTool("tool.error");
             },
@@ -191,6 +198,7 @@ namespace apps::mcp {
             });
         add(
             "protocol.error",
+            "tools/call protocol.error; expect InvalidParams",
             [this] {
                 callTool("protocol.error");
             },
@@ -200,6 +208,7 @@ namespace apps::mcp {
             Outcome::Error);
         add(
             "structured.valid",
+            "tools/call structured.valid; validate outputSchema",
             [this] {
                 callTool("structured.valid");
             },
@@ -208,6 +217,7 @@ namespace apps::mcp {
             });
         add(
             "structured.invalid",
+            "tools/call structured.invalid; expect output rejection",
             [this] {
                 callTool("structured.invalid");
             },
@@ -217,12 +227,14 @@ namespace apps::mcp {
             Outcome::Result);
         add(
             "schema.valid",
+            "tools/call schema; valid Unicode and choice",
             [this] {
                 callTool("schema", {{"word", "Grüße世界"}, {"choice", "alpha"}});
             },
             text);
         add(
             "schema.invalid",
+            "tools/call schema; reject extra property",
             [this] {
                 callTool("schema", {{"word", "123"}, {"choice", 3}, {"extra", true}});
             },
@@ -232,6 +244,7 @@ namespace apps::mcp {
             Outcome::Result);
         add(
             "headers",
+            "tools/call headers; region=eu",
             [this] {
                 callTool("headers", {{"region", "Hello, 世界"}});
             },
@@ -240,6 +253,7 @@ namespace apps::mcp {
             });
         add(
             "content",
+            "tools/call content; all content variants",
             [this] {
                 callTool("content");
             },
@@ -251,6 +265,7 @@ namespace apps::mcp {
             });
         add(
             "principal",
+            "tools/call principal",
             [this] {
                 callTool("principal");
             },
@@ -259,6 +274,7 @@ namespace apps::mcp {
             });
         add(
             "resource.text",
+            "resources/read showcase://text",
             [this] {
                 readResource("showcase://text");
             },
@@ -267,6 +283,7 @@ namespace apps::mcp {
             });
         add(
             "resource.blob",
+            "resources/read showcase://blob",
             [this] {
                 readResource("showcase://blob");
             },
@@ -275,6 +292,7 @@ namespace apps::mcp {
             });
         add(
             "template.scalar",
+            "resources/read showcase://greeting/alpha",
             [this] {
                 readResource("showcase://greeting/Ada");
             },
@@ -283,6 +301,7 @@ namespace apps::mcp {
             });
         add(
             "template.reserved",
+            "resources/read showcase://path/a/b",
             [this] {
                 readResource("showcase://path/a/b");
             },
@@ -291,6 +310,7 @@ namespace apps::mcp {
             });
         add(
             "prompt",
+            "prompts/get conversation; name=alpha",
             [this] {
                 getPrompt("conversation", {{"name", "Ada"}});
             },
@@ -299,6 +319,7 @@ namespace apps::mcp {
             });
         add(
             "completion.prompt",
+            "completion/complete ref/prompt conversation; prefix=a",
             [this] {
                 complete({{"type", "ref/prompt"}, {"name", "conversation"}}, "name", "a");
             },
@@ -307,6 +328,7 @@ namespace apps::mcp {
             });
         add(
             "completion.template",
+            "completion/complete ref/resource greeting; prefix=b and context",
             [this] {
                 complete({{"type", "ref/resource"}, {"uri", "showcase://greeting/{name}"}}, "name", "b", {{"prefix", "X"}});
             },
@@ -315,6 +337,7 @@ namespace apps::mcp {
             });
         add(
             "logging.level",
+            "logging/setLevel debug; legacy only",
             [this] {
                 setLoggingLevel(::mcp::LogLevel::Debug);
             },
@@ -322,13 +345,14 @@ namespace apps::mcp {
             legacy() ? Outcome::Result : Outcome::Error);
         add(
             "logging",
+            "tools/call logging",
             [this] {
                 callTool("logging");
             },
             [this](const Json& value) {
                 return value.at("structuredContent").at("requestLogAdmitted") == legacy();
             });
-        add("subscriptions", [this] {
+        add("subscriptions", "subscribe/listen to counter and inventory updates", [this] {
             if (legacy()) {
                 subscribe("showcase://counter");
             } else {
@@ -340,6 +364,7 @@ namespace apps::mcp {
         });
         add(
             "resource.update",
+            "tools/call update",
             [this] {
                 callTool("update");
             },
@@ -348,12 +373,14 @@ namespace apps::mcp {
             });
         add(
             "dynamic.add",
+            "tools/call dynamic; action=add",
             [this] {
                 callTool("dynamic", {{"action", "add"}});
             },
             text);
         add(
             "dynamic.tools",
+            "tools/list; find dynamic.tool",
             [this] {
                 listTools();
             },
@@ -362,6 +389,7 @@ namespace apps::mcp {
             });
         add(
             "dynamic.resources",
+            "resources/list; find dynamic",
             [this] {
                 listResources();
             },
@@ -370,6 +398,7 @@ namespace apps::mcp {
             });
         add(
             "dynamic.templates",
+            "resources/templates/list; find dynamic",
             [this] {
                 listResourceTemplates();
             },
@@ -378,6 +407,7 @@ namespace apps::mcp {
             });
         add(
             "dynamic.prompts",
+            "prompts/list; find dynamic",
             [this] {
                 listPrompts();
             },
@@ -386,27 +416,30 @@ namespace apps::mcp {
             });
         add(
             "dynamic.tool.call",
+            "tools/call dynamic.tool",
             [this] {
                 callTool("dynamic.tool");
             },
             text);
-        add("dynamic.resource.read", [this] {
+        add("dynamic.resource.read", "resources/read showcase://dynamic", [this] {
             readResource("showcase://dynamic");
         });
-        add("dynamic.template.read", [this] {
+        add("dynamic.template.read", "resources/read showcase://dynamic/value", [this] {
             readResource("showcase://dynamic/hello");
         });
-        add("dynamic.prompt.get", [this] {
+        add("dynamic.prompt.get", "prompts/get dynamic", [this] {
             getPrompt("dynamic");
         });
         add(
             "dynamic.remove",
+            "tools/call dynamic; action=remove",
             [this] {
                 callTool("dynamic", {{"action", "remove"}});
             },
             text);
         add(
             "dynamic.absent",
+            "tools/list; confirm removal",
             [this] {
                 listTools();
             },
@@ -421,18 +454,21 @@ namespace apps::mcp {
         };
         add(
             "input.form",
+            "tools/call input.form; asynchronous form",
             [this] {
                 callTool("input.form");
             },
             input);
         add(
             "input.url",
+            "tools/call input.url; asynchronous URL acknowledgement",
             [this] {
                 callTool("input.url");
             },
             input);
         add(
             "input.rounds",
+            "tools/call input.rounds; two continuations",
             [this] {
                 callTool("input.rounds");
             },
@@ -443,6 +479,7 @@ namespace apps::mcp {
             });
         add(
             "input.parallel",
+            "tools/call input.parallel; two independent responders",
             [this] {
                 callTool("input.parallel");
             },
@@ -455,6 +492,7 @@ namespace apps::mcp {
             });
         add(
             "input.resource",
+            "resources/read showcase://input; asynchronous form",
             [this] {
                 readResource("showcase://input");
             },
@@ -466,6 +504,7 @@ namespace apps::mcp {
             });
         add(
             "input.prompt",
+            "prompts/get input; asynchronous form",
             [this] {
                 getPrompt("input");
             },
@@ -477,6 +516,7 @@ namespace apps::mcp {
             });
         add(
             "work.progress",
+            "tools/call work; three progress values",
             [this] {
                 ::mcp::client::RequestOptions request;
                 request.progressToken = "tour";
@@ -485,7 +525,7 @@ namespace apps::mcp {
             [this, completed](const Json& value) {
                 return progress >= 3 && completed(value);
             });
-        add("work.cancel", [this] {
+        add("work.cancel", "tools/call work; cancel pending request", [this] {
             const auto id = callTool("work", {{"steps", 20}, {"delayMs", 100}});
             actionTimer = core::timer::Timer::singleshotTimer(
                 [this, id] {
@@ -495,11 +535,12 @@ namespace apps::mcp {
                 },
                 utils::Timeval(0.1));
         });
-        add("work.afterCancel", [this] {
+        add("work.afterCancel", "tools/list; connection remains usable", [this] {
             listTools();
         });
         add(
             "work.deadline",
+            "tools/call work; exceed server deadline",
             [this] {
                 callTool("work", {{"steps", 20}, {"delayMs", 1000}});
             },
@@ -509,6 +550,7 @@ namespace apps::mcp {
             Outcome::Result);
         add(
             "work.clientTimeout",
+            "tools/call work; exceed client timeout",
             [this] {
                 ::mcp::client::RequestOptions request;
                 request.timeout = utils::Timeval(0.05);
@@ -519,6 +561,7 @@ namespace apps::mcp {
         for (const std::string name : {"task.optional", "task.required", "input.task"}) {
             add(
                 name,
+                "tools/call " + name + "; await task/input completion",
                 [this, name] {
                     ::mcp::client::RequestOptions request;
                     request.task = legacy();
@@ -530,6 +573,7 @@ namespace apps::mcp {
         }
         add(
             "task.get",
+            "tasks/get last completed task",
             [this] {
                 getTask(lastTask);
             },
@@ -538,6 +582,7 @@ namespace apps::mcp {
             });
         add(
             "task.list",
+            "tasks/list; legacy only",
             [this] {
                 listTasks();
             },
@@ -545,6 +590,7 @@ namespace apps::mcp {
             legacy() ? Outcome::Result : Outcome::Error);
         add(
             "task.result",
+            "tasks/result; legacy only",
             [this] {
                 getTaskResult(lastTask);
             },
@@ -552,6 +598,7 @@ namespace apps::mcp {
             legacy() ? Outcome::Result : Outcome::Error);
         add(
             "task.cancel",
+            "tools/call task.required; cancel resulting task",
             [this] {
                 ::mcp::client::RequestOptions request;
                 request.task = legacy();
@@ -559,7 +606,7 @@ namespace apps::mcp {
             },
             {},
             Outcome::Cancelled);
-        add("unsubscribe", [this] {
+        add("unsubscribe", "unsubscribe/cancel counter interest", [this] {
             unsubscribe("showcase://counter");
             if (!legacy()) {
                 finish({{"cancelSent", true}});
@@ -567,6 +614,7 @@ namespace apps::mcp {
         });
         add(
             "notifications.summary",
+            "verify observed notifications and input/task counts",
             [this] {
                 finish({{"tools", toolChanges},
                         {"resources", resourceChanges},
@@ -588,7 +636,7 @@ namespace apps::mcp {
     void Client::execute() {
         if (current < steps.size()) {
             pending = true;
-            std::cout << Json{{"feature", steps[current].feature}, {"request", "start"}}.dump() << std::endl;
+            std::cout << Json{{"feature", steps[current].feature}, {"request", steps[current].request}}.dump() << std::endl;
             steps[current].run();
         } else {
             success = true;

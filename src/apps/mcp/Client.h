@@ -72,6 +72,7 @@ namespace apps::mcp {
 
         struct Step {
             std::string feature;
+            std::string request;
             std::function<void()> run;
             std::function<bool(const ::mcp::Json&)> check;
             Outcome outcome;
@@ -81,6 +82,7 @@ namespace apps::mcp {
         void command();
         bool legacy() const;
         void add(std::string feature,
+                 std::string request,
                  std::function<void()> run,
                  std::function<bool(const ::mcp::Json&)> check = {},
                  Outcome outcome = Outcome::Result);
