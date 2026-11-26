@@ -6,6 +6,12 @@ This record covers the current application tour and preserves the initial option
 
 The optional-feature implementation targets the official 2025-11-25 and 2026-07-28 schemas. The [API addendum](API-PROPOSAL.md#optional-feature-implementation-addendum) records the revision-specific wire decisions and normative references; the [guide](README.md) describes the APIs, bounds and transport ownership. Sampling, roots and modern logging remain excluded.
 
+## Reply compile-check placement
+
+The reply/result compile contract is now registered as `McpReplyTypeTest` and runs only through CTest. Project configuration performs none of its compiler invocations. The existing three matching combinations must compile and six mismatches must fail; all nine checks run before CMake reports any errors. The test uses the configured compiler and flags in its own build directory. This adds one CTest registration (399 total, 397 enabled, with the same two SDK stdio cases disabled), without production changes.
+
+Focused verification passed all 24 MCP unit tests on GCC and strict Clang+ASan, including the relocated test. An intentionally broken include path made the test fail and still produced all nine compile logs, verifying the positive controls and complete execution. Formatting and `git diff --check` passed. The full-suite results below predate this test-only relocation and retain their original counts.
+
 ## Separate executable qualification
 
 The development assistant (`snodec-dev-stdio`, `snodec-dev-http` and its installed skill) is restored to the `69b16419a` functional surface. The dedicated `snodec-mcp-showcase-stdio` and `snodec-mcp-showcase-http` executables own synthetic registrations, page size three, task limits, demo authorization, protected-resource metadata, `/showcase/approve`, replay sizing and independent named HTTP/HTTPS instances. The development assistant keeps page size 128 and the baseline task settings, `/mcp` route and CLI. All concrete registrations and transport code are shared without copying implementations.
