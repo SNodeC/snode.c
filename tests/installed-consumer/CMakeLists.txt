@@ -45,3 +45,23 @@ target_link_libraries(
             snodec::net-un-stream-legacy
             snodec::http-server-express-legacy-in
 )
+
+# Compile the exact application feature classes against installed public
+# headers.
+set(mcp_app_sources "${CMAKE_CURRENT_SOURCE_DIR}/../../src/apps/mcp")
+add_library(
+    mcp-features STATIC
+    ${mcp_app_sources}/FeatureContent.cpp
+    ${mcp_app_sources}/FeatureInteractions.cpp
+    ${mcp_app_sources}/FeatureResources.cpp
+)
+target_include_directories(mcp-features PUBLIC ${mcp_app_sources})
+target_link_libraries(mcp-features PUBLIC snodec::mcp-server)
+add_executable(mcp-feature-consumer features.cpp)
+target_link_libraries(mcp-feature-consumer PRIVATE mcp-features)
+add_executable(
+    mcp-tour-consumer
+    ${mcp_app_sources}/client.cpp ${mcp_app_sources}/Client.cpp
+    ${mcp_app_sources}/ClientConfig.cpp
+)
+target_link_libraries(mcp-tour-consumer PRIVATE snodec::mcp-client-http)

@@ -77,12 +77,12 @@ class Server:
         self.errors = tempfile.TemporaryFile()
         args = [executable, "--log-console", "stderr", "mcp-http", "local", "--port", str(self.port),
                 "mcp", "--allowed-origin", "http://localhost:3000"]
+        args += list(extra)
         if tls:
             key, cert = directory + "/key.pem", directory + "/cert.pem"
             subprocess.run(["openssl", "req", "-x509", "-newkey", "rsa:2048", "-nodes", "-subj", "/CN=localhost",
                             "-keyout", key, "-out", cert, "-days", "1"], check=True, capture_output=True)
             args += ["tls", "--cert", cert, "--cert-key", key]
-        args += list(extra)
         self.process = subprocess.Popen(args, stdout=self.errors, stderr=self.errors,
                                         env=dict(os.environ, XDG_CONFIG_HOME=directory, XDG_STATE_HOME=directory))
         connected = False

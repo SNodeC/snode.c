@@ -325,7 +325,7 @@ namespace utils {
 
     template <typename NewSubCommand, typename... Args>
     NewSubCommand* SubCommand::newSubCommand(Args&&... args) {
-        return !final ? dynamic_cast<NewSubCommand*>(*childSubCommands.insert(new NewSubCommand(this, std::forward(args)...)).first)
+        return !final ? dynamic_cast<NewSubCommand*>(*childSubCommands.insert(new NewSubCommand(this, std::forward<Args>(args)...)).first)
                       : nullptr;
     }
 

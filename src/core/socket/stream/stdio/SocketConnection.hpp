@@ -42,7 +42,7 @@
 #ifndef CORE_SOCKET_STREAM_STDIO_SOCKETCONNECTION_HPP
 #define CORE_SOCKET_STREAM_STDIO_SOCKETCONNECTION_HPP
 
-#include "core/socket/stream/SocketConnection.hpp"
+#include "core/socket/stream/SocketConnection.hpp" // IWYU pragma: export
 #include "core/socket/stream/stdio/SocketConnection.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

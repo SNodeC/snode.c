@@ -101,8 +101,8 @@ with tempfile.TemporaryDirectory() as directory:
             worker = threading.Thread(target=gate.serve_forever)
             worker.start()
             try:
-                result = subprocess.run([sys.argv[1],'--config-file','/dev/null','--quiet','--legacy',legacy,
-                                         '--port',str(gate.server_address[1]),'--command','tools'],
+                result = subprocess.run([sys.argv[1],'--config-file','/dev/null','--quiet','client','--legacy',legacy,
+                                         '--command','tools','mcp-client-http','remote','--port',str(gate.server_address[1])],
                                         capture_output=True,timeout=8,env=dict(os.environ,MCP_BEARER_TOKEN='fixture'))
                 assert result.returncode == 0,(result.stdout,result.stderr)
                 assert len(json.loads(result.stdout)['tools']) >= 10

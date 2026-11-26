@@ -44,8 +44,8 @@
 
 #include "core/EventReceiver.h"
 #include "core/SNodeC.h"
-#include "core/socket/Socket.hpp"
-#include "core/socket/stream/stdio/SocketConnection.hpp"
+#include "core/socket/Socket.hpp"                        // IWYU pragma: export
+#include "core/socket/stream/stdio/SocketConnection.hpp" // IWYU pragma: export
 #include "core/socket/stream/stdio/SocketEndpoint.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

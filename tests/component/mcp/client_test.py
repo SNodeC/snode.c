@@ -52,13 +52,13 @@ client, stdio, http = sys.argv[1:4]
 flow = sys.argv[4] if len(sys.argv) > 4 else None
 
 def run(directory, transport, legacy, command="tools", name="", arguments=None):
-    argv = [client, "--config-file", "/dev/null", "--log-console", "stderr", "--quiet",
+    argv = [client, "--config-file", "/dev/null", "--log-console", "stderr", "--quiet", "client",
             "--command", command, "--name", name, "--arguments", json.dumps(arguments or {}),
             "--legacy", str(legacy).lower()]
     if isinstance(transport, str):
         argv += ["--server", transport, "--server-arguments", json.dumps(["--config-file", "/dev/null", "--log-console", "stderr", "mcp", "--page-size", "1"])]
     else:
-        argv += ["--port", str(transport.port)]
+        argv += ["mcp-client-http", "remote", "--port", str(transport.port)]
     result = subprocess.run(argv, capture_output=True, timeout=12,
                             env=dict(os.environ, XDG_CONFIG_HOME=directory, XDG_STATE_HOME=directory, MCP_BEARER_TOKEN="fixture"))
     assert result.returncode == 0, (argv, result.returncode, result.stdout.decode(), result.stderr.decode())

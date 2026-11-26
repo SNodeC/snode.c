@@ -39,6 +39,7 @@
  * THE SOFTWARE.
  */
 
+#include "Features.h"
 #include "FindTool.h"
 #include "HouseStyleResource.h"
 #include "Log.h"
@@ -53,13 +54,11 @@
 #include "mcp/server/Server.h"
 
 #ifdef MCP_STDIO
-// IWYU pragma: no_include "core/socket/Socket.hpp"
-// IWYU pragma: no_include "core/socket/stream/SocketConnection.hpp"
 #include "core/SNodeC.h"
 #include "core/socket/State.h"
 #include "mcp/server/Config.h"
 #include "mcp/server/stream/SocketContextFactory.h"
-#include "net/config/ConfigConnection.h"
+#include "net/config/ConfigConnection.h" // IWYU pragma: keep - directly used configuration base
 #include "net/stdio/SocketAddress.h"
 #include "net/stdio/stream/SocketEndpoint.h"
 #include "net/stdio/stream/config/ConfigSocketEndpoint.h"
@@ -79,24 +78,102 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #else
+#include "HttpConfig.h"
 #include "core/SNodeC.h"
 #include "express/legacy/in/WebApp.h"
+#include "express/tls/in/WebApp.h"
+#include "mcp/Types.h"
 #include "mcp/server/http/Router.h"
+#include "net/config/ConfigConnection.h" // IWYU pragma: keep - directly used configuration base
+#include "net/config/ConfigInstance.h"
 #include "web/http/ConfigHttpParser.h"
 #include "web/http/server/ConfigHttpServer.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <exception>
+#include <nlohmann/detail/json_ref.hpp>
+#include <nlohmann/json.hpp>
+#include <optional>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #endif
 
+namespace {
+
+    void registrations(mcp::server::Server& server, const apps::mcp::DevelopmentConfig& config) {
+        server.tool(std::make_shared<apps::mcp::FindTool>(config));
+        server.tool(std::make_shared<apps::mcp::ReadTool>(config));
+        server.tool(std::make_shared<apps::mcp::SkeletonPreviewTool>());
+        server.resource(std::make_shared<apps::mcp::HouseStyleResource>());
+        server.prompt(std::make_shared<apps::mcp::ReviewPrompt>());
+        server.resourceTemplate(std::make_shared<apps::mcp::StyleTemplate>());
+        const auto label = std::make_shared<apps::mcp::ReviewLabelResource>(server);
+        server.resource(label);
+        server.tool(std::make_shared<apps::mcp::ReviewLabelTool>(label));
+        server.setTasksPerRequestor(16)->setMaximumTaskTtlMs(60000);
+        apps::mcp::features::registerContent(server);
+        apps::mcp::features::registerInteractions(server);
+        apps::mcp::features::registerResources(server);
+    }
+
+#ifndef MCP_STDIO
+    apps::mcp::HttpConfig* configureHttp(net::config::ConfigInstance* instance, net::config::ConfigConnection* connection, bool secure) {
+        if (secure) {
+            instance->setDisabled();
+        }
+        auto* config = instance->newSubCommand<apps::mcp::HttpConfig>(secure);
+        auto* http = instance->getSubCommand<web::http::server::ConfigHttpServer>();
+        http->setAllowPipelining(false)->setMaximumPendingRequests(1);
+        http->getParserConfig()->setMaximumBodyBytes(1048576)->setMaximumHeaderBytes(65536)->setMaximumHeaderFields(100);
+        connection->setMaximumWriteQueueBytes(1048576);
+        return config;
+    }
+
+    template <typename App>
+    void mount(const App& app, mcp::server::Server& server, apps::mcp::HttpConfig& config) {
+        using namespace mcp::server::http;
+        const std::string token = config.getDemoToken();
+        const std::string issuer = config.getAuthorizationServer();
+        RouterOptions options;
+        options.replay.maximumEvents = config.getReplayEvents();
+        if (!issuer.empty()) {
+            options.protectedResource =
+                ProtectedResource{config.getResourceUri(), {issuer}, {"showcase:read", "showcase:write"}, "MCP showcase"};
+        }
+        const Router router(
+            server,
+            config,
+            [token](const std::shared_ptr<express::Request>& request) -> Authorization {
+                Authorization result = Unauthorized{"Bearer realm=\"showcase\"", "showcase:read"};
+                const std::string credential = request->get("Authorization");
+                if (token.empty()) {
+                    result = Authorized{};
+                } else if (credential == "Bearer " + token) {
+                    result = Authorized{mcp::Principal{"showcase-user", {{"scope", "showcase:read showcase:write"}}}};
+                } else if (credential == "Bearer " + token + ":read") {
+                    result = InsufficientScope{"showcase:write"};
+                } else if (credential == "Bearer " + token + ":forbidden") {
+                    result = Forbidden{};
+                }
+                return result;
+            },
+            options);
+        router.mountMetadata(app);
+        app.use("/mcp", router);
+        app.get("/showcase/approve", [](const std::shared_ptr<express::Request>&, const std::shared_ptr<express::Response>& response) {
+            response->send("Demonstration only. No identity, credentials or authorization state are changed.");
+        });
+    }
+#endif
+
+} // namespace
+
 int main(int argc, char* argv[]) {
     int result = 1;
-    mcp::server::Server server("snodec-dev", SNODEC_DEV_VERSION, apps::mcp::instructions());
 #ifdef MCP_STDIO
+    mcp::server::Server server(apps::mcp::features::implementation(SNODEC_DEV_VERSION), apps::mcp::instructions());
     int protocolFd = ::fcntl(STDOUT_FILENO, F_DUPFD_CLOEXEC, 3);
     struct stat protocol{};
     struct stat diagnostics{};
@@ -114,15 +191,7 @@ int main(int argc, char* argv[]) {
             if (!utils::Config::configRoot.getOption("--daemonize")->as<bool>() &&
                 (!shared || utils::Config::configRoot.getOption("--quiet")->as<bool>())) {
                 utils::Config::configRoot.getOption("--daemonize")->check(CLI::IsMember({"false"}));
-                server.tool(std::make_shared<apps::mcp::FindTool>(*config));
-                server.tool(std::make_shared<apps::mcp::ReadTool>(*config));
-                server.tool(std::make_shared<apps::mcp::SkeletonPreviewTool>());
-                server.resource(std::make_shared<apps::mcp::HouseStyleResource>());
-                server.prompt(std::make_shared<apps::mcp::ReviewPrompt>());
-                server.resourceTemplate(std::make_shared<apps::mcp::StyleTemplate>());
-                const auto label = std::make_shared<apps::mcp::ReviewLabelResource>(server);
-                server.resource(label);
-                server.tool(std::make_shared<apps::mcp::ReviewLabelTool>(label));
+                registrations(server, *config);
                 snode::log::application("mcp.development").info() << "SNode.C development stdio ready";
                 endpoint.setOnConnect([&protocolFd](auto*) {
                     protocolFd = -1;
@@ -154,35 +223,49 @@ int main(int argc, char* argv[]) {
 
 #else
     using WebApp = express::legacy::in::WebApp;
+    mcp::server::Server server(apps::mcp::features::implementation(SNODEC_DEV_VERSION), apps::mcp::instructions());
+    mcp::server::Server tlsServer(apps::mcp::features::implementation(SNODEC_DEV_VERSION), apps::mcp::instructions());
     const WebApp app("mcp-http");
-    auto* config = app.getConfig()->Instance::newSubCommand<apps::mcp::DevelopmentConfig>();
-    auto* http = app.getConfig()->Instance::getSubCommand<web::http::server::ConfigHttpServer>();
-    http->setAllowPipelining(false)->setMaximumPendingRequests(1);
-    http->getParserConfig()->setMaximumBodyBytes(1048576)->setMaximumHeaderBytes(65536)->setMaximumHeaderFields(100);
-    app.getConfig()->Connection::setMaximumWriteQueueBytes(1048576);
+    const express::tls::in::WebApp tls("mcp-https");
     app.getConfig()->Local::setHost("127.0.0.1")->setPort(3337);
+    tls.getConfig()->Local::setHost("127.0.0.1")->setPort(3338);
+    auto* config = configureHttp(app.getConfig(), app.getConfig(), false);
+    auto* tlsConfig = configureHttp(tls.getConfig(), tls.getConfig(), true);
     int listenFailure = 0;
     try {
         WebApp::init(argc, argv);
-        if (app.getConfig()->Instance::getDisabled()) {
+        const bool certificates = !tls.getConfig()->getCert().empty() && !tls.getConfig()->getCertKey().empty();
+        if (certificates) {
+            tls.getConfig()->Instance::setDisabled(false);
+        }
+        if (app.getConfig()->Instance::getDisabled() && (tls.getConfig()->Instance::getDisabled() || !certificates)) {
             core::SNodeC::free();
             result = 0;
         } else {
-            server.tool(std::make_shared<apps::mcp::FindTool>(*config));
-            server.tool(std::make_shared<apps::mcp::ReadTool>(*config));
-            server.tool(std::make_shared<apps::mcp::SkeletonPreviewTool>());
-            server.resource(std::make_shared<apps::mcp::HouseStyleResource>());
-            server.prompt(std::make_shared<apps::mcp::ReviewPrompt>());
-            server.resourceTemplate(std::make_shared<apps::mcp::StyleTemplate>());
-            const auto label = std::make_shared<apps::mcp::ReviewLabelResource>(server);
-            server.resource(label);
-            server.tool(std::make_shared<apps::mcp::ReviewLabelTool>(label));
-            app.use("/mcp", mcp::server::http::Router(server, *config));
+            if (!app.getConfig()->Instance::getDisabled()) {
+                registrations(server, *config);
+            }
+            if (certificates && !tls.getConfig()->Instance::getDisabled()) {
+                registrations(tlsServer, *tlsConfig);
+            }
+            mount(app, server, *config);
+            mount(tls, tlsServer, *tlsConfig);
+            if (certificates) {
+                tls.listen([&listenFailure](const auto& address, const auto& state) {
+                    if (state == core::socket::State::OK) {
+                        snode::log::application("mcp.development").info()
+                            << "SNode.C development HTTPS listening on " << address.toString();
+                    } else if (state != core::socket::State::DISABLED) {
+                        listenFailure = 1;
+                        core::SNodeC::stop();
+                    }
+                });
+            }
             app.listen([&listenFailure](const auto& address, const auto& state) {
                 if (state == core::socket::State::OK) {
                     snode::log::application("mcp.development").info() << "SNode.C development HTTP listening on " << address.toString();
-                } else {
-                    listenFailure = state == core::socket::State::DISABLED ? 0 : 1;
+                } else if (state != core::socket::State::DISABLED) {
+                    listenFailure = 1;
                     snode::log::application("mcp.development").error() << "HTTP listener unavailable: " << state.what();
                     core::SNodeC::stop();
                 }

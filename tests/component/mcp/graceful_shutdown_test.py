@@ -42,7 +42,7 @@ import subprocess
 import sys
 
 for legacy in ('true', 'false'):
-    result = subprocess.run([sys.argv[1], '--config-file', '/dev/null', '--quiet', '--legacy', legacy,
+    result = subprocess.run([sys.argv[1], '--config-file', '/dev/null', '--quiet', 'client', '--legacy', legacy,
                              '--command', 'tools', '--server', sys.argv[2], '--server-arguments',
                              '["--config-file","/dev/null","--log-console","stderr"]'],
                             capture_output=True, text=True, timeout=5)

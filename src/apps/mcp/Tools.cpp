@@ -393,6 +393,7 @@ namespace apps::mcp {
 
     DevelopmentConfig::DevelopmentConfig(utils::SubCommand* parent)
         : ::mcp::server::Config(parent) {
+        setPageSize(3);
         headerRoot = addOption("--header-root", "Installed SNode.C header root", "directory", CLI::ExistingDirectory);
         setDefaultValue(headerRoot, std::string(MCP_HEADER_ROOT));
         searchFiles = addOption("--search-files", "Maximum headers per search", "count", std::size_t{4096}, CLI::Range(1, 8192));
