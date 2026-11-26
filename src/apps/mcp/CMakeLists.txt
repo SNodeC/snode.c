@@ -40,6 +40,12 @@
 configure_file(config.h.in mcp-config.h @ONLY)
 add_library(
     snodec-dev-tools STATIC
+    HttpConfig.h
+    HttpConfig.cpp
+    Features.h
+    FeatureContent.cpp
+    FeatureInteractions.cpp
+    FeatureResources.cpp
     Tools.cpp
     Tools.h
     FindTool.cpp
@@ -72,8 +78,9 @@ foreach(transport IN ITEMS stdio http)
         )
     else()
         target_link_libraries(
-            snodec-dev-${transport} PRIVATE snodec::mcp-server-http
-                                            snodec::net-in-stream-legacy
+            snodec-dev-${transport}
+            PRIVATE snodec::mcp-server-http snodec::net-in-stream-legacy
+                    http-server-express-tls-in
         )
     endif()
     set_target_properties(
