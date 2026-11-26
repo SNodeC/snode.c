@@ -267,3 +267,73 @@ set_tests_properties(
     McpClientHttpReuseTest PROPERTIES LABELS "mcp;component;client;http"
                                       TIMEOUT 25
 )
+
+# The original application demonstrates every implemented public MCP feature.
+foreach(era IN ITEMS 2025-11-25 2026-07-28)
+    foreach(transport IN ITEMS stdio http https)
+        add_test(
+            NAME McpShowcaseTour_${era}_${transport}
+            COMMAND
+                ${MCP_PYTHON} -B
+                ${CMAKE_CURRENT_SOURCE_DIR}/showcase_tour_test.py
+                $<TARGET_FILE:snodec-mcp-client>
+                $<TARGET_FILE:snodec-dev-stdio> $<TARGET_FILE:snodec-dev-http>
+                ${era} ${transport}
+        )
+        set_tests_properties(
+            McpShowcaseTour_${era}_${transport}
+            PROPERTIES LABELS "mcp;component;showcase;${transport}" TIMEOUT 80
+        )
+    endforeach()
+endforeach()
+
+foreach(era IN ITEMS 2025-11-25 2026-07-28)
+    foreach(transport IN ITEMS stdio http https)
+        add_test(
+            NAME McpShowcaseWire_${era}_${transport}
+            COMMAND
+                ${MCP_PYTHON} -B
+                ${CMAKE_CURRENT_SOURCE_DIR}/showcase_wire_test.py
+                $<TARGET_FILE:snodec-dev-stdio> $<TARGET_FILE:snodec-dev-http>
+                ${era} ${transport}
+        )
+        set_tests_properties(
+            McpShowcaseWire_${era}_${transport}
+            PROPERTIES LABELS "mcp;component;showcase;wire;${transport}"
+                       TIMEOUT 35
+        )
+    endforeach()
+endforeach()
+
+if(SNODEC_MCP_SDK_ROOT)
+    foreach(era IN ITEMS 2025-11-25 2026-07-28)
+        foreach(transport IN ITEMS stdio http)
+            add_test(
+                NAME McpShowcaseSdk_${era}_${transport}
+                COMMAND
+                    ${MCP_PYTHON} -B
+                    ${CMAKE_CURRENT_SOURCE_DIR}/showcase_sdk_test.py
+                    ${MCP_NODE} ${SNODEC_MCP_SDK_ROOT}
+                    $<TARGET_FILE:snodec-dev-stdio>
+                    $<TARGET_FILE:snodec-dev-http> ${era} ${transport}
+                    ${CMAKE_SOURCE_DIR}/src
+                    ${CMAKE_CURRENT_BINARY_DIR}/showcase-sdk
+            )
+            set_tests_properties(
+                McpShowcaseSdk_${era}_${transport}
+                PROPERTIES LABELS "mcp;component;showcase;sdk" TIMEOUT 50
+            )
+        endforeach()
+    endforeach()
+endif()
+
+add_test(
+    NAME McpShowcaseInstancePolicyTest
+    COMMAND
+        ${MCP_PYTHON} -B ${CMAKE_CURRENT_SOURCE_DIR}/showcase_instance_test.py
+        $<TARGET_FILE:snodec-mcp-client> $<TARGET_FILE:snodec-dev-http>
+)
+set_tests_properties(
+    McpShowcaseInstancePolicyTest
+    PROPERTIES LABELS "mcp;component;showcase;http;https" TIMEOUT 40
+)

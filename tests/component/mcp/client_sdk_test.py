@@ -75,12 +75,12 @@ with tempfile.TemporaryDirectory() as directory:
                     for command, name, arguments in [('tools', '', {}), ('call', 'echo', {'value':'SDK echo'}),
                                                        ('resources', '', {}), ('read', 'sdk://resource', {}),
                                                        ('prompts', '', {}), ('prompt', 'prompt', {})]:
-                        argv = [client, '--config-file', '/dev/null', '--quiet', '--log-console', 'stderr',
+                        argv = [client, '--config-file', '/dev/null', '--quiet', '--log-console', 'stderr', 'client',
                                 '--legacy', str(legacy).lower(), '--command', command, '--name', name, '--arguments', json.dumps(arguments)]
                         if transport == 'stdio':
                             argv += ['--server', node, '--server-arguments', json.dumps([fixture, root, 'stdio'])]
                         else:
-                            argv += ['--port', str(port)]
+                            argv += ['mcp-client-http', 'remote', '--port', str(port)]
                         result = subprocess.run(argv, capture_output=True, timeout=12, env=environment)
                         if result.returncode != 0:
                             diagnostics.seek(0)

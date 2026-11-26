@@ -104,8 +104,8 @@ with tempfile.TemporaryDirectory() as directory:
     worker = threading.Thread(target=proxy.serve_forever)
     worker.start()
     try:
-        command = [client, '--config-file', '/dev/null', '--quiet', '--log-console', 'stderr',
-                                 '--legacy', 'true', '--port', str(proxy.server_address[1]), '--command', 'tools']
+        command = [client, '--config-file', '/dev/null', '--quiet', '--log-console', 'stderr', 'client',
+                                 '--legacy', 'true', '--command', 'tools', 'mcp-client-http', 'remote', '--port', str(proxy.server_address[1])]
         environment = dict(os.environ, XDG_CONFIG_HOME=directory, XDG_STATE_HOME=directory, MCP_BEARER_TOKEN='fixture')
         result = subprocess.run(command, capture_output=True, timeout=10, env=environment)
         assert result.returncode == 0, (result.stdout, result.stderr)

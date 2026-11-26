@@ -110,7 +110,7 @@ if(SNODEC_BUILD_APPS)
     execute_process(
         COMMAND
             "${CMAKE_COMMAND}" -E env "${prefix}/bin/snodec-mcp-client"
-            --config-file /dev/null --quiet --server
+            --config-file /dev/null --quiet client --server
             "${SNODEC_MCP_STDIO_FIXTURE}" --server-arguments
             "[\"--config-file\",\"/dev/null\",\"--log-console\",\"stderr\"]"
             --command tools
@@ -133,6 +133,43 @@ if(SNODEC_BUILD_APPS)
         )
             message(
                 FATAL_ERROR "shared MCP dependency license missing: ${license}"
+            )
+        endif()
+    endforeach()
+endif()
+
+execute_process(
+    COMMAND "${consumer_build}/mcp-feature-consumer"
+    RESULT_VARIABLE feature_result
+    OUTPUT_VARIABLE feature_output
+    ERROR_VARIABLE feature_error
+)
+if(NOT feature_result EQUAL 0)
+    message(
+        FATAL_ERROR
+            "installed MCP feature classes failed: ${feature_result}\n${feature_output}\n${feature_error}"
+    )
+endif()
+if(SNODEC_BUILD_APPS)
+    foreach(legacy IN ITEMS false true)
+        execute_process(
+            COMMAND
+                "${consumer_build}/mcp-tour-consumer" --config-file /dev/null
+                --quiet client --command tour --server
+                "${prefix}/bin/snodec-dev-stdio" --legacy ${legacy}
+                --server-arguments
+                "[\"--config-file\",\"/dev/null\",\"--quiet\",\"mcp\",\"--page-size\",\"3\",\"--deadline-ms\",\"2000\",\"--header-root\",\"${prefix}/include/snode.c\"]"
+            RESULT_VARIABLE tour_result
+            OUTPUT_VARIABLE tour_output
+            ERROR_VARIABLE tour_error
+            TIMEOUT 65
+        )
+        if(NOT tour_result EQUAL 0 OR NOT tour_output MATCHES
+                                      "\"tour\":\"PASS\""
+        )
+            message(
+                FATAL_ERROR
+                    "installed MCP tour failed: ${tour_result}\n${tour_output}\n${tour_error}"
             )
         endif()
     endforeach()
