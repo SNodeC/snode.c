@@ -79,7 +79,7 @@ def run():
             starts = [entry for entry in values if "request" in entry]
             assert len(starts) == len(steps) and all(entry["request"] != "start" for entry in starts)
             assert {entry["feature"] for entry in steps} >= {
-                "content", "schema.valid", "schema.invalid", "input.form", "input.url", "input.rounds", "input.parallel", "input.resource", "input.prompt", "input.task",
+                "sampling.text", "sampling.tools", "roots", "content", "schema.valid", "schema.invalid", "input.form", "input.url", "input.rounds", "input.parallel", "input.resource", "input.prompt", "input.task",
                 "work.progress", "work.cancel", "work.deadline", "work.clientTimeout", "task.optional", "task.required",
                 "task.get", "task.list", "task.result", "task.cancel", "dynamic.templates", "resource.update",
                 "dynamic.resources.absent", "dynamic.templates.absent", "dynamic.prompts.absent",

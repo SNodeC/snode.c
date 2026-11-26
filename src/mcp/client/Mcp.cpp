@@ -49,7 +49,7 @@
 #include "jsonrpc/messages/Result.h"
 #include "log/SemanticLogger.h"
 #include "mcp/Results.h"
-#include "mcp/Schema.h"
+#include "mcp/detail/ClientInputs.h"
 #include "mcp/detail/Serialization.h"
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 #include <algorithm>
@@ -76,24 +76,30 @@
 namespace mcp::client {
     using jsonrpc::messages::Id;
 
-    struct ElicitationReply::State {
-        std::function<void(InputResponse)> callback;
-        Json schema;
+    struct detail::InputState {
+        std::function<void(Json)> callback;
+        std::function<void()> cancelled;
+        Json request;
         Id origin;
         bool incoming = false;
         core::timer::Timer timer;
 
-        ~State() {
+        ~InputState() {
             timer.cancel();
         }
 
-        Completion complete(InputResponse response) {
+        Completion finish(Json response) {
             Completion accepted = Completion::Inactive;
-            std::string error;
-            if (callback && (response.content.is_null() || response.content.is_object()) &&
-                (response.action != ElicitationAction::Accept || schema.is_null() || Schema::validate(schema, response.content, error))) {
+            if (callback && (response.contains("error") || mcp::detail::validInputResult(request, response.at("result")))) {
                 auto completion = std::exchange(callback, {});
+                auto observer = std::exchange(cancelled, {});
                 timer.cancel();
+                if (response.contains("error") && observer) {
+                    try {
+                        observer();
+                    } catch (...) {
+                    }
+                }
                 accepted = Completion::Accepted;
                 completion(std::move(response));
             }
@@ -101,30 +107,53 @@ namespace mcp::client {
         }
     };
 
-    ElicitationReply::ElicitationReply(std::function<void(InputResponse)> callback, Json schema, const utils::Timeval& timeout)
-        : state(std::make_shared<State>()) {
-        state->callback = std::move(callback);
-        state->schema = std::move(schema);
-        state->timer = core::timer::Timer::singleshotTimer(
-            [weak = std::weak_ptr<State>(state)] {
-                if (const auto current = weak.lock()) {
-                    current->complete(InputResponse{ElicitationAction::Decline});
-                }
-            },
-            timeout);
+    ElicitationReply::ElicitationReply(std::shared_ptr<detail::InputState> state)
+        : state(std::move(state)) {
     }
 
     ElicitationReply::~ElicitationReply() {
-        state->complete(InputResponse{ElicitationAction::Decline});
+        result(InputResponse{ElicitationAction::Decline});
     }
 
     Completion ElicitationReply::result(InputResponse response) {
-        return state->complete(std::move(response));
+        Json value{{"action",
+                    response.action == ElicitationAction::Accept    ? "accept"
+                    : response.action == ElicitationAction::Decline ? "decline"
+                                                                    : "cancel"}};
+        if (!response.content.is_null()) {
+            value["content"] = std::move(response.content);
+        }
+        return state->finish({{"result", std::move(value)}});
     }
 
-    void ElicitationReply::cancel() {
-        state->timer.cancel();
-        state->callback = {};
+    ClientReply::ClientReply(std::shared_ptr<detail::InputState> state)
+        : state(std::move(state)) {
+    }
+
+    ClientReply::~ClientReply() {
+        error(ErrorCode::InternalError, "Client input was not answered");
+    }
+
+    Completion ClientReply::result(SamplingResult result) {
+        return state->request["method"] == "sampling/createMessage" ? state->finish({{"result", result.toJson()}}) : Completion::Inactive;
+    }
+
+    Completion ClientReply::result(RootsResult result) {
+        return state->request["method"] == "roots/list" ? state->finish({{"result", result.toJson()}}) : Completion::Inactive;
+    }
+
+    Completion ClientReply::error(ErrorCode code, std::string message, Json data) {
+        Json value{{"code", static_cast<int>(code)}, {"message", std::move(message)}};
+        if (!data.is_null()) {
+            value["data"] = std::move(data);
+        }
+        return state->finish({{"error", std::move(value)}});
+    }
+
+    void ClientReply::onCancel(std::function<void()> callback) {
+        if (state->callback) {
+            state->cancelled = std::move(callback);
+        }
     }
 
     struct Mcp::Operation {
@@ -161,7 +190,9 @@ namespace mcp::client {
         std::map<Id, Json> subscriptions;
         std::set<std::string> resources;
         std::map<std::string, Watch> tasks;
-        std::vector<std::weak_ptr<ElicitationReply>> elicitation;
+        std::vector<std::weak_ptr<detail::InputState>> inputs;
+        SamplingHandler sampling;
+        RootsHandler roots;
     };
 
     Mcp::Mcp(Options options, const std::string& connectionName)
@@ -228,6 +259,45 @@ namespace mcp::client {
         state->capabilities = std::move(capabilities);
     }
 
+    void Mcp::setSamplingHandler(SamplingHandler handler, bool tools, bool context) {
+        if (state->ready || !state->operations.empty()) {
+            throw std::invalid_argument("Configure sampling before connection");
+        }
+        state->sampling = std::move(handler);
+        state->capabilities.erase("sampling");
+        if (state->sampling) {
+            state->capabilities["sampling"] = Json::object();
+            if (tools) {
+                state->capabilities["sampling"]["tools"] = Json::object();
+            }
+            if (context) {
+                state->capabilities["sampling"]["context"] = Json::object();
+            }
+        }
+    }
+
+    void Mcp::setRootsHandler(RootsHandler handler, bool listChanged) {
+        if (state->ready || !state->operations.empty()) {
+            throw std::invalid_argument("Configure roots before connection");
+        }
+        state->roots = std::move(handler);
+        state->capabilities.erase("roots");
+        if (state->roots) {
+            state->capabilities["roots"] = listChanged ? Json{{"listChanged", true}} : Json::object();
+        }
+    }
+
+    Completion Mcp::notifyRootsChanged() {
+        Completion result = Completion::Inactive;
+        const auto roots = state->capabilities.value("roots", Json());
+        if (state->ready && state->era == ProtocolEra::Initialization20251125 && roots.is_object() &&
+            roots.value("listChanged", Json()) == true) {
+            sendNotification("notifications/roots/list_changed");
+            result = Completion::Accepted;
+        }
+        return result;
+    }
+
     void Mcp::disconnect() {
         cancelInputs();
         if (jsonRpcContext) {
@@ -235,12 +305,20 @@ namespace mcp::client {
         }
     }
 
+    Json Mcp::clientCapabilities() const {
+        Json capabilities = state->capabilities;
+        if (state->era == ProtocolEra::PerRequest20260728 && capabilities.value("roots", Json()).is_object()) {
+            capabilities["roots"].erase("listChanged");
+        }
+        return capabilities;
+    }
+
     void Mcp::initialize() {
         state->era = ProtocolEra::Initialization20251125;
         request("initialize",
                 {{"protocolVersion", protocolVersion2025},
                  {"clientInfo", mcp::detail::implementation(state->options.implementation)},
-                 {"capabilities", state->capabilities}});
+                 {"capabilities", clientCapabilities()}});
     }
 
     Id Mcp::request(const std::string& method, Json params, RequestOptions options) {
@@ -265,7 +343,7 @@ namespace mcp::client {
             }
             if (state->era == ProtocolEra::PerRequest20260728) {
                 params["_meta"][versionKey] = protocolVersion2026;
-                params["_meta"][capabilitiesKey] = state->capabilities;
+                params["_meta"][capabilitiesKey] = clientCapabilities();
                 params["_meta"]["io.modelcontextprotocol/clientInfo"] = mcp::detail::implementation(state->options.implementation);
             }
             if (operation.options.progressToken) {
@@ -316,93 +394,152 @@ namespace mcp::client {
 
     bool Mcp::cancelInputs(const Id* origin, bool incoming) {
         bool cancelled = false;
-        for (const auto& weak : state->elicitation) {
-            if (const auto reply = weak.lock();
-                reply && reply->state->callback && (!origin || (reply->state->origin == *origin && reply->state->incoming == incoming))) {
-                reply->cancel();
+        const auto pending = state->inputs;
+        for (const auto& weak : pending) {
+            if (const auto input = weak.lock();
+                input && input->callback && (!origin || (input->origin == *origin && input->incoming == incoming))) {
+                input->timer.cancel();
+                input->callback = {};
                 cancelled = true;
+                if (auto observer = std::exchange(input->cancelled, {})) {
+                    try {
+                        observer();
+                    } catch (...) {
+                        log().warn() << "Client input cancellation observer failed";
+                    }
+                }
             }
         }
         if (cancelled && origin && incoming) {
             discardRequest(*origin);
         }
-        std::erase_if(state->elicitation, [](const auto& weak) {
-            const auto reply = weak.lock();
-            return !reply || !reply->state->callback;
+        std::erase_if(state->inputs, [](const auto& weak) {
+            const auto input = weak.lock();
+            return !input || !input->callback;
         });
         return cancelled;
     }
 
     void Mcp::inputs(const Json& requests, std::function<void(Json)> completion, const Id& origin, bool incoming) {
-        std::erase_if(state->elicitation, [](const auto& weak) {
-            const auto reply = weak.lock();
-            return !reply || !reply->state->callback;
+        std::erase_if(state->inputs, [](const auto& weak) {
+            const auto input = weak.lock();
+            return !input || !input->callback;
         });
-        if (!requests.is_object() || requests.size() > 16 || state->elicitation.size() + requests.size() > 128) {
-            throw std::invalid_argument("Invalid or excessive MRTR inputs");
+        if (!requests.is_object() || requests.size() > 16 || state->inputs.size() + requests.size() > 128) {
+            throw std::invalid_argument("Invalid or excessive client inputs");
         }
-        std::vector<std::pair<std::string, std::variant<FormInput, UrlInput>>> parsed;
+        std::vector<std::pair<std::string, ClientInput>> parsed;
         for (const auto& [key, request] : requests.items()) {
-            if (key.empty() || key.size() > 256 || request.value("method", "") != "elicitation/create") {
-                throw std::invalid_argument("Unsupported input request");
+            if (key.empty() || key.size() > 256 || !mcp::detail::missingInputCapabilities(request, state->capabilities).empty()) {
+                throw std::invalid_argument("Unsupported client input request");
             }
-            const auto& params = request.at("params");
-            const std::string mode = params.value("mode", "form");
-            std::variant<FormInput, UrlInput> input;
-            if (mode == "form") {
-                std::string error;
-                if (!Schema::check(params.at("requestedSchema"), error)) {
-                    throw std::invalid_argument("Invalid elicitation schema");
+            const Json params = request.value("params", Json::object());
+            const std::string method = request.at("method");
+            ClientInput input = RootsRequest{};
+            if (method == "sampling/createMessage" && state->sampling) {
+                input = SamplingRequest(params);
+            } else if (method == "roots/list" && state->roots && params.is_object()) {
+                input = RootsRequest{};
+            } else if (method == "elicitation/create") {
+                const std::string mode = params.value("mode", "form");
+                if (mode == "form") {
+                    input = FormInput{params.at("message").get<std::string>(), params.at("requestedSchema")};
+                } else if (mode == "url") {
+                    input = UrlInput{params.at("message").get<std::string>(), params.at("url").get<std::string>()};
+                } else {
+                    throw std::invalid_argument("Unknown elicitation mode");
                 }
-                input = FormInput{params.at("message").get<std::string>(), params.at("requestedSchema")};
-            } else if (mode == "url") {
-                const auto url = params.at("url").get<std::string>();
-                if (!url.starts_with("https://") && !url.starts_with("http://")) {
-                    throw std::invalid_argument("Invalid elicitation URL");
-                }
-                input = UrlInput{params.at("message").get<std::string>(), url};
             } else {
-                throw std::invalid_argument("Unknown elicitation mode");
+                throw std::invalid_argument("Unsupported client input method");
             }
+            static_cast<void>(mcp::detail::encodeInput(input));
             parsed.emplace_back(key, std::move(input));
         }
-
         struct Pending {
             std::size_t remaining;
             Json responses;
             std::function<void(Json)> complete;
         };
-
         const auto pending = std::make_shared<Pending>(Pending{parsed.size(), Json::object(), std::move(completion)});
         if (parsed.empty()) {
             pending->complete(Json::object());
         }
         for (const auto& [key, input] : parsed) {
-            auto reply = std::shared_ptr<ElicitationReply>(new ElicitationReply(
-                [pending, key](InputResponse response) {
-                    const std::string action = response.action == ElicitationAction::Accept    ? "accept"
-                                               : response.action == ElicitationAction::Decline ? "decline"
-                                                                                               : "cancel";
-                    Json value{{"action", action}};
-                    if (!response.content.is_null()) {
-                        value["content"] = std::move(response.content);
+            if (pending->remaining != 0) {
+                const auto receiver = std::make_shared<detail::InputState>();
+                receiver->request = mcp::detail::encodeInput(input);
+                receiver->origin = origin;
+                receiver->incoming = incoming;
+                receiver->callback = [this, pending, key, origin, incoming](Json response) {
+                    if (pending->remaining != 0) {
+                        if (response.contains("error")) {
+                            pending->remaining = 0;
+                            cancelInputs(&origin, incoming);
+                            const auto& error = response["error"];
+                            if (incoming) {
+                                sendError(origin,
+                                          error["code"].get<std::int64_t>(),
+                                          error["message"].get<std::string>(),
+                                          error.contains("data") ? std::optional<Json>(error["data"]) : std::nullopt);
+                            } else {
+                                std::vector<std::string> jobs;
+                                for (const auto& [id, watch] : state->tasks) {
+                                    if (watch.origin.root == origin) {
+                                        jobs.push_back(id);
+                                    }
+                                }
+                                for (const auto& id : jobs) {
+                                    state->tasks.at(id).timer.cancel();
+                                    state->tasks.erase(id);
+                                    cancelTask(id);
+                                }
+                                onRemoteError(
+                                    jsonrpc::messages::Error{origin,
+                                                             error["code"].get<std::int64_t>(),
+                                                             error["message"].get<std::string>(),
+                                                             error.contains("data") ? std::optional<Json>(error["data"]) : std::nullopt});
+                            }
+                        } else {
+                            pending->responses[key] = std::move(response["result"]);
+                            if (--pending->remaining == 0) {
+                                auto complete = std::move(pending->complete);
+                                complete(std::move(pending->responses));
+                            }
+                        }
                     }
-                    pending->responses[key] = std::move(value);
-                    if (--pending->remaining == 0) {
-                        auto complete = std::move(pending->complete);
-                        complete(std::move(pending->responses));
+                };
+                receiver->timer = core::timer::Timer::singleshotTimer(
+                    [weak = std::weak_ptr<detail::InputState>(receiver)] {
+                        if (const auto current = weak.lock()) {
+                            current->finish(current->request["method"] == "elicitation/create"
+                                                ? Json{{"result", {{"action", "decline"}}}}
+                                                : Json{{"error", {{"code", -32603}, {"message", "Client input timed out"}}}});
+                        }
+                    },
+                    state->options.elicitationTimeout);
+                state->inputs.push_back(receiver);
+                if (std::holds_alternative<FormInput>(input) || std::holds_alternative<UrlInput>(input)) {
+                    const auto reply = std::shared_ptr<ElicitationReply>(new ElicitationReply(receiver));
+                    const std::variant<FormInput, UrlInput> request = std::holds_alternative<FormInput>(input)
+                                                                          ? std::variant<FormInput, UrlInput>(std::get<FormInput>(input))
+                                                                          : std::variant<FormInput, UrlInput>(std::get<UrlInput>(input));
+                    try {
+                        onElicitation(key, request, reply);
+                    } catch (const std::exception&) {
+                        reply->result({ElicitationAction::Decline});
                     }
-                },
-                std::holds_alternative<FormInput>(input) ? std::get<FormInput>(input).requestedSchema : Json(),
-                state->options.elicitationTimeout));
-            reply->state->origin = origin;
-            reply->state->incoming = incoming;
-            state->elicitation.push_back(reply);
-            try {
-                onElicitation(key, input, reply);
-            } catch (const std::exception&) {
-                log().warn() << "Elicitation hook failed; declining input";
-                reply->result(InputResponse{ElicitationAction::Decline});
+                } else {
+                    const auto reply = std::shared_ptr<ClientReply>(new ClientReply(receiver));
+                    try {
+                        if (std::holds_alternative<SamplingRequest>(input)) {
+                            state->sampling(key, std::get<SamplingRequest>(input), reply);
+                        } else {
+                            state->roots(key, reply);
+                        }
+                    } catch (...) {
+                        reply->error(ErrorCode::InternalError, "Client input handler failed");
+                    }
+                }
             }
         }
     }
@@ -412,7 +549,10 @@ namespace mcp::client {
             sendError(request.id, -32600, "Invalid Request");
         } else if (state->era == ProtocolEra::Initialization20251125 && request.method == "ping") {
             sendResult(request.id, Json::object());
-        } else if (!state->ready || state->era != ProtocolEra::Initialization20251125 || request.method != "elicitation/create") {
+        } else if (!state->ready || state->era != ProtocolEra::Initialization20251125 ||
+                   (request.method != "elicitation/create" && request.method != "sampling/createMessage" &&
+                    request.method != "roots/list") ||
+                   (request.method == "sampling/createMessage" && !state->sampling) || (request.method == "roots/list" && !state->roots)) {
             Super::onRequest(request);
         } else {
             try {
@@ -429,7 +569,7 @@ namespace mcp::client {
                     request.id,
                     true);
             } catch (const std::exception&) {
-                sendError(request.id, -32602, "Invalid elicitation request or answer");
+                sendError(request.id, -32602, "Invalid or unsupported client input request");
             }
         }
     }
@@ -889,7 +1029,7 @@ namespace mcp::client {
             }
             if (state->era == ProtocolEra::PerRequest20260728) {
                 params["_meta"] = {{versionKey, protocolVersion2026},
-                                   {capabilitiesKey, state->capabilities},
+                                   {capabilitiesKey, clientCapabilities()},
                                    {"io.modelcontextprotocol/clientInfo", mcp::detail::implementation(state->options.implementation)}};
             }
             cancelRequest(wire);

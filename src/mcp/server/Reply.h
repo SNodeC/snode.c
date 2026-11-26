@@ -42,6 +42,7 @@
 #ifndef MCP_SERVER_REPLY_H
 #define MCP_SERVER_REPLY_H
 
+#include "mcp/ClientInputs.h" // IWYU pragma: export
 #include "mcp/server/Results.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -76,6 +77,9 @@ namespace mcp::server {
         /// Modern: complete with input_required. Legacy: resume the same handler after nested RPC responses.
         /// Accepted means input was requested; legacy callers must await the resumed handler, not complete again.
         Completion inputRequired(InputRequired input)
+            requires(!std::is_same_v<Result, CompletionResult>);
+        /// Mixed elicitation/sampling/roots round; retains the existing request lifetime.
+        Completion clientInputRequired(ClientInputRequired input)
             requires(!std::is_same_v<Result, CompletionResult>);
         /// Send progress on the event loop with the original typed token; no token is a no-op.
         void progress(Progress progress);

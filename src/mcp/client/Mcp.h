@@ -42,6 +42,7 @@
 #pragma once
 #include "jsonrpc/JsonRpc.h"
 #include "jsonrpc/messages/Id.h"
+#include "mcp/ClientInputs.h" // IWYU pragma: export
 #include "mcp/Protocol.h"
 #include "mcp/Results.h" // IWYU pragma: export
 #include "mcp/Types.h"
@@ -64,6 +65,9 @@ namespace jsonrpc::messages {
 } // namespace jsonrpc::messages
 
 namespace mcp::client {
+    namespace detail {
+        struct InputState;
+    }
     /// Once-only input reply; retain to answer later. Destruction/timeout declines.
     class ElicitationReply final {
     public:
@@ -74,10 +78,26 @@ namespace mcp::client {
 
     private:
         friend class Mcp;
-        ElicitationReply(std::function<void(InputResponse)> callback, Json schema, const utils::Timeval& timeout);
-        void cancel();
-        struct State;
-        std::shared_ptr<State> state;
+        explicit ElicitationReply(std::shared_ptr<detail::InputState> state);
+        std::shared_ptr<detail::InputState> state;
+    };
+
+    /// Once-only sampling/roots reply; retain for asynchronous, application-approved work.
+    /// Destruction/timeout fails the input; cancellation/disconnect invalidates the handle.
+    class ClientReply final {
+    public:
+        ~ClientReply();
+        ClientReply(const ClientReply&) = delete;
+        ClientReply& operator=(const ClientReply&) = delete;
+        Completion result(SamplingResult result);
+        Completion result(RootsResult result);
+        Completion error(ErrorCode code, std::string message, Json data = nullptr);
+        void onCancel(std::function<void()> callback);
+
+    private:
+        friend class Mcp;
+        explicit ClientReply(std::shared_ptr<detail::InputState> state);
+        std::shared_ptr<detail::InputState> state;
     };
 
     enum class Negotiation { Auto, Modern, Legacy };
@@ -116,6 +136,8 @@ namespace mcp::client {
         ProtocolEra getProtocolEra() const;
         const Json& getServerCapabilities() const;
         void disconnect();
+        /// Legacy notification only; modern roots are carried by each input continuation.
+        Completion notifyRootsChanged();
         jsonrpc::messages::Id listTools();
         jsonrpc::messages::Id listResources();
         jsonrpc::messages::Id listResourceTemplates();
@@ -139,6 +161,11 @@ namespace mcp::client {
 
     protected:
         void setClientCapabilities(Json capabilities);
+        using SamplingHandler = std::function<void(const std::string&, const SamplingRequest&, const std::shared_ptr<ClientReply>&)>;
+        using RootsHandler = std::function<void(const std::string&, const std::shared_ptr<ClientReply>&)>;
+        /// Configure before connection; handlers control consent/model access and root disclosure.
+        void setSamplingHandler(SamplingHandler handler, bool tools = false, bool context = false);
+        void setRootsHandler(RootsHandler handler, bool listChanged = false);
         void setNegotiation(Negotiation negotiation);
         virtual void onReady(ProtocolEra era, const Json& capabilities);
         virtual void onTools(const jsonrpc::messages::Id& id, const ToolsListResult& result);
@@ -181,6 +208,7 @@ namespace mcp::client {
         void _onResult(const jsonrpc::messages::Result& result);
         void _onError(const jsonrpc::messages::Error& error);
         void initialize();
+        Json clientCapabilities() const;
         jsonrpc::messages::Id send(Operation operation);
         void complete(Operation operation, const Json& result);
         void inputs(const Json& requests, std::function<void(Json)> completion, const jsonrpc::messages::Id& origin, bool incoming = false);

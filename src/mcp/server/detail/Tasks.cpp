@@ -45,7 +45,7 @@
 #include "jsonrpc/messages/Notification.h"
 #include "jsonrpc/messages/Result.h"
 #include "mcp/Protocol.h"
-#include "mcp/Schema.h"
+#include "mcp/detail/ClientInputs.h"
 #include "mcp/detail/Utilities.h"
 #include "mcp/server/Mcp.h"
 #include "mcp/server/Server.h"
@@ -362,24 +362,13 @@ namespace mcp::server::detail {
                     } else {
                         const Json responses = params.value("inputResponses", Json());
                         bool valid = responses.is_object() && responses.size() <= 16;
-                        std::map<std::string, InputResponse> accepted;
+                        std::map<std::string, Json> accepted;
                         if (valid) {
                             for (const auto& [key, response] : responses.items()) {
                                 if (task->inputs.contains(key)) {
-                                    const auto action = response.is_object() ? response.value("action", Json()) : Json();
-                                    const auto content = response.is_object() ? response.value("content", Json()) : Json();
-                                    valid = valid && (action == "accept" || action == "decline" || action == "cancel") &&
-                                            (content.is_null() || content.is_object());
-                                    if (valid && action == "accept") {
-                                        const auto schema = task->inputs[key]["params"].value("requestedSchema", Json());
-                                        std::string error;
-                                        valid = schema.is_null() || Schema::validate(schema, content, error);
-                                    }
+                                    valid = valid && mcp::detail::validInputResult(task->inputs[key], response);
                                     if (valid) {
-                                        accepted[key] = InputResponse{action == "accept"    ? ElicitationAction::Accept
-                                                                      : action == "decline" ? ElicitationAction::Decline
-                                                                                            : ElicitationAction::Cancel,
-                                                                      content};
+                                        accepted[key] = response;
                                     }
                                 }
                             }
@@ -388,7 +377,7 @@ namespace mcp::server::detail {
                             reply->error(-32602, "Invalid task input responses");
                         } else {
                             for (auto& [key, response] : accepted) {
-                                task->execution->inputResponses[key] = std::move(response);
+                                static_cast<void>(task->execution->acceptInput(key, response));
                                 task->inputs.erase(key);
                             }
                             reply->result(Json::object());
@@ -418,6 +407,7 @@ namespace mcp::server {
 
     void Server::Impl::endChannel(const std::shared_ptr<detail::Channel>& channel) const {
         channel->active = false;
+        channel->onRootsChanged = {};
         channel->resources.clear();
         channel->output = {};
         tasks->release(channel);

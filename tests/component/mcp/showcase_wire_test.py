@@ -50,7 +50,7 @@ import time
 from showcase_support import Server
 from stdio_test import Client
 
-CAPABILITIES = {"elicitation": {"form": {}, "url": {}}, "extensions": {"io.modelcontextprotocol/tasks": {}}}
+CAPABILITIES = {"sampling": {"tools": {}}, "roots": {"listChanged": True}, "elicitation": {"form": {}, "url": {}}, "extensions": {"io.modelcontextprotocol/tasks": {}}}
 
 
 def frame(response):
@@ -99,8 +99,9 @@ class Wire:
         self.ident += 1
         params = dict(params or {})
         if self.modern:
+            capabilities = dict(CAPABILITIES, roots={})
             params["_meta"] = dict(params.get("_meta", {}), **{"io.modelcontextprotocol/protocolVersion": self.era,
-                                "io.modelcontextprotocol/clientCapabilities": CAPABILITIES})
+                                "io.modelcontextprotocol/clientCapabilities": capabilities})
         return {"jsonrpc": "2.0", "id": self.ident, "method": method, "params": params}
 
     def headers(self, value=None):
@@ -164,6 +165,46 @@ class Wire:
         print(json.dumps({"request": value, "response": result}, ensure_ascii=False, indent=4), flush=True)
         return result
 
+    def client_input(self, name, arguments, result):
+        value = self.message("tools/call", {"name": name, "arguments": arguments})
+        expected_method = "roots/list" if name == "roots" else "sampling/createMessage"
+        if self.modern:
+            response = self.call("tools/call", {"name": name, "arguments": arguments})["result"]
+            assert response["resultType"] == "input_required"
+            key, request = next(iter(response["inputRequests"].items()))
+            assert request["method"] == expected_method
+            response = self.call("tools/call", {"name": name, "arguments": arguments, "requestState": response["requestState"], "inputResponses": {key: result}})["result"]
+        else:
+            connection = None
+            stream = None
+            if self.client:
+                self.client.send(value)
+            else:
+                connection, stream = self.http(value=value)
+                assert stream.status == 200 and "text/event-stream" in stream.getheader("Content-Type", "")
+            complete = False
+            while not complete:
+                message = self.client.receive() if self.client else frame(stream)[1]
+                if message is not None and message.get("method") == expected_method:
+                    answer = {"jsonrpc": "2.0", "id": message["id"], "result": result}
+                    if self.client:
+                        self.client.send(answer)
+                    else:
+                        reply_connection, reply = self.http(value=answer)
+                        assert reply.status == 202 and reply.read() == b""
+                        reply_connection.close()
+                elif message is not None and message.get("id") == value["id"]:
+                    response = message["result"]
+                    complete = True
+            if connection:
+                connection.close()
+        actual = dict(response["structuredContent"])
+        changes = actual.pop("listChanges") if name == "roots" else None
+        assert actual == result, response
+        if name == "roots":
+            assert changes == getattr(self, "roots_changes", 0), response
+        print(json.dumps({"clientInput": expected_method, "result": result}, indent=4), flush=True)
+
     def close(self):
         for connection in self.connections:
             connection.close()
@@ -216,6 +257,13 @@ def check(wire):
                     assert retry["resultType"] == "input_required" and retry["requestState"] == "second"
                 else:
                     assert retry["structuredContent"]["action"] == action
+    wire.client_input("sampling", {}, {"role": "assistant", "model": "wire-model", "content": {"type": "text", "text": "42"}, "_meta": {"wire/sample": True}})
+    wire.client_input("sampling", {"toolUse": True}, {"role": "assistant", "model": "wire-model", "content": [{"type": "tool_use", "id": "wire-tool", "name": "answer", "input": {}}], "stopReason": "toolUse"})
+    wire.client_input("roots", {}, {"roots": [{"uri": "file:///wire/workspace", "name": "Wire workspace"}], "_meta": {"wire/roots": True}})
+    if not wire.modern:
+        wire.notify("notifications/roots/list_changed", {})
+        wire.roots_changes = 1
+        wire.client_input("roots", {}, {"roots": [{"uri": "file:///wire/changed", "name": "Changed workspace"}]})
     if wire.server:
         auth(wire)
         if not wire.modern:

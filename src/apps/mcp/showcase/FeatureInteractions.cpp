@@ -304,7 +304,62 @@ namespace apps::mcp::features {
 
     } // namespace
 
+    namespace {
+        class SamplingTool final : public Tool {
+        public:
+            SamplingTool()
+                : Tool(toolDefinition("sampling",
+                                      "Request client-controlled model sampling, optionally with tools.",
+                                      {{"type", "object"}, {"properties", {{"toolUse", {{"type", "boolean"}}}}}})) {
+            }
+
+            void call(const ToolCall& request, const std::shared_ptr<ToolReply>& reply) final {
+                Json params{
+                    {"messages", {{{"role", "user"}, {"content", {{"type", "text"}, {"text", "Return the demonstration answer 42."}}}}}},
+                    {"maxTokens", 64}};
+                if (request.arguments.value("toolUse", false)) {
+                    params["tools"] = {{{"name", "answer"}, {"inputSchema", emptySchema()}}};
+                    params["toolChoice"] = {{"mode", "required"}};
+                }
+                const ::mcp::SamplingRequest sampling(std::move(params));
+                if (const auto response = request.context.getSamplingResponse("sample", sampling)) {
+                    reply->result(ToolResult::json(response->toJson()));
+                } else {
+                    reply->clientInputRequired({{{"sample", sampling}}, "sampling"});
+                }
+            }
+        };
+
+        class RootsTool final : public Tool {
+        public:
+            RootsTool()
+                : Tool(toolDefinition("roots", "Request client-disclosed informational filesystem roots.", emptySchema())) {
+            }
+
+            void call(const ToolCall& request, const std::shared_ptr<ToolReply>& reply) final {
+                const std::weak_ptr<unsigned> weak = changes;
+                request.context.onRootsChanged([weak] {
+                    if (const auto count = weak.lock()) {
+                        ++*count;
+                    }
+                });
+                if (const auto response = request.context.getRootsResponse("roots")) {
+                    Json value = response->toJson();
+                    value["listChanges"] = *changes;
+                    reply->result(ToolResult::json(std::move(value)));
+                } else {
+                    reply->clientInputRequired({{{"roots", ::mcp::RootsRequest{}}}, "roots"});
+                }
+            }
+
+        private:
+            std::shared_ptr<unsigned> changes = std::make_shared<unsigned>(0);
+        };
+    } // namespace
+
     void registerInteractions(Server& server) {
+        server.tool(std::make_shared<SamplingTool>());
+        server.tool(std::make_shared<RootsTool>());
         server.tool(std::make_shared<WorkTool>("work", TaskSupport::Forbidden));
         server.tool(std::make_shared<WorkTool>("task.optional", TaskSupport::Optional));
         server.tool(std::make_shared<WorkTool>("task.required", TaskSupport::Required));

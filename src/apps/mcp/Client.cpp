@@ -91,6 +91,26 @@ namespace apps::mcp {
         setNegotiation(config.getLegacy()              ? ::mcp::client::Negotiation::Legacy
                        : config.getCommand() == "tour" ? ::mcp::client::Negotiation::Modern
                                                        : ::mcp::client::Negotiation::Auto);
+        if (config.getCommand() == "tour") {
+            setSamplingHandler(
+                [](const std::string&, const ::mcp::SamplingRequest& request, const std::shared_ptr<::mcp::client::ClientReply>& reply) {
+                    const bool tools = request.toJson().contains("tools");
+                    const Json content =
+                        tools ? Json{{"type", "tool_use"}, {"id", "demo-call"}, {"name", "answer"}, {"input", Json::object()}}
+                              : Json{{"type", "text"}, {"text", "42"}};
+                    reply->result(::mcp::SamplingResult({{"role", "assistant"},
+                                                         {"content", content},
+                                                         {"model", "deterministic-test-model"},
+                                                         {"stopReason", tools ? "toolUse" : "endTurn"}}));
+                },
+                true);
+            setRootsHandler(
+                [](const std::string&, const std::shared_ptr<::mcp::client::ClientReply>& reply) {
+                    reply->result(
+                        ::mcp::RootsResult({{"roots", {{{"uri", "file:///showcase/workspace"}, {"name", "Demonstration workspace"}}}}}));
+                },
+                true);
+        }
         Mcp::onConnected();
     }
 
@@ -151,7 +171,7 @@ namespace apps::mcp {
                 listTools();
             },
             [](const Json& value) {
-                return value.size() == 33 && hasName(value, "schema") && hasName(value, "catalogue.8") && !hasName(value, "dynamic.tool");
+                return value.size() == 35 && hasName(value, "schema") && hasName(value, "catalogue.8") && !hasName(value, "dynamic.tool");
             });
         add(
             "resources.pagination",
@@ -179,6 +199,28 @@ namespace apps::mcp {
             },
             [](const Json& value) {
                 return value.size() == 12;
+            });
+        for (const bool tools : {false, true}) {
+            add(
+                tools ? "sampling.tools" : "sampling.text",
+                "tools/call sampling",
+                [this, tools] {
+                    callTool("sampling", {{"toolUse", tools}});
+                },
+                [tools](const Json& result) {
+                    const auto& value = result.at("structuredContent");
+                    return value.at("model") == "deterministic-test-model" &&
+                           value.at("content").at("type") == (tools ? "tool_use" : "text");
+                });
+        }
+        add(
+            "roots",
+            "tools/call roots",
+            [this] {
+                callTool("roots");
+            },
+            [](const Json& result) {
+                return result.at("structuredContent").at("roots").at(0).at("uri") == "file:///showcase/workspace";
             });
         add(
             "text",

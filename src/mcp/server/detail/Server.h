@@ -84,7 +84,7 @@ namespace mcp::server::detail {
         struct Input {
             std::weak_ptr<Response> response;
             std::string key;
-            Json requestedSchema;
+            Json request;
         };
 
         bool log(LogLevel level, Json data, const std::string& logger);
@@ -95,6 +95,8 @@ namespace mcp::server::detail {
         bool complete(const Json& message);
         void forget(const Response& response);
 
+        void rootsChanged() const;
+        std::function<void()> onRootsChanged;
         Json capabilities = Json::object();
         std::map<std::string, Input> inputs;
         std::uint64_t nextInput = 0;
@@ -113,7 +115,8 @@ namespace mcp::server::detail {
         ~Response();
 
         Completion result(Json value);
-        Completion inputRequired(InputRequired input);
+        Completion inputRequired(ClientInputRequired input);
+        bool acceptInput(const std::string& key, const Json& value);
         Completion error(int code, const std::string& message, Json data = nullptr);
         void notify(const std::string& method, Json params);
         void cancel(CancelReason reason = CancelReason::Client);
@@ -131,6 +134,7 @@ namespace mcp::server::detail {
         Json clientCapabilities;
         Json serverInfo;
         std::map<std::string, InputResponse> inputResponses;
+        std::map<std::string, Json> clientInputResponses;
         std::optional<std::string> requestState;
         std::weak_ptr<Channel> channel;
         std::function<void()> resume;

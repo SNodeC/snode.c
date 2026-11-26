@@ -76,8 +76,14 @@ target_compile_options(
 )
 
 add_library(
-    mcp SHARED Results.cpp Schema.cpp Types.cpp Utilities.cpp Decode.cpp
-               Headers.cpp
+    mcp SHARED
+    Results.cpp
+    Schema.cpp
+    Types.cpp
+    Utilities.cpp
+    Decode.cpp
+    Headers.cpp
+    ClientInputs.cpp
 )
 add_library(snodec::mcp ALIAS mcp)
 target_compile_features(mcp PUBLIC cxx_std_20)
@@ -106,7 +112,7 @@ install(
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/snode.c/mcp COMPONENT mcp
 )
 install(
-    FILES Types.h Results.h Protocol.h Schema.h
+    FILES Types.h Results.h Protocol.h Schema.h ClientInputs.h
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/mcp
     COMPONENT mcp
 )

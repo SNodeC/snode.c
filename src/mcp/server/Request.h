@@ -42,6 +42,7 @@
 #ifndef MCP_SERVER_REQUEST_H
 #define MCP_SERVER_REQUEST_H
 
+#include "mcp/ClientInputs.h" // IWYU pragma: export
 #include "mcp/server/Types.h"
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -75,6 +76,12 @@ namespace mcp::server {
         /// Borrow one response; validate accepted content against the server-owned form schema.
         /// Throws invalid_argument on schema/content failure; null means the key is absent.
         const InputResponse* getInputResponse(const std::string& key, const Json& requestedSchema) const;
+        /// Validate a sampled response against the original request before returning owned data.
+        std::optional<SamplingResult> getSamplingResponse(const std::string& key, const SamplingRequest& request) const;
+        std::optional<RootsResult> getRootsResponse(const std::string& key) const;
+        /// Replace this legacy session's roots-change observer; cleared on session retirement.
+        /// Modern roots are obtained afresh through per-request input continuations.
+        bool onRootsChanged(std::function<void()> callback) const;
         /// Borrow opaque untrusted state; verify integrity before using it for access/business decisions.
         const std::optional<std::string>& getRequestState() const;
         /// Register on the event loop; late observers run immediately after cancellation.
