@@ -821,7 +821,7 @@ namespace mcp::client {
                     const auto current = state->tasks.find(id);
                     if (current != state->tasks.end()) {
                         const auto running = std::move(current->second.timer);
-                        send(Operation{"tasks/get", {{"taskId", id}}, {}, current->second.origin.root, {}, {}, 0, id, {}});
+                        send({"tasks/get", {{"taskId", id}}, RequestOptions(), current->second.origin.root, {}, {}, 0, id, {}});
                     }
                 },
                 utils::Timeval(static_cast<double>(std::clamp(found->second.info.pollIntervalMs, std::uint64_t(1), std::uint64_t(60000))) /
@@ -853,15 +853,15 @@ namespace mcp::client {
                         [this, id = task.taskId](Json responses) {
                             const auto current = state->tasks.find(id);
                             if (current != state->tasks.end() && current->second.info.status == TaskState::InputRequired) {
-                                send(Operation{"tasks/update",
-                                               {{"taskId", id}, {"inputResponses", std::move(responses)}},
-                                               {},
-                                               current->second.origin.root,
-                                               {},
-                                               {},
-                                               0,
-                                               id,
-                                               {}});
+                                send({"tasks/update",
+                                      {{"taskId", id}, {"inputResponses", std::move(responses)}},
+                                      RequestOptions(),
+                                      current->second.origin.root,
+                                      {},
+                                      {},
+                                      0,
+                                      id,
+                                      {}});
                             }
                         },
                         origin);
@@ -871,7 +871,7 @@ namespace mcp::client {
             } else if (task.status == TaskState::InputRequired) {
                 scheduleTask(task.taskId);
             } else if (state->era == ProtocolEra::Initialization20251125 && task.status != TaskState::Cancelled) {
-                send(Operation{"tasks/result", {{"taskId", task.taskId}}, {}, found->second.origin.root, {}, {}, 0, task.taskId, {}});
+                send({"tasks/result", {{"taskId", task.taskId}}, RequestOptions(), found->second.origin.root, {}, {}, 0, task.taskId, {}});
             } else {
                 auto origin = std::move(found->second.origin);
                 found->second.timer.cancel();
