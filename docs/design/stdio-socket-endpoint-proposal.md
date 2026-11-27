@@ -617,7 +617,7 @@ All baseline references were inspected at **e81147c4c**. Source inspection and g
 | E41 | [src/utils/Config.cpp:702](../../src/utils/Config.cpp#L702), [785](../../src/utils/Config.cpp#L785) | Console logging default and application |
 | E42 | [src/utils/Daemon.cpp:148](../../src/utils/Daemon.cpp#L148) | Daemon startup closes/replaces standard descriptors |
 | E43 | [src/core/socket/stream/CMakeLists.txt:71](../../src/core/socket/stream/CMakeLists.txt#L71), [src/net/in/stream/CMakeLists.txt:66](../../src/net/in/stream/CMakeLists.txt#L66) | Target/alias/export/install conventions |
-| E44 | [cmake/Packing.cmake:191](../../cmake/Packing.cmake#L191), [cmake/PackageConfig.cmake:4](../../cmake/PackageConfig.cmake#L4) | Package dependency and component inventory authority |
+| E44 | [cmake/Packing.cmake:191](../../cmake/Packing.cmake#L191), [ci/package/config.cmake:4](../../ci/package/config.cmake#L4) | Package dependency and component inventory authority |
 | E45 | [tests/installed-consumer/CMakeLists.txt:9](../../tests/installed-consumer/CMakeLists.txt#L9), [tests/CMakeLists.txt:57](../../tests/CMakeLists.txt#L57) | Staged component consumer and test |
 | E46 | [tests/cmake/AddSNodeCTest.cmake:41](../../tests/cmake/AddSNodeCTest.cmake#L41) | Existing plain CTest helper |
 | E48 | [src/core/socket/stream/SocketConnection.hpp:263](../../src/core/socket/stream/SocketConnection.hpp#L263), [276](../../src/core/socket/stream/SocketConnection.hpp#L276), [323](../../src/core/socket/stream/SocketConnection.hpp#L323), [328](../../src/core/socket/stream/SocketConnection.hpp#L328), [335](../../src/core/socket/stream/SocketConnection.hpp#L335) | RD/WR physical calls, terminate timeouts, and physical shutdown before disabling callback |

@@ -125,7 +125,7 @@ file(
 string(REPLACE "SPDX-License-Identifier: " "" CPACK_RPM_PACKAGE_LICENSE
                "${license}"
 )
-set(CPACK_PROJECT_CONFIG_FILE "${CMAKE_CURRENT_LIST_DIR}/PackageConfig.cmake")
+set(CPACK_PROJECT_CONFIG_FILE "${PROJECT_SOURCE_DIR}/ci/package/config.cmake")
 
 install(
     DIRECTORY
@@ -168,13 +168,13 @@ set(full_dependencies ${CPACK_COMPONENTS_ALL})
 list(REMOVE_ITEM full_dependencies full)
 set(CPACK_DEBIAN_COMMON_PACKAGE_DEPENDS adduser)
 set(CPACK_DEBIAN_COMMON_PACKAGE_CONTROL_EXTRA
-    "${CMAKE_CURRENT_LIST_DIR}/debian/postinst"
+    "${PROJECT_SOURCE_DIR}/ci/package/debian/postinst"
 )
 set(CPACK_RPM_LOGGER_PACKAGE_REQUIRES "snodec-common")
 set(CPACK_RPM_CONTROL_PACKAGE_REQUIRES "snodec-common")
 set(CPACK_RPM_COMMON_PACKAGE_REQUIRES_POST "shadow-utils, glibc")
 set(CPACK_RPM_COMMON_POST_INSTALL_SCRIPT_FILE
-    "${CMAKE_CURRENT_LIST_DIR}/rpm/postinst"
+    "${PROJECT_SOURCE_DIR}/ci/package/rpm/postinst"
 )
 include(CPack)
 cpack_add_component(full DEPENDS ${full_dependencies})

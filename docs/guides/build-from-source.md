@@ -47,7 +47,7 @@ Rocky needs its development repositories enabled (the package build enables CRB 
 ### Build and install
 
 ```text
-git clone https://github.com/SNodeC/snode.c.git
+git clone --recurse-submodules https://github.com/SNodeC/snode.c.git
 cd snode.c
 cmake -S . -B build -G Ninja \
   -DCMAKE_BUILD_TYPE=Release \
@@ -116,7 +116,7 @@ Next: [build the native client and server](../../README.md#your-first-program-a-
 
 ## OpenWrt cross-compilation
 
-Build SNode.C packages with an official OpenWrt SDK matching the device's release, target and ABI. Use the [SNode.C recipe](../../supplement/openwrt/Makefile) in this repository’s `supplement/openwrt/` directory. The recipe uses the upstream build system without source patches. OpenWrt package selections are separate from native CMake options.
+Build SNode.C packages with an official OpenWrt SDK matching the device's release, target and ABI. Use the [SNode.C recipe](../../ci/openwrt/Makefile) in this repository’s `ci/openwrt/` directory. The recipe uses the upstream build system without source patches. OpenWrt package selections are separate from native CMake options.
 
 ### Prepare the SDK
 
@@ -133,7 +133,7 @@ SHA256: `ff4a38a397caa2cfe1c39e18f84ddede14878221b3593c3f2c4cfe24e3ec4c25`
 Obtain the SDK archive and verify its SHA256 before extracting it. Keep its default feed revisions. The recipe is included in your SNode.C checkout; if you do not have one yet, clone it:
 
 ```text
-git clone https://github.com/SNodeC/snode.c.git
+git clone --recurse-submodules https://github.com/SNodeC/snode.c.git
 ```
 
 ### Link the recipe into the SDK
@@ -144,12 +144,13 @@ Run the following inside the extracted SDK. Replace `/path/to/snode.c` with the 
 ./scripts/feeds update base packages
 ./scripts/feeds install nlohmannjson libopenssl libmagic bluez-libs libmariadb
 mkdir -p package/local
-ln -s /path/to/snode.c/supplement/openwrt package/local/snode.c
+ln -s /path/to/snode.c/ci/openwrt package/local/snode.c
+export SNODEC_SOURCE_DIR=/path/to/snode.c
 ```
 
 The symlink uses the recipe from your current checkout and reflects recipe changes automatically. Keep the checkout at that location while using the SDK.
 
-The recipe declares the default source release. To select another release, export `SNODEC_SOURCE_TAG=vX.Y.Z` with a real SNode.C release tag before invoking `make`; the recipe derives the package version from that tag. Record the recipe commit and selected source tag to reproduce the build.
+The recipe builds `SNODEC_SOURCE_DIR`, including its checked-out submodules, and reads the version from that checkout. Select the required source revision and update its submodules before building. Record both the recipe commit and source commit to reproduce the build.
 
 ### Select and compile SNode.C
 
@@ -232,7 +233,7 @@ Every symbol below has the `CONFIG_` prefix in `.config`. Defaults shown are men
 
 Read/write sizes, timeouts, retry/reconnect settings and write-queue limits configure `snodec-net`. IPv4/IPv6 stream flags configure their stream layers; name-resolution flags configure their address layers. TLS defaults are shared by TLS endpoints. HTTP pipelining configures the HTTP client. The I/O choice controls the core's linked default multiplexer and its package dependency; selecting extra multiplexer packages does not change that default.
 
-The `INV4_`, `IN6_` and `INV6_` spellings above match the recipe’s [Config.in](../../supplement/openwrt/Config.in); use those exact symbols rather than normalizing their names.
+The `INV4_`, `IN6_` and `INV6_` spellings above match the recipe’s [Config.in](../../ci/openwrt/Config.in); use those exact symbols rather than normalizing their names.
 
 All 44 SNode.C default/choice symbols and the demo selector participate in recipe reconfiguration. Other module selectors govern package emission and dependency closure; they do not prune the shared library compilation pass.
 
