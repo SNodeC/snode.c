@@ -39,8 +39,21 @@
 
 cmake_minimum_required(VERSION 3.18)
 
-set(JSONMIDDLEWARE_CPP middleware/JsonMiddleware.cpp)
-set(JSONMIDDLEWARE_H middleware/JsonMiddleware.h)
+find_package(PkgConfig REQUIRED)
+
+pkg_check_modules(NLOHMANN_JSON nlohmann_json>=3.11)
+
+if(NLOHMANN_JSON_FOUND)
+    set(JSONMIDDLEWARE_CPP middleware/JsonMiddleware.cpp)
+    set(JSONMIDDLEWARE_H middleware/JsonMiddleware.h)
+else(NLOHMANN_JSON_FOUND)
+    message(
+        FATAL_ERROR
+            " nlohmann-json3-dev not found:\n"
+            "   nlohmann_json is used for http. Please install it by executing\n"
+            "       sudo apt install nlohmann-json3-dev"
+    )
+endif(NLOHMANN_JSON_FOUND)
 
 set(HTTP_SERVER_EXPRESS_CPP
     Controller.cpp

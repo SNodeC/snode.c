@@ -87,7 +87,7 @@ set_target_properties(
                OUTPUT_NAME snodec-http-server
                LIBRARY_OUTPUT_DIRECTORY "${HTTP_COMPILE_LIBDIR}"
                BUILD_RPATH "${HTTP_COMPILE_LIBDIR}"
-               INSTALL_RPATH "$ORIGIN;$ORIGIN/../../.."
+               INSTALL_RPATH ${HTTP_INSTALL_RPATH}
                HTTP_INSTALL_RPATH "${HTTP_INSTALL_RPATH}"
                HTTP_COMPILE_LIBDIR "${HTTP_COMPILE_LIBDIR}"
                HTTP_INSTALL_LIBDIR "${HTTP_INSTALL_LIBDIR}"

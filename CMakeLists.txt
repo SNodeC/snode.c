@@ -63,7 +63,6 @@ endif()
 set(ignoreMe ${CMAKE_VERBOSE_MAKEFILE})
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
-find_package(nlohmann_json 3.11 REQUIRED)
 
 include(format)
 include(doxygen)

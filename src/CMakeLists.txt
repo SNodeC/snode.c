@@ -217,7 +217,6 @@ write_basic_package_version_file(
 
 install(
     FILES "${CMAKE_CURRENT_BINARY_DIR}/snodecConfig.cmake"
-          "${CMAKE_SOURCE_DIR}/cmake/Findnlohmann_json.cmake"
           "${CMAKE_CURRENT_BINARY_DIR}/snodecConfigVersion.cmake"
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
     COMPONENT "core"
