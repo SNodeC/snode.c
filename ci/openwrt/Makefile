@@ -203,9 +203,9 @@ define BuildSNodeCModule
   define Package/snodec-$(1)/install
 	$(INSTALL_DIR) $$(1)$(3)
 	$(CP) $(PKG_INSTALL_DIR)$(3)/libsnodec-$(1).so.* $$(1)$(3)/
-$(if $(filter mcp-server,$(1)),
-	$(INSTALL_DIR) $$(1)/usr/share/doc/snodec/mcp-server
-	$(CP) $(PKG_INSTALL_DIR)/usr/share/doc/snodec/mcp-server/* $$(1)/usr/share/doc/snodec/mcp-server/
+$(if $(filter mcp,$(1)),
+	$(INSTALL_DIR) $$(1)/usr/share/doc/snodec/mcp
+	$(CP) $(PKG_INSTALL_DIR)/usr/share/doc/snodec/mcp/* $$(1)/usr/share/doc/snodec/mcp/
 )
   endef
 
@@ -276,7 +276,8 @@ define Package/snodec-apps
            +snodec-mqtt-server \
            +snodec-mqtt-client \
            +snodec-db-mariadb \
-           +snodec-mcp-server-http +snodec-net-stdio-stream
+           +snodec-mcp-server-http +snodec-mcp-client-http +snodec-net-stdio-stream \
+           +snodec-jsonrpc-server-websocket +snodec-jsonrpc-client-websocket
 endef
 
 define Package/snodec-apps/description
@@ -379,5 +380,11 @@ $(eval $(call BuildSNodeCModule,mqtt-client,+snodec-mqtt,/usr/lib/snode.c/iot/mq
 $(eval $(call BuildSNodeCModule,mqtt-server-websocket,+snodec-mqtt-server +snodec-websocket-server,/usr/lib/snode.c/iot/mqtt))
 $(eval $(call BuildSNodeCModule,mqtt-client-websocket,+snodec-mqtt-client +snodec-websocket-client,/usr/lib/snode.c/iot/mqtt))
 
-$(eval $(call BuildSNodeCModule,mcp-server,+snodec-core-socket-stream +libpcre2,/usr/lib/snode.c/mcp))
+$(eval $(call BuildSNodeCModule,jsonrpc,+snodec-core-socket-stream,/usr/lib/snode.c/jsonrpc))
+$(eval $(call BuildSNodeCModule,jsonrpc-server-websocket,+snodec-jsonrpc +snodec-websocket-server,/usr/lib/snode.c/jsonrpc))
+$(eval $(call BuildSNodeCModule,jsonrpc-client-websocket,+snodec-jsonrpc +snodec-websocket-client,/usr/lib/snode.c/jsonrpc))
+$(eval $(call BuildSNodeCModule,mcp,+snodec-utils +libpcre2,/usr/lib/snode.c/mcp))
+$(eval $(call BuildSNodeCModule,mcp-server,+snodec-mcp +snodec-jsonrpc +snodec-core-socket-stream,/usr/lib/snode.c/mcp))
 $(eval $(call BuildSNodeCModule,mcp-server-http,+snodec-mcp-server +snodec-http-server-express,/usr/lib/snode.c/mcp))
+$(eval $(call BuildSNodeCModule,mcp-client,+snodec-mcp +snodec-jsonrpc +snodec-net-stdio-stream,/usr/lib/snode.c/mcp))
+$(eval $(call BuildSNodeCModule,mcp-client-http,+snodec-mcp-client +snodec-http-client +snodec-net-in-stream-legacy +snodec-net-in-stream-tls,/usr/lib/snode.c/mcp))
