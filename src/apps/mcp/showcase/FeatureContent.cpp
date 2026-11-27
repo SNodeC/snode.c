@@ -51,7 +51,6 @@
 
 #include <cstdint>
 #include <memory>
-#include <nlohmann/detail/json_ref.hpp>
 #include <nlohmann/json.hpp>
 #include <nlohmann/json_fwd.hpp>
 #include <optional>

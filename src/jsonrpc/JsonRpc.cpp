@@ -56,7 +56,6 @@
 #include <cmath>
 #include <functional>
 #include <limits>
-#include <nlohmann/detail/input/parser.hpp>
 #include <stdexcept>
 #include <utility>
 #endif // DOXYGEN_SHOULD_SKIP_THIS
