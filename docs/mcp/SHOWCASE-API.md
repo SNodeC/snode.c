@@ -1,6 +1,6 @@
 # MCP showcase API inventory
 
-Baseline: `69b16419a`. Source inventory; execution results and native-client limitations are recorded in [QUALIFICATION.md](QUALIFICATION.md). Sampling and roots are deliberately excluded. Every implemented public feature is demonstrated in the separate `snodec-mcp-showcase-*` applications; `snodec-mcp-client client --command tour` drives its public client APIs.
+Baseline: `69b16419a`. Source inventory; execution results and native-client limitations are recorded in [QUALIFICATION.md](QUALIFICATION.md). Sampling and roots are opt-in operations, including their deprecated 2026 forms; see [client inputs](CLIENT-INPUTS.md). Every implemented public feature is demonstrated in the separate `snodec-mcp-showcase-*` applications; `snodec-mcp-client client --command tour` drives its public client APIs.
 
 The invariant is one protocol implementation: the showcase consumes public MCP APIs and existing transport bindings; it must not implement a second MCP engine. Application state and timers live on the event loop and terminate with their request or server owner.
 
@@ -35,3 +35,12 @@ The invariant is one protocol implementation: the showcase consumes public MCP A
 | Client HTTP/TLS binding | `Http/Https constructors/getConfig/setPath/start/stop; path/bearerToken/onError` — `src/mcp/client/http/Client.h:54` | http/https/auth | Passed on GCC and strict Clang+ASan: `McpShowcaseTour_*`, `McpShowcaseWire_*`; native support: see qualification matrix |
 
 Wire references: [2025 schema](https://modelcontextprotocol.io/specification/2025-11-25/schema), [2026 schema](https://modelcontextprotocol.io/specification/2026-07-28/schema), [MRTR](https://modelcontextprotocol.io/specification/2026-07-28/basic/patterns/mrtr), [HTTP authorization](https://modelcontextprotocol.io/specification/2026-07-28/basic/authorization).
+
+## Client-input additions
+
+| Feature | Public API | Demonstration | Automated boundary | Native evidence |
+| --- | --- | --- | --- | --- |
+| Sampling | `SamplingRequest`, `SamplingResult`, `ClientInputRequired`, `Reply::clientInputRequired`, `RequestContext::getSamplingResponse`, `Mcp::setSamplingHandler`, `ClientReply` | `sampling`, with optional `toolUse:true` | `McpClientInputsTest`, all six typed tours and six raw-wire cases | Not qualified; depends on client sampling support |
+| Roots | `RootsRequest`, `RootsResult`, `RequestContext::getRootsResponse/onRootsChanged`, `Mcp::setRootsHandler/notifyRootsChanged`, `ClientReply` | `roots` | `McpClientInputsTest`, all six typed tours and six raw-wire cases | Not qualified; depends on client root-disclosure support |
+
+Existing elicitation APIs and client virtual hooks retain their signatures. New callback setters operate through the existing client implementation state; they do not add virtual methods or advertise model/provider access by default.

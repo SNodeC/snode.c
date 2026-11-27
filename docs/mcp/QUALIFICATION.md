@@ -1,10 +1,29 @@
 # MCP qualification
 
-The current separation qualification is described below; earlier application qualification is historical. The initial optional-feature record is retained at the end as historical evidence; it does not validate later revisions.
+The sampling/roots qualification extends the separate-executable qualification below; earlier application qualification is historical. The initial optional-feature record is retained at the end as historical evidence; it does not validate later revisions.
 
 This record covers the current application tour and preserves the initial optional-feature series at `0292f96bc` as history. The application guide, including HTTPS and the public API inventory, is [SHOWCASE.md](SHOWCASE.md).
 
-The optional-feature implementation targets the official 2025-11-25 and 2026-07-28 schemas. The [API addendum](API-PROPOSAL.md#optional-feature-implementation-addendum) records the revision-specific wire decisions and normative references; the [guide](README.md) describes the APIs, bounds and transport ownership. Sampling, roots and modern logging remain excluded.
+The optional-feature implementation targets the official 2025-11-25 and 2026-07-28 schemas. The [API addendum](API-PROPOSAL.md#optional-feature-implementation-addendum) records the revision-specific wire decisions and normative references; the [guide](README.md) describes the APIs, bounds and transport ownership. Sampling and roots are now opt-in operations described in [CLIENT-INPUTS.md](CLIENT-INPUTS.md); modern logging remains excluded.
+
+## Sampling and roots qualification (2026-11-27)
+
+Sampling and roots now use opt-in public APIs and the existing client-input lifetime: [CLIENT-INPUTS.md](CLIENT-INPUTS.md). Both eras are covered, including sampling text, media validation, tool-use/result balance, mixed input rounds, tool-task input/update/result, application refusal, timeout, cancellation, disconnect and legacy roots changes. Unsupported client methods return Method not found. Malformed roots notification capabilities cannot escape the event loop. The 2026 client capability encoding omits the removed legacy `listChanged` field. Client-side task-augmented sampling RPCs remain unadvertised; sampling within tool tasks is covered. The focused fallback regression verifies the mandatory 2025 behavior: unadvertised task-augmentation metadata is ignored and an ordinary sampling result is returned. That regression failed before the correction and passed afterward on GCC and strict Clang/ASan; only the focused case was rerun for this one-line correction.
+
+| Gate | Result |
+| --- | --- |
+| GCC MCP tests | All 65 enabled MCP cases passed after targeted corrections and reruns; two owner-disabled SDK stdio cases retained |
+| Strict Clang and ASan | All 65 enabled MCP cases passed, with final affected cases rerun after the capability-encoding correction; leak detection, halt-on-error and abort-on-error enabled |
+| Protocol / transport matrix | Six typed tours and six independent raw-wire cases passed on each toolchain: both eras over stdio, HTTP and HTTPS |
+| Installed consumption | Staged installed consumers and their tours passed on the final revision with each toolchain |
+| ABI | Existing client virtual interface and object layouts retained; previous-header elicitation consumer passed against the new libraries; MCP SOVERSION 4 retained |
+| Development assistant | All four original-inventory gates passed on both toolchains; registrations, configuration and skill remain unchanged |
+| Formatting / includes | Fifteen touched C++ files checked using the repository style; two CMake files checked; zero IWYU diagnostics in final builds; diff check passed |
+| Documentation data | Twenty-four selected exchanges regenerated from the typed stdio tours, including sampling and roots; four-space JSON, synthetic data only |
+
+The repository inventory grew from 399 to 400 tests by adding `McpClientInputsTest`; no tests were removed. Of these, 398 are enabled and the same two SDK stdio cases remain disabled by owner decision. The whole repository suite was not rerun for these MCP changes. GCC's earlier failed cases were replaced by passing targeted results; the final affected selection contained 16 MCP cases plus the staged installed-consumer case on each toolchain.
+
+Native model-provider integrations, permission UIs and native-client sampling/roots remain unqualified. The typed tour supplies a deterministic test model and informational root; it does not contact an LLM provider or access that directory. The TypeScript SDK checkout was unchanged. Production changes add 994 lines and remove 189 (net +805), within the owner-approved bound of 1,200 added lines; the shared input path replaces the elicitation-only path while preserving its public APIs. New demonstrations stay in the separate showcase executables.
 
 ## Reply compile-check placement
 
@@ -45,7 +64,7 @@ The final GCC clean build has no compiler warnings. Strict Clang retains the exi
 
 ## Historical combined-application qualification
 
-Before separation, the combined `snodec-dev-stdio`, independent `mcp-http`/`mcp-https` instances in `snodec-dev-http`, and `snodec-mcp-client client --command tour` demonstrated the implemented module. See [SHOWCASE.md](SHOWCASE.md), the [API inventory](SHOWCASE-API.md) and the selected synthetic [wire examples](SHOWCASE-WIRE.json). Sampling and roots remain excluded; logging and replay apply only to 2025-11-25. MCP SOVERSION remains 4.
+Before separation, the combined `snodec-dev-stdio`, independent `mcp-http`/`mcp-https` instances in `snodec-dev-http`, and `snodec-mcp-client client --command tour` demonstrated the implemented module. See [SHOWCASE.md](SHOWCASE.md), the [API inventory](SHOWCASE-API.md) and the selected synthetic [wire examples](SHOWCASE-WIRE.json). At that historical revision sampling and roots were excluded; logging and replay apply only to 2025-11-25. MCP SOVERSION remains 4.
 
 Configure, build and test strictly sequentially in separate external GCC and strict Clang+ASan build directories. Enable applications, tests, control tests and `CHECK_INCLUDES`. Run every test with `TMPDIR=/tmp/snc`; Python tests use `python3 -B`. Strict Clang uses `-Weverything -Werror`, ASan and frame pointers, with `ASAN_OPTIONS=detect_leaks=1:halt_on_error=1:abort_on_error=1`. Existing third-party exclusions remain unchanged. The installed-consumer check stages its own prefix and loads the staged MCP and JSON-RPC libraries rather than a live installation.
 

@@ -791,6 +791,11 @@ namespace mcp::server::http {
                             }
                         }
 
+                        if (era == ProtocolEra::Initialization20251125 && method == "notifications/roots/list_changed") {
+                            if (const auto channel = state->findSession(req)) {
+                                channel->rootsChanged();
+                            }
+                        }
                         res->status(202).end();
                     } else {
                         std::erase_if(state->operations, [](const auto& weak) {
@@ -805,7 +810,9 @@ namespace mcp::server::http {
                             res->status(429).end();
                         } else {
                             const auto channel = era == ProtocolEra::Initialization20251125 ? state->findSession(req) : nullptr;
-                            const bool elicit = channel && channel->capabilities.contains("elicitation") && needsName;
+                            const bool elicit = channel && needsName &&
+                                                (channel->capabilities.contains("elicitation") ||
+                                                 channel->capabilities.contains("sampling") || channel->capabilities.contains("roots"));
                             const StreamMode mode =
                                 elicit || (era == ProtocolEra::PerRequest20260728 &&
                                            (method == "subscriptions/listen" || (method == "tools/call" && req->httpMinor >= 1)))

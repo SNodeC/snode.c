@@ -48,6 +48,7 @@
 #include "jsonrpc/messages/Request.h"
 #include "jsonrpc/messages/Result.h"
 #include "mcp/Protocol.h"
+#include "mcp/detail/ClientInputs.h"
 #include "mcp/server/Server.h"
 #include "mcp/server/detail/Tasks.h"
 
@@ -314,6 +315,10 @@ namespace mcp::server {
     }
 
     void Mcp::onNotification(const jsonrpc::messages::Notification& notification) {
+        if (notification.method == "notifications/roots/list_changed" && state->era == ProtocolEra::Initialization20251125 &&
+            state->channel) {
+            state->channel->rootsChanged();
+        }
         if (notification.method == "notifications/cancelled" && notification.params && notification.params->is_object()) {
             const auto found = state->pending.find(notification.params->value("requestId", Json()));
             if (found != state->pending.end()) {
@@ -328,11 +333,7 @@ namespace mcp::server {
         if (state->channel && result.result.is_object()) {
             const auto found = state->channel->inputs.find(result.id.dump());
             if (found != state->channel->inputs.end()) {
-                const Json action = result.result.value("action", Json());
-                const Json content = result.result.value("content", Json());
-                const bool validContent = content.is_null() || content.is_object();
-                accepted = (action == "accept" && (!found->second.requestedSchema.is_null() || validContent)) ||
-                           ((action == "decline" || action == "cancel") && validContent);
+                accepted = mcp::detail::validInputResult({{"method", found->second.request["method"]}}, result.result);
             }
         }
         return accepted;
@@ -396,13 +397,7 @@ namespace mcp::server {
                 if (response) {
                     const Json result = message.value("result", Json());
                     const Json failure = message.value("error", Json());
-                    const Json action = result.is_object() ? result.value("action", Json()) : Json();
-                    const Json content = result.is_object() ? result.value("content", Json()) : Json();
-                    bool failed = !failure.is_null();
-                    std::string validationError;
-                    if (action == "accept" && !found->second.requestedSchema.is_null()) {
-                        failed = !Access::Registry::validate(found->second.requestedSchema, content, validationError) || failed;
-                    }
+                    const bool failed = !failure.is_null() || !mcp::detail::validInputResult(found->second.request, result);
 
                     response->expire();
                     if (!response->done) {
@@ -410,16 +405,12 @@ namespace mcp::server {
                         inputs.erase(message["id"].dump());
                         if (failed) {
                             if (response->toolRequest) {
-                                response->result(
-                                    {{"isError", true}, {"content", {{{"type", "text"}, {"text", "Client elicitation failed"}}}}});
+                                response->result({{"isError", true}, {"content", {{{"type", "text"}, {"text", "Client input failed"}}}}});
                             } else {
-                                response->error(-32603, "Client elicitation failed");
+                                response->error(-32603, "Client input failed");
                             }
                         } else {
-                            response->inputResponses[key] = InputResponse{action == "accept"    ? ElicitationAction::Accept
-                                                                          : action == "decline" ? ElicitationAction::Decline
-                                                                                                : ElicitationAction::Cancel,
-                                                                          content};
+                            static_cast<void>(response->acceptInput(key, result));
                             if (std::none_of(inputs.begin(), inputs.end(), [&response](const auto& item) {
                                     return item.second.response.lock() == response;
                                 })) {
@@ -440,6 +431,17 @@ namespace mcp::server {
         }
 
         return accepted;
+    }
+
+    void detail::Channel::rootsChanged() const {
+        const Json roots = capabilities.value("roots", Json());
+        if (active && roots.is_object() && roots.value("listChanged", Json()) == true && onRootsChanged) {
+            try {
+                onRootsChanged();
+            } catch (...) {
+                // A client notification cannot escape through the transport event loop.
+            }
+        }
     }
 
     void detail::Channel::forget(const Response& response) {

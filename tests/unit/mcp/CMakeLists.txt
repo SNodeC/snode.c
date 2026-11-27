@@ -227,3 +227,13 @@ target_link_libraries(
 set_tests_properties(
     McpClientElicitationTest PROPERTIES LABELS "unit;mcp;client;elicitation"
 )
+
+snodec_add_test(McpClientInputsTest McpClientInputsTest.cpp)
+target_include_directories(McpClientInputsTest PRIVATE ${PROJECT_SOURCE_DIR})
+target_link_libraries(
+    McpClientInputsTest PRIVATE snodec::mcp-client snodec::mcp-server
+                                snodec-test-support
+)
+set_tests_properties(
+    McpClientInputsTest PROPERTIES LABELS "unit;mcp;client;sampling;roots"
+)

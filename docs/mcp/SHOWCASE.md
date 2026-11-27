@@ -2,7 +2,7 @@
 
 The separate `snodec-mcp-showcase-stdio` and `snodec-mcp-showcase-http` applications demonstrate every feature implemented by SNode.C's shared MCP values, server, HTTP server, client and HTTP client components. The development assistant's source-inspection tools, previews, resources and review prompt remain available. Additional examples operate on generated or process-local data. They do not execute commands or write source/configuration files. All registrations use concrete `Tool`, `Resource`, `ResourceTemplate` or `Prompt` subclasses. There is one registry/dispatcher and one client engine, shared across transports.
 
-The [public API inventory](SHOWCASE-API.md) maps the installed entry points to the examples and qualification. Sampling and roots are outside the implemented module. Logging is legacy-only. Native harness support is separate from server/library support; a harness need not expose every protocol operation to an LLM.
+The [public API inventory](SHOWCASE-API.md) maps the installed entry points to the examples and qualification. The `sampling` and `roots` tools demonstrate [client-controlled sampling and root disclosure](CLIENT-INPUTS.md), including sampling tool-use results and an observable `listChanges` count for legacy roots notifications. A fresh showcase has 35 tools, 15 resources, 12 prompts and 12 resource templates. The tour uses a deterministic test model and an informational demonstration root; it does not contact an LLM provider or inspect that directory. Both features are deprecated but retained by the 2026-07-28 specification. Logging is legacy-only. Native harness support is separate from server/library support; a harness need not expose every protocol operation to an LLM.
 
 ## Build and run
 

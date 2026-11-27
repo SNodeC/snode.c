@@ -50,6 +50,7 @@
 #include "mcp/Protocol.h"
 #include "mcp/Schema.h"
 #include "mcp/Types.h"
+#include "mcp/detail/ClientInputs.h"
 #include "mcp/detail/Headers.h"
 #include "mcp/detail/Serialization.h"
 #include "mcp/server/Mcp.h"
@@ -64,6 +65,7 @@
 
 #include <compare>
 #include <cstddef>
+#include <exception>
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -204,7 +206,7 @@ namespace mcp::server {
         return completion;
     }
 
-    Completion detail::Response::inputRequired(InputRequired input) {
+    Completion detail::Response::inputRequired(ClientInputRequired input) {
         Completion completion = Completion::Inactive;
         const auto keep = weak_from_this().lock();
         expire();
@@ -216,58 +218,25 @@ namespace mcp::server {
                 Json value{{"resultType", "input_required"}};
                 Json missing = Json::object();
                 bool valid = true;
-                std::string validationError;
-                const auto capability = clientCapabilities.value("elicitation", Json());
                 for (const auto& [key, request] : input.requests) {
-                    std::visit(
-                        [&](const auto& item) {
-                            using Input = std::decay_t<decltype(item)>;
-                            const bool form = std::is_same_v<Input, FormInput>;
-                            const auto mode = form ? "form" : "url";
-                            if (!capability.is_object() ||
-                                (!(capability.contains(mode) && capability[mode].is_object()) && !(form && capability.empty()))) {
-                                missing["elicitation"][mode] = Json::object();
-                            }
-
-                            Json params{{"mode", mode}, {"message", item.message}};
-                            valid = valid && !key.empty() && key.size() <= 256;
-                            if constexpr (std::is_same_v<Input, FormInput>) {
-                                valid = valid && item.requestedSchema.is_object() &&
-                                        item.requestedSchema.value("type", Json()) == "object" &&
-                                        item.requestedSchema.value("properties", Json()).is_object() &&
-                                        Access::Registry::checkSchema(item.requestedSchema, validationError);
-                                if (valid) {
-                                    for (const auto& property : item.requestedSchema["properties"]) {
-                                        const auto type = property.is_object() ? property.value("type", Json()) : Json();
-                                        valid = valid && (type == "string" || type == "number" || type == "integer" || type == "boolean" ||
-                                                          type == "array");
-                                    }
-                                }
-
-                                params["requestedSchema"] = item.requestedSchema;
-                            } else {
-                                valid = valid && (item.url.starts_with("https://") || item.url.starts_with("http://")) &&
-                                        item.url.size() <= 16384;
-                                params["url"] = item.url;
-                            }
-
-                            value["inputRequests"][key] = {{"method", "elicitation/create"}, {"params", std::move(params)}};
-                        },
-                        request);
+                    valid = valid && !key.empty() && key.size() <= 256;
+                    const Json encoded = mcp::detail::encodeInput(request);
+                    missing.merge_patch(mcp::detail::missingInputCapabilities(encoded, clientCapabilities));
+                    value["inputRequests"][key] = encoded;
                 }
 
                 if (!missing.empty()) {
                     if (era == ProtocolEra::Initialization20251125 && toolRequest) {
                         completion =
                             result({{"isError", true},
-                                    {"content", {{{"type", "text"}, {"text", "Client does not support the requested elicitation mode"}}}}});
+                                    {"content", {{{"type", "text"}, {"text", "Client does not support the requested input capability"}}}}});
                     } else {
                         completion = error(era == ProtocolEra::PerRequest20260728 ? -32021 : -32602,
                                            "Missing required client capability",
                                            {{"requiredCapabilities", std::move(missing)}});
                     }
                 } else if (!valid) {
-                    completion = error(-32603, "Malformed elicitation request");
+                    completion = error(-32603, "Malformed client input request");
                 } else {
                     if (input.requestState && era == ProtocolEra::PerRequest20260728) {
                         value["requestState"] = std::move(*input.requestState);
@@ -287,7 +256,7 @@ namespace mcp::server {
                         });
                         if (waiting || current->inputs.size() + input.requests.size() > 1024 ||
                             current->nextInput > UINT64_MAX - input.requests.size()) {
-                            completion = error(-32603, "Elicitation already pending or capacity exceeded");
+                            completion = error(-32603, "Client input already pending or capacity exceeded");
                         } else {
                             if (const auto record = task.lock()) {
                                 if (const auto store = record->store.lock()) {
@@ -295,6 +264,7 @@ namespace mcp::server {
                                 }
                             }
                             inputResponses.clear();
+                            clientInputResponses.clear();
                             requestState = std::move(input.requestState);
                             std::vector<Json> messages;
                             for (auto& [key, request] : value["inputRequests"].items()) {
@@ -303,14 +273,13 @@ namespace mcp::server {
                                     request["params"]["_meta"]["io.modelcontextprotocol/related-task"] = {
                                         {"taskId", record->state["taskId"]}};
                                 }
-                                if (request["params"]["mode"] == "url") {
+                                if (request["method"] == "elicitation/create" && request["params"].value("mode", "form") == "url") {
                                     request["params"]["elicitationId"] = requestId;
                                 }
 
-                                current->inputs.emplace(requestId.dump(),
-                                                        Channel::Input{keep, key, request["params"].value("requestedSchema", Json())});
+                                current->inputs.emplace(requestId.dump(), Channel::Input{keep, key, request});
                                 messages.push_back(jsonrpc::messages::Request{
-                                    requestId, "elicitation/create", std::optional<Json>(std::move(request["params"]))}
+                                    requestId, request["method"].get<std::string>(), std::optional<Json>(std::move(request["params"]))}
                                                        .toJson());
                             }
 
@@ -322,7 +291,7 @@ namespace mcp::server {
                             }
                         }
                     } else {
-                        completion = error(-32602, "Legacy elicitation requires a live initialized channel and input requests");
+                        completion = error(-32602, "Legacy client input requires a live initialized channel and input requests");
                     }
                 }
             }
@@ -688,17 +657,7 @@ namespace mcp::server {
                 (!params.contains("requestState") ||
                  (params["requestState"].is_string() && params["requestState"].get_ref<const std::string&>().size() <= 16384));
             for (auto input = retry.begin(); input != retry.end() && validRetry; ++input) {
-                const auto action = input.value().is_object() ? input.value().value("action", Json()) : Json();
-                const auto content = input.value().is_object() ? input.value().value("content", Json()) : Json();
-                validRetry =
-                    (action == "accept" || action == "decline" || action == "cancel") && (content.is_null() || content.is_object());
-                if (validRetry) {
-                    reply->inputResponses.emplace(input.key(),
-                                                  InputResponse{action == "accept"    ? ElicitationAction::Accept
-                                                                : action == "decline" ? ElicitationAction::Decline
-                                                                                      : ElicitationAction::Cancel,
-                                                                content});
-                }
+                validRetry = reply->acceptInput(input.key(), input.value());
             }
 
             if (validRetry && params.contains("requestState")) {
@@ -1290,6 +1249,21 @@ namespace mcp::server {
     Completion Reply<Result>::inputRequired(InputRequired input)
         requires(!std::is_same_v<Result, CompletionResult>)
     {
+        ClientInputRequired mixed{{}, std::move(input.requestState)};
+        for (auto& [key, item] : input.requests) {
+            std::visit(
+                [&](auto& value) {
+                    mixed.requests.emplace(key, std::move(value));
+                },
+                item);
+        }
+        return clientInputRequired(std::move(mixed));
+    }
+
+    template <class Result>
+    Completion Reply<Result>::clientInputRequired(ClientInputRequired input)
+        requires(!std::is_same_v<Result, CompletionResult>)
+    {
         return impl->inputRequired(std::move(input));
     }
 
@@ -1370,6 +1344,72 @@ namespace mcp::server {
         }
 
         return result;
+    }
+
+    bool detail::Response::acceptInput(const std::string& key, const Json& value) {
+        bool valid = false;
+        if (value.is_object()) {
+            if (value.contains("action")) {
+                valid = mcp::detail::validInputResult({{"method", "elicitation/create"}}, value);
+                if (valid) {
+                    const auto action = value["action"];
+                    inputResponses[key] = InputResponse{action == "accept"    ? ElicitationAction::Accept
+                                                        : action == "decline" ? ElicitationAction::Decline
+                                                                              : ElicitationAction::Cancel,
+                                                        value.value("content", Json())};
+                }
+            } else {
+                try {
+                    if (value.contains("roots")) {
+                        static_cast<void>(RootsResult(value));
+                    } else {
+                        static_cast<void>(SamplingResult(value));
+                    }
+                    valid = true;
+                } catch (const std::exception&) {
+                    valid = false;
+                }
+                if (valid) {
+                    clientInputResponses[key] = value;
+                }
+            }
+        }
+        return valid;
+    }
+
+    std::optional<SamplingResult> RequestContext::getSamplingResponse(const std::string& key, const SamplingRequest& request) const {
+        std::optional<SamplingResult> result;
+        const auto found = impl->clientInputResponses.find(key);
+        if (found != impl->clientInputResponses.end()) {
+            if (!mcp::detail::validInputResult(mcp::detail::encodeInput(request), found->second)) {
+                throw InputValidationError("Invalid sampling response " + key);
+            }
+            result.emplace(found->second);
+        }
+        return result;
+    }
+
+    std::optional<RootsResult> RequestContext::getRootsResponse(const std::string& key) const {
+        std::optional<RootsResult> result;
+        const auto found = impl->clientInputResponses.find(key);
+        if (found != impl->clientInputResponses.end()) {
+            if (!mcp::detail::validInputResult({{"method", "roots/list"}}, found->second)) {
+                throw InputValidationError("Invalid roots response " + key);
+            }
+            result.emplace(found->second);
+        }
+        return result;
+    }
+
+    bool RequestContext::onRootsChanged(std::function<void()> callback) const {
+        const auto channel = impl->channel.lock();
+        const Json roots = channel ? channel->capabilities.value("roots", Json()) : Json();
+        const bool accepted = impl->era == ProtocolEra::Initialization20251125 && channel && channel->active && roots.is_object() &&
+                              roots.value("listChanged", Json()) == true;
+        if (accepted) {
+            channel->onRootsChanged = std::move(callback);
+        }
+        return accepted;
     }
 
     const std::optional<std::string>& RequestContext::getRequestState() const {
