@@ -67,7 +67,6 @@
 #include <cmath>
 #include <cstddef>
 #include <exception>
-#include <nlohmann/detail/json_ref.hpp>
 #include <nlohmann/json.hpp>
 #include <optional>
 #include <regex>

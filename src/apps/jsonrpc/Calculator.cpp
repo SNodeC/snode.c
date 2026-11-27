@@ -51,7 +51,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <nlohmann/detail/json_ref.hpp>
 #include <nlohmann/json.hpp>
 #include <nlohmann/json_fwd.hpp>
 #include <optional>

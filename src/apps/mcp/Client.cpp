@@ -59,7 +59,6 @@
 #include <iostream>
 #include <map>
 #include <memory>
-#include <nlohmann/detail/json_ref.hpp>
 #include <nlohmann/json.hpp>
 #include <optional>
 #include <utility>
