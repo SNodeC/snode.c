@@ -39,8 +39,6 @@
 
 cmake_minimum_required(VERSION 3.18)
 
-find_package(nlohmann_json 3.11 REQUIRED)
-
 add_library(
     jsonrpc SHARED
     JsonRpc.cpp
