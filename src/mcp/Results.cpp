@@ -194,7 +194,7 @@ namespace mcp {
             blocks.push_back(encode(block));
         }
 
-        return ToolResult({{"content", std::move(blocks)}});
+        return ToolResult(Json{{"content", std::move(blocks)}});
     }
 
     Json ToolResult::toJson() const {

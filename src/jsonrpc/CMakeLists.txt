@@ -75,7 +75,7 @@ set_target_properties(
     jsonrpc
     PROPERTIES VERSION ${SNode.C_VERSION}
                SOVERSION ${SNODEC_SOVERSION}
-               INSTALL_RPATH "$ORIGIN"
+               INSTALL_RPATH "$ORIGIN;$ORIGIN/../.."
                OUTPUT_NAME snodec-jsonrpc
 )
 install(

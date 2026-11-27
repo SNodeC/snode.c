@@ -44,6 +44,7 @@ import json
 import subprocess
 import sys
 import tempfile
+from pathlib import Path
 
 from http_test import Server
 from stdio_test import Client, request
@@ -61,9 +62,10 @@ def run():
     executable, transport, era = sys.argv[1:]
     modern = era == "2026-07-28"
     with tempfile.TemporaryDirectory(prefix="mcp-dev-inventory-") as directory:
-        args = ["--config-file", "/dev/null", "--quiet"]
+        root = str(Path(__file__).resolve().parents[3] / "src")
+        args = ["--config-file", "/dev/null", "--quiet", "mcp", "--header-root", root]
         client = Client(executable, args, directory) if transport == "stdio" else None
-        server = Server(executable, directory, False, curl="curl") if transport == "http" else None
+        server = Server(executable, directory, False, ["--header-root", root], curl="curl") if transport == "http" else None
         session = None
         ident = 0
 

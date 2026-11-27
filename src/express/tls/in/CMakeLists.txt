@@ -69,7 +69,7 @@ set_target_properties(
                LIBRARY_OUTPUT_DIRECTORY ${HTTP_COMPILE_LIBDIR}
                VERSION ${SNode.C_VERSION}
                SOVERSION ${SNODEC_SOVERSION}
-               INSTALL_RPATH "${HTTP_INSTALL_RPATH}"
+               INSTALL_RPATH "$ORIGIN;$ORIGIN/../../.."
 )
 
 install(

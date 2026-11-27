@@ -38,13 +38,16 @@
 # THE SOFTWARE.
 
 """The client lets the development server observe EOF and exit normally."""
+import json
 import subprocess
 import sys
+from pathlib import Path
 
 for legacy in ('true', 'false'):
     result = subprocess.run([sys.argv[1], '--config-file', '/dev/null', '--quiet', 'client', '--legacy', legacy,
                              '--command', 'tools', '--server', sys.argv[2], '--server-arguments',
-                             '["--config-file","/dev/null","--log-console","stderr"]'],
+                             json.dumps(["--config-file", "/dev/null", "--log-console", "stderr", "mcp", "--header-root",
+                                         str(Path(__file__).resolve().parents[3] / "src")])],
                             capture_output=True, text=True, timeout=5)
     assert result.returncode == 0, (result.stdout, result.stderr)
     assert 'Child exit code: 0' in result.stderr, result.stderr
