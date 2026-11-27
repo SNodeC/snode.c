@@ -142,7 +142,7 @@ Run the following inside the extracted SDK. Replace `/path/to/snode.c` with the 
 
 ```text
 ./scripts/feeds update base packages
-./scripts/feeds install nlohmannjson libopenssl libmagic bluez-libs libmariadb
+./scripts/feeds install nlohmannjson libopenssl libmagic bluez-libs libmariadb pcre2
 mkdir -p package/local
 ln -s /path/to/snode.c/ci/openwrt package/local/snode.c
 export SNODEC_SOURCE_DIR=/path/to/snode.c
