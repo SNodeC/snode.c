@@ -106,8 +106,8 @@ namespace apps::mcp {
                 true);
             setRootsHandler(
                 [](const std::string&, const std::shared_ptr<::mcp::client::ClientReply>& reply) {
-                    reply->result(
-                        ::mcp::RootsResult({{"roots", {{{"uri", "file:///showcase/workspace"}, {"name", "Demonstration workspace"}}}}}));
+                    reply->result(::mcp::RootsResult(
+                        Json{{"roots", {{{"uri", "file:///showcase/workspace"}, {"name", "Demonstration workspace"}}}}}));
                 },
                 true);
         }
