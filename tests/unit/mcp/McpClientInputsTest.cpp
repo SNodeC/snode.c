@@ -346,6 +346,17 @@ int main(int argc, char* argv[]) {
                             context.peer->replies.back()->result(mcp::SamplingResult(sampled)) == mcp::Completion::Inactive,
                         "disconnect cancels application work and suppresses late answers");
         static_cast<void>(retained);
+        if (legacy) {
+            Context ordinary(new Peer(true), server, true);
+            Json params = sampling().toJson();
+            params["task"] = {{"ttl", 1000}};
+            ordinary.onMessage(
+                Json{{"jsonrpc", "2.0"}, {"id", "unadvertised-sampling-task"}, {"method", "sampling/createMessage"}, {"params", params}}
+                    .dump());
+            const auto& response = ordinary.output.back();
+            test.expectTrue(response.contains("result") && response["result"] == sampled,
+                            "unadvertised sampling task augmentation is ignored and returns the ordinary sampled message");
+        }
         Context unsupported(new Peer(legacy, false), server, legacy);
         for (const std::string method : {"roots/list", "sampling/createMessage"}) {
             unsupported.onMessage(Json{{"jsonrpc", "2.0"}, {"id", "unsupported"}, {"method", method}, {"params", Json::object()}}.dump());
@@ -431,8 +442,7 @@ int main(int argc, char* argv[]) {
     test.expectTrue(refused.peer->errors == 1 && refused.peer->status == mcp::TaskState::Cancelled,
                     "refused modern task input cancels the server task, retires polling and reports one error");
     const Json valid = sampling().toJson();
-    for (const Json& patch : Json::array({Json{{"task", {{"ttl", 100}}}},
-                                          Json{{"maxTokens", 0}},
+    for (const Json& patch : Json::array({Json{{"maxTokens", 0}},
                                           Json{{"messages", {{{"role", "invalid"}, {"content", {{"type", "text"}, {"text", "x"}}}}}}},
                                           Json{{"toolChoice", {{"mode", "invalid"}}}},
                                           Json{{"modelPreferences", {{"costPriority", 2}}}},

@@ -102,7 +102,7 @@ namespace mcp {
         require(value.is_object() && value.at("messages").is_array() && value.at("maxTokens").is_number() &&
                     value["maxTokens"].get<double>() > 0 && std::isfinite(value["maxTokens"].get<double>()),
                 "Invalid sampling parameters");
-        require(!value.contains("task"), "Client-side task-augmented sampling is not advertised");
+        value.erase("task"); // Unadvertised augmentation is ignored; sampling completes normally.
         std::set<std::string> expected;
         for (const auto& message : value["messages"]) {
             samplingMessage(message);
