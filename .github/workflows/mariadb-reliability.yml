@@ -11,10 +11,12 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
+      - name: Initialize the validator build dependency
+        run: git submodule update --init --recursive src/mcp/json-schema-validator
       - name: Install build and disposable database dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y ninja-build libssl-dev nlohmann-json3-dev libmagic-dev libbluetooth-dev libmariadb-dev libncurses-dev mariadb-server
+          sudo apt-get install -y ninja-build libssl-dev nlohmann-json3-dev libmagic-dev libbluetooth-dev libmariadb-dev libncurses-dev libpcre2-dev mariadb-server
       - name: Configure and build
         run: |
           mkdir -p "${{ runner.temp }}/snodec-reliability/tmp"
