@@ -63,8 +63,8 @@ def run():
     modern = era == "2026-07-28"
     with tempfile.TemporaryDirectory(prefix="mcp-dev-inventory-") as directory:
         root = str(Path(__file__).resolve().parents[3] / "src")
-        args = ["--config-file", "/dev/null", "--quiet", "mcp", "--header-root", root]
-        client = Client(executable, args, directory) if transport == "stdio" else None
+        args = ["--config-file", "/dev/null", "--quiet"]
+        client = Client(executable, args + ["mcp", "--header-root", root], directory) if transport == "stdio" else None
         server = Server(executable, directory, False, ["--header-root", root], curl="curl") if transport == "http" else None
         session = None
         ident = 0
@@ -126,7 +126,7 @@ def run():
             if server:
                 server.stop()
         section = [] if transport == "stdio" else ["mcp-http"]
-        help_result = subprocess.run([executable] + args + section + ["mcp", "--help"], capture_output=True, timeout=5)
+        help_result = subprocess.run([executable] + args + section + ["mcp", "--header-root", root, "--help"], capture_output=True, timeout=5)
         assert help_result.returncode == 2, (help_result.returncode, help_result.stderr)
         help_text = help_result.stdout + help_result.stderr
         assert b"--page-size" in help_text and b"[128]" in help_text, help_text
