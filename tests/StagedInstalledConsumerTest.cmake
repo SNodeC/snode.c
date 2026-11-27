@@ -23,6 +23,16 @@ if(NOT install_result EQUAL 0)
     )
 endif()
 
+file(GLOB websocket_libraries
+     "${libdir}/snode.c/web/http/upgrade/*snodec-websocket*"
+)
+if(NOT websocket_libraries)
+    message(
+        FATAL_ERROR
+            "installed WebSocket libraries missing from the upgrade directory"
+    )
+endif()
+
 # Check the installed HTTP library's own dependency paths without the private
 # library directories supplied to the consumer tests below.
 find_program(runtime_loader NAMES ldd REQUIRED)
