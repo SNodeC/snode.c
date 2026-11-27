@@ -73,7 +73,7 @@ $(eval $(call Download,spdlog))
 define Build/Prepare
 	test -d "$(SNODEC_SOURCE_DIR)"
 	mkdir -p "$(PKG_BUILD_DIR)"
-	bash -o pipefail -c 'tar -C "$$1" --exclude=.git -cf - . | tar -C "$$2" -xf -' sh "$(SNODEC_SOURCE_DIR)" "$(PKG_BUILD_DIR)"
+	bash -o pipefail -c 'tar -C "$(SNODEC_SOURCE_DIR)" --exclude=.git -cf - . | tar -C "$(PKG_BUILD_DIR)" -xf -'
 	$(TAR) -xzf $(DL_DIR)/spdlog-1.17.0.tar.gz -C $(PKG_BUILD_DIR)
 endef
 
