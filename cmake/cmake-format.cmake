@@ -43,7 +43,8 @@ find_program(CMAKE_FORMAT "cmake-format")
 
 if(CMAKE_FORMAT)
     file(GLOB_RECURSE CMAKELISTS_TXT_FILES ${CMAKE_SOURCE_DIR}/CMakeLists.txt
-         ${CMAKE_SOURCE_DIR}/cmake/*.cmake ${CMAKE_SOURCE_DIR}/*.cmake.in
+         ${CMAKE_SOURCE_DIR}/cmake/*.cmake ${CMAKE_SOURCE_DIR}/ci/*.cmake
+         ${CMAKE_SOURCE_DIR}/*.cmake.in
     )
     list(FILTER CMAKELISTS_TXT_FILES EXCLUDE REGEX "/json-schema-validator/")
     add_custom_command(

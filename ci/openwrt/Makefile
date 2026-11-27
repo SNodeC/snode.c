@@ -1,16 +1,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=snode.c
-PKG_VERSION:=$(or $(SNODEC_PACKAGE_VERSION),$(patsubst v%,%,$(filter v%,$(SNODEC_SOURCE_TAG))),2.0.0)
+PKG_VERSION:=$(or $(SNODEC_PACKAGE_VERSION),$(shell cat "$(SNODEC_SOURCE_DIR)/VERSION"))
 PKG_RELEASE:=$(or $(SNODEC_PACKAGE_RELEASE),1)
-PKG_MIRROR_HASH:=$(or $(SNODEC_SOURCE_HASH),skip)
-
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=https://github.com/SNodeC/snode.c.git
-PKG_SOURCE_VERSION:=$(or $(SNODEC_SOURCE_TAG),v$(PKG_VERSION))
-# Fetch only the pinned build dependency, not documentation/feed submodules.
-PKG_SOURCE_SUBMODULES:=src/mcp/json-schema-validator
 
 PKG_MAINTAINER:=Volker Christian <me@vchrist.at>
 PKG_LICENSE:=LGPL-3.0-or-later
@@ -79,7 +71,9 @@ endef
 $(eval $(call Download,spdlog))
 
 define Build/Prepare
-	$(call Build/Prepare/Default)
+	test -d "$(SNODEC_SOURCE_DIR)"
+	mkdir -p "$(PKG_BUILD_DIR)"
+	bash -o pipefail -c 'tar -C "$$1" --exclude=.git -cf - . | tar -C "$$2" -xf -' sh "$(SNODEC_SOURCE_DIR)" "$(PKG_BUILD_DIR)"
 	$(TAR) -xzf $(DL_DIR)/spdlog-1.17.0.tar.gz -C $(PKG_BUILD_DIR)
 endef
 

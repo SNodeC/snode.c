@@ -1,5 +1,5 @@
 {
-  "schema": 1,
+  "schema": 2,
   "package": "snodec",
   "title": "SNode.C",
   "depends_on": [],
@@ -21,7 +21,8 @@
       "libmagic-dev",
       "libbluetooth-dev",
       "libmariadb-dev",
-      "libncurses-dev"
+      "libncurses-dev",
+      "libpcre2-dev"
     ],
     "rpm": [
       "cmake",
@@ -35,14 +36,19 @@
       "file-devel",
       "bluez-libs-devel",
       "mariadb-connector-c-devel",
-      "ncurses-devel"
+      "ncurses-devel",
+      "pcre2-devel"
     ],
     "openwrt": [
       "nlohmannjson",
       "openssl",
       "file",
       "bluez",
-      "libmariadb"
+      "libmariadb",
+      "pcre2"
+    ],
+    "rpm@rocky-9": [
+      "gcc-toolset-14"
     ]
   },
   "targets": [
