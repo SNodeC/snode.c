@@ -37,9 +37,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-find_package(nlohmann_json 3.11 REQUIRED)
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(MCP_JSON REQUIRED nlohmann_json>=3.11)
 pkg_check_modules(MCP_PCRE2 REQUIRED IMPORTED_TARGET libpcre2-8)
 
 set(MCP_SAVED_IWYU "${CMAKE_CXX_INCLUDE_WHAT_YOU_USE}")
