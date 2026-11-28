@@ -49,15 +49,17 @@ import tty
 
 def run(executable):
     with tempfile.TemporaryDirectory(prefix="config-output-") as directory:
-        env = dict(os.environ, XDG_CONFIG_HOME=directory, XDG_STATE_HOME=directory, XDG_RUNTIME_DIR=directory)
+        env = dict(os.environ, LC_ALL="C", XDG_CONFIG_HOME=directory, XDG_STATE_HOME=directory, XDG_RUNTIME_DIR=directory)
         command = [executable, "--config-file", "/dev/null"]
+        missing_path = ["-w", directory + "/absent/x.conf"]
+        missing_error = b"Writing config file: " + os.fsencode(os.strerror(errno.ENOENT))
         cases = [
             ("help", ["--help"], True, b"Usage:"),
             ("version", ["--version"], True, b"."),
             ("config", ["-s"], True, b"log-console"),
             ("command", ["--command-line"], True, b"command@line"),
             ("write", ["-w", directory + "/success.conf"], True, b"SUCCESS"),
-            ("write-error", ["-w", directory + "/absent/x.conf"], False, b"Writing config file"),
+            ("write-error", missing_path, False, missing_error),
             ("write-validation", ["-w", directory], False, b"Error"),
             ("invalid", ["--bogus"], False, b"bogus"),
             ("unknown", ["unknown-command"], False, b"unknown-command"),
@@ -71,6 +73,12 @@ def run(executable):
             assert marker in selected and not other, (name, result)
             if not normal:
                 assert b"\x1b" not in selected, (name, result)
+        stderr_path = Path(directory, "stderr.txt")
+        with stderr_path.open("wb") as stderr:
+            failed_write = subprocess.run(command + missing_path, stdout=subprocess.PIPE, stderr=stderr, env=env, timeout=5)
+        diagnostic = stderr_path.read_bytes()
+        assert failed_write.returncode == 2 and not failed_write.stdout, failed_write
+        assert missing_error in diagnostic and b"\x1b" not in diagnostic, diagnostic
         assert Path(directory, "success.conf").read_text(), "configuration file was not written"
         forced = subprocess.run(command + ["--monochrom=false", "--log-console", "stdout", "--bogus"],
                                 capture_output=True, env=env, timeout=5)
