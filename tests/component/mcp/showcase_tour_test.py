@@ -79,11 +79,18 @@ def run():
             starts = [entry for entry in values if "request" in entry]
             assert len(starts) == len(steps) and all(entry["request"] != "start" for entry in starts)
             assert {entry["feature"] for entry in steps} >= {
-                "sampling.text", "sampling.tools", "roots", "content", "schema.valid", "schema.invalid", "input.form", "input.url", "input.rounds", "input.parallel", "input.resource", "input.prompt", "input.task",
+                "identity", "sampling.text", "sampling.tools", "sampling.choice.auto", "sampling.choice.none", "sampling.image", "sampling.audio", "sampling.context", "sampling.context.thisServer", "sampling.loop", "roots", "content", "schema.valid", "schema.invalid", "input.form", "input.url", "input.rounds", "input.parallel", "input.resource", "input.prompt", "input.task",
                 "work.progress", "work.cancel", "work.deadline", "work.clientTimeout", "task.optional", "task.required",
                 "task.get", "task.list", "task.result", "task.cancel", "dynamic.templates", "resource.update",
                 "dynamic.resources.absent", "dynamic.templates.absent", "dynamic.prompts.absent",
                 "completion.prompt", "completion.template", "notifications.summary"}
+            features = {entry["feature"] for entry in steps}
+            if era == "2025-11-25":
+                assert features >= {"client.ping", "server.ping", "input.url.required",
+                    "client.task.sampling.result", "client.task.sampling.cancel",
+                    "client.task.elicitation.result", "client.task.elicitation.cancel"}
+            else:
+                assert features >= {"client.task.legacy-only", "client.ping.legacy-only"}
             assert "AddressSanitizer" not in result.stderr.decode(errors="replace")
             if proxy:
                 assert proxy.cut and any(request["lastEventId"] for request in proxy.requests), proxy.requests

@@ -122,6 +122,7 @@ namespace apps::mcp {
         bool pending = false;
         unsigned progress = 0;
         unsigned inputs = 0;
+        unsigned elicitationCompletions = 0;
         unsigned toolChanges = 0;
         unsigned resourceChanges = 0;
         unsigned promptChanges = 0;
@@ -129,6 +130,7 @@ namespace apps::mcp {
         unsigned logs = 0;
         unsigned tasks = 0;
         unsigned statuses = 0;
+        unsigned taskMessages = 0;
         unsigned taskAcknowledgements = 0;
         std::string lastTask;
         core::timer::Timer actionTimer;

@@ -41,11 +41,13 @@
 
 #include "Features.h"
 #include "core/timer/Timer.h"
+#include "mcp/Protocol.h"
 #include "mcp/Types.h"
 #include "mcp/server/Reply.h"
 #include "mcp/server/Request.h"
 #include "mcp/server/Results.h"
 #include "mcp/server/Server.h"
+#include "utils/Uuid.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -144,6 +146,7 @@ namespace apps::mcp::features {
                 if (getDefinition().taskSupport != TaskSupport::Forbidden) {
                     reply->startTask(TaskOptions{5000, 20});
                 }
+                reply->taskStatus(::mcp::TaskState::Working, "Running bounded demonstration work");
                 const auto work = std::make_shared<Work>(reply, call.arguments.value("steps", 5U), call.arguments.value("delayMs", 50U));
                 work->start(call.context);
             }
@@ -187,6 +190,9 @@ namespace apps::mcp::features {
 
         ToolDefinition inputDefinition(const std::string& mode) {
             auto tool = toolDefinition("input." + mode, "Elicitation: non-sensitive form, URL or two-round continuation.", emptySchema());
+            if (mode == "url") {
+                tool.inputSchema["properties"]["required"] = {{"type", "boolean"}};
+            }
             if (mode == "task") {
                 tool.taskSupport = TaskSupport::Required;
             }
@@ -207,7 +213,16 @@ namespace apps::mcp::features {
                 }
                 const auto& state = call.context.getRequestState();
                 const auto& inputs = call.context.getInputResponses();
-                if (inputs.empty()) {
+                if (mode == "url" && call.arguments.value("required", false) &&
+                    call.context.getProtocolEra() == ::mcp::ProtocolEra::Initialization20251125) {
+                    reply->error(ErrorCode::UrlElicitationRequired,
+                                 "Complete the demonstration URL before retrying.",
+                                 {{"elicitations",
+                                   {{{"mode", "url"},
+                                     {"message", "Demonstration acknowledgement only."},
+                                     {"url", "https://example.com/"},
+                                     {"elicitationId", utils::Uuid::getUuid()}}}}});
+                } else if (inputs.empty()) {
                     InputRequired input{{{"first", FormInput{"Enter a non-sensitive label.", form}}}, "first"};
                     if (mode == "parallel") {
                         input.requests["second"] = FormInput{"Enter a second independent label.", form};
@@ -231,6 +246,11 @@ namespace apps::mcp::features {
                     const std::string key = mode == "rounds" ? "second" : "first";
                     const auto* response = mode == "url" ? &inputs.at(key) : call.context.getInputResponse(key, form);
                     Json value{{"action", actionName(response)}, {"state", state.value_or("")}};
+                    if (mode == "url") {
+                        const auto id = call.context.getElicitationId(key);
+                        value["completionNotified"] =
+                            id && response->action == ElicitationAction::Accept && call.context.notifyElicitationComplete(*id);
+                    }
                     if (mode != "url" && response != nullptr && response->action == ElicitationAction::Accept) {
                         value["label"] = response->content.at("label");
                     }
@@ -286,8 +306,7 @@ namespace apps::mcp::features {
         class LoggingTool final : public Tool {
         public:
             explicit LoggingTool(Server& server)
-                : Tool(toolDefinition(
-                      "logging", "Legacy protocol logging from RequestContext and Server (deprecated in 2026).", emptySchema()))
+                : Tool(toolDefinition("logging", "Session logging in 2025 and opt-in request logging in 2026.", emptySchema()))
                 , server(server) {
             }
 
@@ -304,27 +323,174 @@ namespace apps::mcp::features {
     } // namespace
 
     namespace {
+        ToolResult clientInputResult(const RequestContext& context, const std::string& key, Json value) {
+            auto result = ToolResult::json(std::move(value));
+            if (const auto progress = context.getClientProgress(key)) {
+                result.setMeta({{"showcase/clientProgress", progress->value}});
+            }
+            return result;
+        }
+
         class SamplingTool final : public Tool {
         public:
             SamplingTool()
                 : Tool(toolDefinition("sampling",
-                                      "Request client-controlled model sampling, optionally with tools.",
-                                      {{"type", "object"}, {"properties", {{"toolUse", {{"type", "boolean"}}}}}})) {
+                                      "Client-controlled sampling, media, context, model options and a complete tool loop.",
+                                      {{"type", "object"},
+                                       {"properties",
+                                        {{"toolUse", {{"type", "boolean"}}},
+                                         {"toolLoop", {{"type", "boolean"}}},
+                                         {"toolChoice", {{"enum", {"auto", "none", "required"}}}},
+                                         {"context", {{"enum", {"none", "thisServer", "allServers"}}}},
+                                         {"media", {{"enum", {"text", "image", "audio"}}}},
+                                         {"options", {{"type", "boolean"}}}}}})) {
             }
 
             void call(const ToolCall& request, const std::shared_ptr<ToolReply>& reply) final {
-                Json params{
-                    {"messages", {{{"role", "user"}, {"content", {{"type", "text"}, {"text", "Return the demonstration answer 42."}}}}}},
-                    {"maxTokens", 64}};
-                if (request.arguments.value("toolUse", false)) {
-                    params["tools"] = {{{"name", "answer"}, {"inputSchema", emptySchema()}}};
-                    params["toolChoice"] = {{"mode", "required"}};
+                request.context.trackClientProgress("sample");
+                request.context.trackClientProgress("final");
+                Json content{{"type", "text"}, {"text", "Return the demonstration answer 42."}};
+                const std::string media = request.arguments.value("media", "text");
+                if (media != "text") {
+                    content = {{"type", media},
+                               {"data",
+                                media == "image"
+                                    ? "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII="
+                                    : "UklGRiYAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQIAAAAAAA=="},
+                               {"mimeType", media == "image" ? "image/png" : "audio/wav"}};
                 }
-                const ::mcp::SamplingRequest sampling(std::move(params));
-                if (const auto response = request.context.getSamplingResponse("sample", sampling)) {
-                    reply->result(ToolResult::json(response->toJson()));
+                Json params{{"messages", {{{"role", "user"}, {"content", content}}}},
+                            {"maxTokens", 64},
+                            {"includeContext", request.arguments.value("context", "none")}};
+                const bool loop = request.arguments.value("toolLoop", false);
+                if (request.arguments.value("toolUse", false) || loop || request.arguments.contains("toolChoice")) {
+                    params["tools"] = {
+                        {{"name", "answer"},
+                         {"inputSchema", emptySchema()},
+                         {"outputSchema",
+                          {{"type", "object"}, {"properties", {{"answer", {{"type", "integer"}}}}}, {"required", {"answer"}}}}}};
+                    params["toolChoice"] = {{"mode", loop ? "required" : request.arguments.value("toolChoice", "required")}};
+                }
+                if (request.arguments.value("options", false)) {
+                    params["systemPrompt"] = "Demonstration only; do not access external data.";
+                    params["temperature"] = 0.25;
+                    params["stopSequences"] = {"END"};
+                    params["modelPreferences"] = {{"hints", {{{"name", "demonstration"}}}},
+                                                  {"costPriority", 0.5},
+                                                  {"speedPriority", 0.5},
+                                                  {"intelligencePriority", 0.5}};
+                    params["metadata"] = {{"showcase", true}};
+                }
+                const ::mcp::SamplingRequest sampling(params);
+                const auto& state = request.context.getRequestState();
+                const auto firstResult = loop && state && state->starts_with("{")
+                                             ? std::optional<::mcp::SamplingResult>(::mcp::SamplingResult(Json::parse(*state)))
+                                             : request.context.getSamplingResponse("sample", sampling);
+                if (loop && firstResult) {
+                    const Json first = firstResult->toJson();
+                    params["messages"].push_back({{"role", "assistant"}, {"content", first.at("content")}});
+                    const Json blocks = first.at("content").is_array() ? first.at("content") : Json::array({first.at("content")});
+                    Json results = Json::array();
+                    for (const auto& block : blocks) {
+                        if (block.at("type") == "tool_use") {
+                            results.push_back({{"type", "tool_result"},
+                                               {"toolUseId", block.at("id")},
+                                               {"content", {{{"type", "text"}, {"text", "42"}}}},
+                                               {"structuredContent", {{"answer", 42}}}});
+                        }
+                    }
+                    params["messages"].push_back({{"role", "user"}, {"content", results}});
+                    params["toolChoice"] = {{"mode", "none"}};
+                    const ::mcp::SamplingRequest final(params);
+                    if (const auto response = request.context.getSamplingResponse("final", final)) {
+                        reply->result(clientInputResult(request.context, "final", response->toJson()));
+                    } else {
+                        reply->clientInputRequired({{{"final", final}}, first.dump()});
+                    }
+                } else if (firstResult) {
+                    reply->result(clientInputResult(request.context, "sample", firstResult->toJson()));
                 } else {
                     reply->clientInputRequired({{{"sample", sampling}}, "sampling"});
+                }
+            }
+        };
+
+        class ClientTaskTool final : public Tool {
+        public:
+            ClientTaskTool()
+                : Tool(toolDefinition(
+                      "client.task",
+                      "Legacy client-owned sampling or elicitation task and lifecycle controls.",
+                      {{"type", "object"},
+                       {"properties", {{"kind", {{"enum", {"sampling", "elicitation"}}}}, {"cancel", {{"type", "boolean"}}}}}})) {
+            }
+
+            void call(const ToolCall& request, const std::shared_ptr<ToolReply>& reply) final {
+                request.context.trackClientProgress("created");
+                const bool sampling = request.arguments.value("kind", "sampling") == "sampling";
+                const auto& state = request.context.getRequestState();
+                if (request.context.getProtocolEra() != ::mcp::ProtocolEra::Initialization20251125) {
+                    reply->result(ToolResult::toolError({TextContent{
+                        "Client-owned task augmentation belongs to 2025-11-25; use task input continuations in 2026-07-28.", {}}}));
+                } else if (!state) {
+                    Json params =
+                        sampling
+                            ? Json{{"messages", {{{"role", "user"}, {"content", {{"type", "text"}, {"text", "42"}}}}}}, {"maxTokens", 64}}
+                            : Json{{"mode", "form"}, {"message", "Client task demonstration"}, {"requestedSchema", labelSchema()}};
+                    params["task"] = {{"ttl", 60000}};
+                    reply->clientRequestsRequired(
+                        {{"created", {{"method", sampling ? "sampling/createMessage" : "elicitation/create"}, {"params", params}}}},
+                        "created");
+                } else if (*state == "created") {
+                    const auto* ticket = request.context.getClientResponse("created");
+                    if (ticket && ticket->contains("task")) {
+                        const std::string id = ticket->at("task").at("taskId");
+                        reply->clientRequestsRequired({{"status", {{"method", "tasks/get"}, {"params", {{"taskId", id}}}}},
+                                                       {"inventory", {{"method", "tasks/list"}, {"params", Json::object()}}}},
+                                                      Json{{"phase", "inspect"}, {"taskId", id}}.dump());
+                    } else {
+                        reply->error(ErrorCode::InvalidParams, "Client returned no task ticket");
+                    }
+                } else {
+                    Json data = Json::parse(*state);
+                    const std::string phase = data.at("phase");
+                    if (phase == "inspect") {
+                        const bool cancel = request.arguments.value("cancel", false);
+                        data["phase"] = cancel ? "cancelled" : "completed";
+                        reply->clientRequestsRequired(
+                            {{"payload",
+                              {{"method", cancel ? "tasks/cancel" : "tasks/result"}, {"params", {{"taskId", data.at("taskId")}}}}}},
+                            data.dump());
+                    } else {
+                        const auto* payload = request.context.getClientResponse("payload");
+                        if (payload) {
+                            if (phase == "completed" && sampling) {
+                                static_cast<void>(::mcp::SamplingResult(*payload));
+                            } else if (phase == "completed") {
+                                static_cast<void>(request.context.getInputResponse("payload", labelSchema()));
+                            }
+                            reply->result(clientInputResult(request.context, "created", {{"status", phase}, {"payload", *payload}}));
+                        } else {
+                            reply->error(ErrorCode::InvalidParams, "Missing client task result");
+                        }
+                    }
+                }
+            }
+        };
+
+        class PingTool final : public Tool {
+        public:
+            PingTool()
+                : Tool(toolDefinition("client.ping", "Ping the initialized legacy client.", emptySchema())) {
+            }
+
+            void call(const ToolCall& request, const std::shared_ptr<ToolReply>& reply) final {
+                if (request.context.getProtocolEra() != ::mcp::ProtocolEra::Initialization20251125) {
+                    reply->result(ToolResult::toolError({TextContent{"Ping belongs to the initialized 2025-11-25 session.", {}}}));
+                } else if (const auto* result = request.context.getClientResponse("ping")) {
+                    reply->result(ToolResult::json(*result));
+                } else {
+                    reply->clientRequestsRequired({{"ping", {{"method", "ping"}, {"params", Json::object()}}}});
                 }
             }
         };
@@ -336,6 +502,7 @@ namespace apps::mcp::features {
             }
 
             void call(const ToolCall& request, const std::shared_ptr<ToolReply>& reply) final {
+                request.context.trackClientProgress("roots");
                 const std::weak_ptr<unsigned> weak = changes;
                 request.context.onRootsChanged([weak] {
                     if (const auto count = weak.lock()) {
@@ -345,7 +512,7 @@ namespace apps::mcp::features {
                 if (const auto response = request.context.getRootsResponse("roots")) {
                     Json value = response->toJson();
                     value["listChanges"] = *changes;
-                    reply->result(ToolResult::json(std::move(value)));
+                    reply->result(clientInputResult(request.context, "roots", std::move(value)));
                 } else {
                     reply->clientInputRequired({{{"roots", ::mcp::RootsRequest{}}}, "roots"});
                 }
@@ -358,6 +525,8 @@ namespace apps::mcp::features {
 
     void registerInteractions(Server& server) {
         server.tool(std::make_shared<SamplingTool>());
+        server.tool(std::make_shared<ClientTaskTool>());
+        server.tool(std::make_shared<PingTool>());
         server.tool(std::make_shared<RootsTool>());
         server.tool(std::make_shared<WorkTool>("work", TaskSupport::Forbidden));
         server.tool(std::make_shared<WorkTool>("task.optional", TaskSupport::Optional));
