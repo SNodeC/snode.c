@@ -83,6 +83,7 @@ namespace mcp::server {
         Completion clientInputRequired(ClientInputRequired input)
             requires(!std::is_same_v<Result, CompletionResult>);
         /// Legacy reverse requests, including client-owned task lifecycle and ping.
+        /// Low-level untyped escape hatch; prefer clientInputRequired for typed client inputs.
         /// Uses the same correlated input round and resumption as clientInputRequired.
         Completion clientRequestsRequired(Json requests, std::optional<std::string> requestState = {})
             requires(!std::is_same_v<Result, CompletionResult>);
