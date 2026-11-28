@@ -2,6 +2,7 @@
   "schema": 2,
   "package": "snodec",
   "title": "SNode.C",
+  "releases": ">=3.1.0",
   "depends_on": [],
   "build": {
     "deb": "ci/package/native.sh",

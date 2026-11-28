@@ -70,6 +70,14 @@ define Download/spdlog
 endef
 $(eval $(call Download,spdlog))
 
+JSON_CMAKE_STAGE:=$(PKG_BUILD_DIR)/.ci/nlohmann_json
+CMAKE_OPTIONS += -Dnlohmann_json_DIR="$(JSON_CMAKE_STAGE)/share/cmake/nlohmann_json"
+
+define Build/Configure
+	sh ./stage-nlohmann-json.sh "$(STAGING_DIR)" "$(JSON_CMAKE_STAGE)"
+	$(call Build/Configure/Default)
+endef
+
 define Build/Prepare
 	test -d "$(SNODEC_SOURCE_DIR)"
 	mkdir -p "$(PKG_BUILD_DIR)"
@@ -153,6 +161,12 @@ CMAKE_OPTIONS+=-U'SNODEC_*' \
                -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON \
                -DCMAKE_SKIP_RPATH=FALSE \
                -DCHECK_INCLUDES=OFF
+
+define Build/InstallDev
+	$(INSTALL_DIR) $(1)/usr/include $(1)/usr/lib
+	$(CP) $(PKG_INSTALL_DIR)/usr/include/. $(1)/usr/include/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/. $(1)/usr/lib/
+endef
 
 define Package/snodec/Default
   SECTION:=net
