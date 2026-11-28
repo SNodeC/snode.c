@@ -43,6 +43,7 @@
 
 #include "utils/Daemon.h"
 #include "utils/Formatter.h"
+#include "utils/PreserveErrno.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -484,6 +485,7 @@ namespace utils {
     }
 
     static std::string diagnosticColor(Color::Code code) {
+        const PreserveErrno preserveErrno;
         return ::isatty(STDERR_FILENO) == 1 ? std::string{} + code : std::string{};
     }
 
@@ -494,8 +496,9 @@ namespace utils {
                           << "] Writing config file: " + subCommand->getOption("--write-config")->as<std::string>() << std::endl
                           << std::endl;
             } else {
+                const std::string error = std::strerror(errno);
                 std::cerr << std::string{"["} << diagnosticColor(Color::Code::FG_RED) << "Error" << diagnosticColor(Color::Code::FG_DEFAULT)
-                          << "] Writing config file: " << std::strerror(errno) << std::endl;
+                          << "] Writing config file: " << error << std::endl;
             }
         } catch (const CLI::ParseError& e) {
             std::cerr << std::string{"["} << diagnosticColor(Color::Code::FG_RED) << "Error" << diagnosticColor(Color::Code::FG_DEFAULT)
@@ -1011,8 +1014,9 @@ namespace utils {
                     const struct group* gr = nullptr;
                     if ((gr = getgrnam(XSTR(GROUP_NAME))) != nullptr) {
                         if (chown(configDirectory.c_str(), euid, gr->gr_gid) < 0) {
-                            std::cerr << "Warning: Can not set group ownership of '" << configDirectory
-                                      << "' to 'snodec':" << strerror(errno) << std::endl;
+                            const std::string error = std::strerror(errno);
+                            std::cerr << "Warning: Can not set group ownership of '" << configDirectory << "' to 'snodec':" << error
+                                      << std::endl;
                         }
                     } else {
                         std::cerr << "Error: Can not find group 'snodec'. Add it using groupadd or addgroup" << std::endl;
@@ -1033,7 +1037,8 @@ namespace utils {
                     const struct group* gr = nullptr;
                     if ((gr = getgrnam(XSTR(GROUP_NAME))) != nullptr) {
                         if (chown(logDirectory.c_str(), euid, gr->gr_gid) < 0) {
-                            std::cerr << "Warning: Can not set group ownership of '" << logDirectory << "' to 'snodec':" << strerror(errno)
+                            const std::string error = std::strerror(errno);
+                            std::cerr << "Warning: Can not set group ownership of '" << logDirectory << "' to 'snodec':" << error
                                       << std::endl;
                         }
                     } else {
@@ -1055,7 +1060,8 @@ namespace utils {
                     const struct group* gr = nullptr;
                     if ((gr = getgrnam(XSTR(GROUP_NAME))) != nullptr) {
                         if (chown(pidDirectory.c_str(), euid, gr->gr_gid) < 0) {
-                            std::cerr << "Warning: Can not set group ownership of '" << pidDirectory << "' to 'snodec':" << strerror(errno)
+                            const std::string error = std::strerror(errno);
+                            std::cerr << "Warning: Can not set group ownership of '" << pidDirectory << "' to 'snodec':" << error
                                       << std::endl;
                         }
                     } else {
