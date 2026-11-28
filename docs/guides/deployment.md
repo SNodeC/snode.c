@@ -42,6 +42,7 @@ Application-level options precede instance subcommands. These names and levels a
 | --- | --- |
 | `--log-level 0..6` | 0 off, 1 critical, 2 error, 3 warn, 4 info (default), 5 debug, 6 trace |
 | `--log-format text` / `json` | Semantic log serialization; text is the default |
+| `--log-console stderr\|stdout` | Select the console log stream (default: stderr) |
 | `--log-origin-level application=5` | Override framework/application origin levels |
 | `--log-boundary-level connection=5` | Override a semantic boundary level |
 | `--log-component-level COMPONENT=5` | Override a named component; use identifiers from actual records |
@@ -50,6 +51,8 @@ Application-level options precede instance subcommands. These names and levels a
 | `--log-file PATH` | Select the file used for file logging |
 | `--enforce-log-file=true` | Enable file logging for a foreground process |
 | `--daemonize=false` | Stay in the foreground (default); retain this under systemd/container supervision |
+
+Console logs default to stderr. Configuration errors, warnings and process-status messages also go to stderr, with colored error markers only on a terminal. Requested results such as help, version, configuration and command-line output, successful config writes and successful `--kill` confirmations go to stdout. MCP stdio automatically suppresses console logging when stderr shares the non-terminal protocol output. A configured log file remains active.
 
 For example, replace the executable with your service:
 
@@ -106,11 +109,13 @@ For containers, package your executable with its runtime libraries, mount config
 
 ## OpenWrt and embedded deployments
 
-Install only the required framework/application packages from the [OpenWrt feed](https://github.com/SNodeC/Packages/blob/main/docs/installation/openwrt.md#banner). Ready-made application packages may provide init scripts; a custom executable needs its own suitable service definition. Check RAM, storage, TLS trust material and persistent-data locations on the actual device.
+Install only the required framework/application packages from the [OpenWrt feed](https://github.com/SNodeC/Packages/blob/main/README.md#openwrt-2410-opkg). Ready-made application packages may provide init scripts; a custom executable needs its own suitable service definition. Check RAM, storage, TLS trust material and persistent-data locations on the actual device.
 
 ## Upgrade deliberately
 
 Keep executables, shared libraries and dynamically loaded protocol plugins compatible. Back up configuration and application state; verify the new build on a separate instance before replacing a running service. Major framework releases can change ABI even when application source needs little adjustment. When upgrading from SNode.C 1.x to 2.0, rebuild consuming applications, libraries and plugins against the updated headers and libraries; do not mix 1.x and 2.0 C++ binaries in one process.
+
+When upgrading from 3.1.0 or earlier, update scripts and supervisors that capture logs or configuration diagnostics from stdout. Capture stderr directly or use `2>&1` if the consumer needs both streams. To restore stdout for console logs alone, use `--log-console stdout`. Requested help, version, show-config and command-line output remain on stdout.
 
 ## Troubleshoot a first program
 
