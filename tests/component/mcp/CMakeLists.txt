@@ -39,9 +39,7 @@
 
 find_program(MCP_PYTHON NAMES python3 REQUIRED)
 add_executable(McpStdioFixture StdioFixture.cpp)
-target_link_libraries(
-    McpStdioFixture PRIVATE snodec::mcp-server snodec::net-stdio-stream
-)
+target_link_libraries(McpStdioFixture PRIVATE mcp-app-stdio)
 add_test(NAME McpStdioTest
          COMMAND ${MCP_PYTHON} -B ${CMAKE_CURRENT_SOURCE_DIR}/stdio_test.py
                  $<TARGET_FILE:McpStdioFixture>
@@ -140,7 +138,7 @@ add_test(
     COMMAND
         ${MCP_PYTHON} -B ${CMAKE_CURRENT_SOURCE_DIR}/bootstrap_test.py
         $<TARGET_FILE:McpStdioFixture> $<TARGET_FILE:snodec-dev-stdio>
-        ${CMAKE_SOURCE_DIR}/src
+        ${CMAKE_SOURCE_DIR}/src $<TARGET_FILE:snodec-mcp-showcase-stdio>
 )
 set_tests_properties(
     McpStdioBootstrapTest PROPERTIES LABELS "mcp;component;stdio;startup"

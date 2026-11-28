@@ -54,6 +54,8 @@ namespace mcp::server {
 namespace apps::mcp {
     class DevelopmentConfig;
 
+    void configureStdioConsole(int protocolFd);
+
     int runStdio(
         int argc, char* argv[], ::mcp::server::Server& server, DevelopmentConfig& config, const std::function<void()>& registerApplication);
 } // namespace apps::mcp

@@ -44,6 +44,7 @@
 
 #include "Features.h"
 #include "Log.h"
+#include "Stdio.h"
 #include "core/SNodeC.h"
 #include "core/socket/State.h"
 #include "core/timer/Timer.h"
@@ -95,6 +96,7 @@ int main(int argc, char* argv[]) {
     mcp::server::Server server("stdio-fixture", "test-version");
     int result = 1;
     int protocolFd = ::fcntl(STDOUT_FILENO, F_DUPFD_CLOEXEC, 3);
+    apps::mcp::configureStdioConsole(protocolFd);
     if (protocolFd >= 0 && ::dup2(STDERR_FILENO, STDOUT_FILENO) >= 0) {
         using Endpoint =
             net::stdio::stream::SocketEndpoint<mcp::server::stream::SocketContextFactory, mcp::server::Server&, mcp::server::Config&>;
@@ -141,7 +143,9 @@ int main(int argc, char* argv[]) {
 
                 tests::mcp::registerFeatures(server);
                 snode::log::application("mcp.fixture").info() << "MCP fixture ready";
-                std::cout << "fixture direct stdout diagnostic" << std::endl;
+                if (!utils::Config::configRoot.getOption("--quiet")->as<bool>()) {
+                    std::cout << "fixture direct stdout diagnostic" << std::endl;
+                }
                 const auto path = config->getOption("--fixture-reparse-config")->as<std::string>();
                 if (!path.empty()) {
                     std::ofstream changed(path);

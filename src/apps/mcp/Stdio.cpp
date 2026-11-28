@@ -62,11 +62,25 @@
 #include <functional>
 #include <memory>
 #include <string>
+#include <sys/stat.h>
 #include <unistd.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace apps::mcp {
+
+    void configureStdioConsole(int protocolFd) {
+        struct stat protocol{};
+        struct stat diagnostics{};
+        if (protocolFd >= 0 && ::fstat(protocolFd, &protocol) == 0 && ::fstat(STDERR_FILENO, &diagnostics) == 0 &&
+            protocol.st_dev == diagnostics.st_dev && protocol.st_ino == diagnostics.st_ino && ::isatty(protocolFd) == 0) {
+            utils::Config::configRoot.finalCallback([] {
+                auto* quiet = utils::Config::configRoot.getOption("--quiet");
+                quiet->clear();
+                quiet->add_result("true");
+            });
+        }
+    }
 
     int runStdio(int argc,
                  char* argv[],
@@ -75,6 +89,7 @@ namespace apps::mcp {
                  const std::function<void()>& registerApplication) {
         int result = 1;
         int protocolFd = ::fcntl(STDOUT_FILENO, F_DUPFD_CLOEXEC, 3);
+        configureStdioConsole(protocolFd);
         if (protocolFd >= 0 && ::dup2(STDERR_FILENO, STDOUT_FILENO) >= 0) {
             using Endpoint = net::stdio::stream::
                 SocketEndpoint<::mcp::server::stream::SocketContextFactory, ::mcp::server::Server&, ::mcp::server::Config&>;
