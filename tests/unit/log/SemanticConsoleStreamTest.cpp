@@ -133,15 +133,15 @@ namespace {
 int main() {
     tests::support::TestResult testResult;
     const std::vector<Case> cases{
-        {.name = "default"},
+        {.name = "default", .stderrSelected = true},
         {.name = "stdout", .arguments = {"--log-console", "stdout"}},
         {.name = "stderr", .arguments = {"--log-console", "stderr"}, .stderrSelected = true},
         {.name = "quiet", .arguments = {"--log-console", "stderr", "--quiet"}, .stderrSelected = true, .quiet = true},
         {.name = "invalid", .arguments = {"--log-console", "other"}, .valid = false},
         {.name = "stderr-tty", .arguments = {"--log-console", "stderr"}, .stderrSelected = true, .stderrTerminal = true, .color = true},
         {.name = "stdout-tty-stderr-pipe", .arguments = {"--log-console", "stderr"}, .stderrSelected = true, .stdoutTerminal = true},
-        {.name = "stdout-pipe-stderr-tty", .stderrTerminal = true},
-        {.name = "stdout-tty", .stdoutTerminal = true, .color = true},
+        {.name = "stdout-pipe-stderr-tty", .stderrSelected = true, .stderrTerminal = true, .color = true},
+        {.name = "stdout-tty", .stderrSelected = true, .stdoutTerminal = true},
         {.name = "mono-before",
          .arguments = {"--monochrom=true", "--log-console", "stderr"},
          .stderrSelected = true,
@@ -205,8 +205,8 @@ int main() {
                 testResult.expectTrue(text.find('\033') == std::string::npos, current.name + ": file remains plain");
             }
             if (current.reset) {
-                testResult.expectEqual(1, occurrences(stdoutText, "reset-marker"), "init restores stdout");
-                testResult.expectEqual(0, occurrences(stderrText, "reset-marker"), "init stops using stderr");
+                testResult.expectEqual(1, occurrences(stderrText, "reset-marker"), "init restores stderr");
+                testResult.expectEqual(0, occurrences(stdoutText, "reset-marker"), "init leaves stdout unused");
             }
         }
         if (current.file) {

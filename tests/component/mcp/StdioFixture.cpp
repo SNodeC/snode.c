@@ -72,7 +72,6 @@
 #include <nlohmann/json.hpp>
 #include <nlohmann/json_fwd.hpp>
 #include <stdexcept>
-#include <sys/stat.h>
 #include <unistd.h>
 #include <vector>
 
@@ -96,10 +95,6 @@ int main(int argc, char* argv[]) {
     mcp::server::Server server("stdio-fixture", "test-version");
     int result = 1;
     int protocolFd = ::fcntl(STDOUT_FILENO, F_DUPFD_CLOEXEC, 3);
-    struct stat protocol{};
-    struct stat diagnostics{};
-    const bool shared = protocolFd >= 0 && ::fstat(protocolFd, &protocol) == 0 && ::fstat(STDERR_FILENO, &diagnostics) == 0 &&
-                        protocol.st_dev == diagnostics.st_dev && protocol.st_ino == diagnostics.st_ino;
     if (protocolFd >= 0 && ::dup2(STDERR_FILENO, STDOUT_FILENO) >= 0) {
         using Endpoint =
             net::stdio::stream::SocketEndpoint<mcp::server::stream::SocketContextFactory, mcp::server::Server&, mcp::server::Config&>;
@@ -108,8 +103,7 @@ int main(int argc, char* argv[]) {
         endpoint.getConfig()->Connection::setReadTimeout(0)->setWriteTimeout(0)->setMaximumWriteQueueBytes(1);
         try {
             core::SNodeC::init(argc, argv);
-            if (!utils::Config::configRoot.getOption("--daemonize")->as<bool>() &&
-                (!shared || utils::Config::configRoot.getOption("--quiet")->as<bool>())) {
+            if (!utils::Config::configRoot.getOption("--daemonize")->as<bool>()) {
                 utils::Config::configRoot.getOption("--daemonize")->check(CLI::IsMember({"false"}));
                 server.tool({"echo", {}, objectSchema}, [](const auto& call, const auto& reply) {
                     const auto& args = call.arguments;

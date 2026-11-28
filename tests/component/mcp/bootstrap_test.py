@@ -62,7 +62,7 @@ def run(fixture, demo, headers):
             refused = subprocess.run(command + ["--daemonize=true"] + args, input=wire, capture_output=True, env=env, timeout=5)
             assert refused.returncode == 1 and refused.stdout == b"" and refused.stderr == b"", refused
             shared = subprocess.run(command + args, input=wire, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, env=env, timeout=5)
-            assert shared.returncode == 1 and shared.stdout == b"", shared
+            assert shared.returncode == 0 and any(line.startswith(b'{') for line in shared.stdout.splitlines()), shared
         quiet = subprocess.run([demo, "--config-file", "/dev/null", "--quiet"] + demo_args,
                                input=wire, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, env=env, timeout=5)
         assert quiet.returncode == 0 and json.loads(quiet.stdout)["id"] == 1, quiet
@@ -81,17 +81,17 @@ def run(fixture, demo, headers):
         assert b"daemonize" in reparsed.stderr and b"AddressSanitizer" not in reparsed.stderr, reparsed.stderr
         master, slave = pty.openpty()
         tty.setraw(slave)
-        child = subprocess.Popen([demo, "--config-file", "/dev/null", "--quiet"] + demo_args,
+        child = subprocess.Popen([demo, "--config-file", "/dev/null"] + demo_args,
                                  stdin=slave, stdout=slave, stderr=slave, env=env)
         os.close(slave)
         try:
             os.write(master, wire)
             data = b""
             until = time.monotonic() + 5
-            while b"\n" not in data and time.monotonic() < until:
+            while not any(line.startswith(b'{') and line.endswith(b"}") for line in data.splitlines()) and time.monotonic() < until:
                 if select.select([master], [], [], 0.1)[0]:
                     data += os.read(master, 65536)
-            assert json.loads(data)["id"] == 1, data
+            assert any(json.loads(line)["id"] == 1 for line in data.splitlines() if line.startswith(b'{')), data
             child.send_signal(signal.SIGTERM)
             assert child.wait(timeout=5) == 241
         finally:
@@ -99,7 +99,7 @@ def run(fixture, demo, headers):
             if child.poll() is None:
                 child.kill()
                 child.wait()
-        print("PASS: stdout retention, silent daemon/shared-console refusal, bootstrap reparse cleanup, shared quiet pipes and tty")
+        print("PASS: stdout retention, silent daemon refusal, bootstrap reparse cleanup, shared console pipes and non-quiet tty")
 
 
 if __name__ == "__main__":
