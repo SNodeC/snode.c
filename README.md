@@ -327,6 +327,8 @@ Source builds target Linux with a C++20 toolchain (GCC 12.2+ or Clang 13+) and C
 
 Install from [signed packages](https://github.com/SNodeC/Packages#banner) for your distribution, release and architecture, or [build from source](docs/guides/build-from-source.md#banner) for native Linux or OpenWrt.
 
+The Rocky Linux 9 package hook activates GCC Toolset 14.
+
 ## Releases
 
 
