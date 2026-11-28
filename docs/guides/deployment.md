@@ -109,7 +109,7 @@ For containers, package your executable with its runtime libraries, mount config
 
 ## OpenWrt and embedded deployments
 
-Install only the required framework/application packages from the [OpenWrt feed](https://github.com/SNodeC/Packages/blob/main/README.md#openwrt-2410-opkg). Ready-made application packages may provide init scripts; a custom executable needs its own suitable service definition. Check RAM, storage, TLS trust material and persistent-data locations on the actual device.
+Install only the required framework/application packages from the [OpenWrt feed](https://github.com/SNodeC/Packages/blob/main/README.md#installation). Ready-made application packages may provide init scripts; a custom executable needs its own suitable service definition. Check RAM, storage, TLS trust material and persistent-data locations on the actual device.
 
 ## Upgrade deliberately
 
