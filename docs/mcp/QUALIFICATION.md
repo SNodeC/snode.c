@@ -53,11 +53,9 @@ The repository inventory grew from 399 to 400 tests by adding `McpClientInputsTe
 
 Native model-provider integrations, permission UIs and native-client sampling/roots remain unqualified. The typed tour supplies a deterministic test model and informational root; it does not contact an LLM provider or access that directory. The TypeScript SDK checkout was unchanged. Production changes add 994 lines and remove 189 (net +805), within the owner-approved bound of 1,200 added lines; the shared input path replaces the elicitation-only path while preserving its public APIs. New demonstrations stay in the separate showcase executables.
 
-## Reply compile-check placement
+## Reply result type checks
 
-The reply/result compile contract is now registered as `McpReplyTypeTest` and runs only through CTest. Project configuration performs none of its compiler invocations. The existing three matching combinations must compile and six mismatches must fail; all nine checks run even when some fail, and CMake returns failure after processing them. The test uses the configured compiler and flags in its own build directory. This adds one CTest registration (399 total, 397 enabled, with the same two SDK stdio cases disabled), without production changes.
-
-Focused verification passed all 24 MCP unit tests on GCC and strict Clang+ASan, including the relocated test. An intentionally broken include path made the test fail and still produced all nine compile logs, verifying the positive controls and complete execution. Formatting and `git diff --check` passed. The full-suite results below predate this test-only relocation and retain their original counts.
+`McpReplyTypeTest` is a regular C++20 unit test whose compile-time assertions check that each reply accepts its matching result and rejects the six mismatched pairs. The test builds with the same MCP server target requirements as the neighboring unit tests. CTest runs the resulting executable. This replaces the nested CMake checks without changing the test inventory.
 
 ## Separate executable qualification
 

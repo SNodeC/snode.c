@@ -44,19 +44,12 @@ target_link_libraries(
 )
 set_tests_properties(McpServerTest PROPERTIES LABELS "unit;mcp;schema;dispatch")
 
-add_test(
-    NAME McpReplyTypeTest
-    COMMAND
-        ${CMAKE_COMMAND} -S ${CMAKE_CURRENT_SOURCE_DIR}/reply-type-check -B
-        ${CMAKE_CURRENT_BINARY_DIR}/reply-type-check -G "${CMAKE_GENERATOR}"
-        "-DSNODEC_SOURCE_DIR=${CMAKE_SOURCE_DIR}"
-        "-DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}"
-        "-DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}" "-DCMAKE_BUILD_TYPE=$<CONFIG>"
-        "-DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}"
+snodec_add_test(McpReplyTypeTest McpReplyTypeTest.cpp)
+target_include_directories(McpReplyTypeTest PRIVATE ${PROJECT_SOURCE_DIR})
+target_link_libraries(
+    McpReplyTypeTest PRIVATE snodec::mcp-server snodec-test-support
 )
-set_tests_properties(
-    McpReplyTypeTest PROPERTIES LABELS "unit;mcp;compile" TIMEOUT 60
-)
+set_tests_properties(McpReplyTypeTest PROPERTIES LABELS "unit;mcp;results")
 
 snodec_add_test(McpResultTest McpResultTest.cpp)
 target_include_directories(McpResultTest PRIVATE ${PROJECT_SOURCE_DIR})

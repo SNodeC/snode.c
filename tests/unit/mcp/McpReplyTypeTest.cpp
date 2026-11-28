@@ -40,12 +40,38 @@
  */
 
 #include "mcp/server/Reply.h"
+#include "mcp/server/Results.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-void check(mcp::server::MCP_REPLY& reply, mcp::server::MCP_RESULT result) {
-    reply.result(std::move(result));
+namespace {
+    template <typename Reply, typename Result>
+    concept AcceptsResult = requires(Reply& reply, Result result) { reply.result(std::move(result)); };
+
+    using mcp::server::PromptReply;
+    using mcp::server::PromptResult;
+    using mcp::server::ResourceReply;
+    using mcp::server::ResourceResult;
+    using mcp::server::ToolReply;
+    using mcp::server::ToolResult;
+
+    static_assert(AcceptsResult<ToolReply, ToolResult>, "ToolReply must accept ToolResult");
+    static_assert(!AcceptsResult<ToolReply, ResourceResult>, "ToolReply must reject ResourceResult");
+    static_assert(!AcceptsResult<ToolReply, PromptResult>, "ToolReply must reject PromptResult");
+
+    static_assert(!AcceptsResult<ResourceReply, ToolResult>, "ResourceReply must reject ToolResult");
+    static_assert(AcceptsResult<ResourceReply, ResourceResult>, "ResourceReply must accept ResourceResult");
+    static_assert(!AcceptsResult<ResourceReply, PromptResult>, "ResourceReply must reject PromptResult");
+
+    static_assert(!AcceptsResult<PromptReply, ToolResult>, "PromptReply must reject ToolResult");
+    static_assert(!AcceptsResult<PromptReply, ResourceResult>, "PromptReply must reject ResourceResult");
+    static_assert(AcceptsResult<PromptReply, PromptResult>, "PromptReply must accept PromptResult");
+} // namespace
+
+int main() {
+    return 0;
 }
