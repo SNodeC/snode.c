@@ -6,7 +6,7 @@ The current completion work extends the separate showcase applications and the o
 
 A GCC export of staged tree `7ae838b24862e9c683142fa9ceba9bd824a54236` built and passed all 65 enabled MCP-label cases in 230.50 seconds: 67 selected, two owner-disabled SDK stdio cases, zero failures or skips. It contained only the staged MCP changes and committed dependency contents; the unrelated include edits were excluded. The temporary export and build were removed after verification. This independently verifies the implementation without those working-tree changes.
 
-The MCP-only records below predate the final integration gate. Local merging requires complete clean GCC and strict Clang/ASan builds followed by the entire CTest suite, with the foreign include changes left unstaged in the canonical working tree. Full-suite outcomes and commit ownership evidence are recorded in the local handover. Include-analysis tooling and the existing SDK test dependency bundle are kept in persistent build tooling outside the repository; no machine-specific tool paths are committed.
+The MCP-only records below predate the final integration gate. Local merging requires complete clean GCC and strict Clang/ASan builds followed by the entire CTest suite. The include changes outside that MCP integration were later committed in `f4dcde9f7`. Full-suite outcomes and commit ownership evidence are recorded in the local handover. Include-analysis tooling and the existing SDK test dependency bundle are kept in persistent build tooling outside the repository; no machine-specific tool paths are committed.
 
 ## MCP completion qualification (2026-11-28)
 
