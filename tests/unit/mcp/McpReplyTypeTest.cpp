@@ -40,7 +40,7 @@
  */
 
 #include "mcp/server/Reply.h"
-#include "mcp/server/Results.h"
+#include "mcp/server/Results.h" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
