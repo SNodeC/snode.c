@@ -33,6 +33,7 @@
       "pkgconf-pkg-config",
       "curl",
       "python3",
+      "openssl",
       "openssl-devel",
       "json-devel",
       "file-devel",
