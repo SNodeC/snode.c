@@ -189,7 +189,7 @@ of node.js written entirely in C++.
 endef
 
 define Package/snodec-common/config
-  source "$(SOURCE)/Config.in"
+  source "$(CURDIR)/Config.in"
 endef
 
 define Package/snodec-common/conffiles
