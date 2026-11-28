@@ -155,18 +155,18 @@ namespace logger::detail {
     public:
         void init() {
             semanticWorkerLogger.reset();
-            semanticStdoutLogger.reset();
+            semanticConsoleLogger.reset();
             semanticFileLogger.reset();
             threadPool.reset();
-            semanticStdoutSink = std::make_shared<spdlog::sinks::stdout_color_sink_st>();
-            semanticStdoutLogger = makeLogger("snodec-semantic-stdout", semanticStdoutSink);
+            semanticConsoleSink = std::make_shared<spdlog::sinks::stderr_color_sink_st>();
+            semanticConsoleLogger = makeLogger("snodec-semantic-console", semanticConsoleSink);
             semanticFileSink.reset();
             pending.clear();
             deferred = false;
             asyncStarted = false;
             discard = false;
             quietMode = false;
-            disableColor = ::isatty(::fileno(stdout)) == 0;
+            disableColor = ::isatty(::fileno(stderr)) == 0;
             configuredVerboseLevel = 0;
             configuredLogLevel = 0;
         }
@@ -187,7 +187,7 @@ namespace logger::detail {
             }
 
             for (const LogRecord& record : pending) {
-                emitSemantic(record, semanticStdoutLogger, semanticFileLogger);
+                emitSemantic(record, semanticConsoleLogger, semanticFileLogger);
             }
             pending.clear();
 
@@ -201,8 +201,8 @@ namespace logger::detail {
             semanticWorkerLogger.reset();
             threadPool.reset();
 
-            if (semanticStdoutSink) {
-                semanticStdoutSink->flush();
+            if (semanticConsoleSink) {
+                semanticConsoleSink->flush();
             }
             if (semanticFileSink) {
                 semanticFileSink->flush();
@@ -221,11 +221,11 @@ namespace logger::detail {
 
         void setConsoleStderr(const bool consoleStderr) {
             if (consoleStderr) {
-                semanticStdoutSink = std::make_shared<spdlog::sinks::stderr_color_sink_st>();
+                semanticConsoleSink = std::make_shared<spdlog::sinks::stderr_color_sink_st>();
             } else {
-                semanticStdoutSink = std::make_shared<spdlog::sinks::stdout_color_sink_st>();
+                semanticConsoleSink = std::make_shared<spdlog::sinks::stdout_color_sink_st>();
             }
-            semanticStdoutLogger = makeLogger("snodec-semantic-stdout", semanticStdoutSink);
+            semanticConsoleLogger = makeLogger("snodec-semantic-console", semanticConsoleSink);
             disableColor = ::isatty(::fileno(consoleStderr ? stderr : stdout)) == 0;
             updateWorkerLogger();
         }
@@ -291,7 +291,7 @@ namespace logger::detail {
         }
 
         bool semanticStdoutUsesColor() const {
-            return !quietMode && semanticStdoutSink && !disableColor;
+            return !quietMode && semanticConsoleSink && !disableColor;
         }
 
         void emitSemantic(const LogRecord& record) {
@@ -309,7 +309,7 @@ namespace logger::detail {
                 }
                 return;
             }
-            emitSemantic(record, semanticStdoutLogger, semanticFileLogger);
+            emitSemantic(record, semanticConsoleLogger, semanticFileLogger);
         }
 
     private:
@@ -517,25 +517,25 @@ namespace logger::detail {
         }
 
         void updateWorkerLogger() {
-            const auto stdoutSink = quietMode ? nullptr : semanticStdoutSink;
-            if (!asyncStarted || (!stdoutSink && !semanticFileSink)) {
+            const auto consoleSink = quietMode ? nullptr : semanticConsoleSink;
+            if (!asyncStarted || (!consoleSink && !semanticFileSink)) {
                 semanticWorkerLogger.reset();
                 return;
             }
             auto callbackSink = std::make_shared<spdlog::sinks::callback_sink_st>(
-                [stdoutSink, fileSink = semanticFileSink](const spdlog::details::log_msg& message) {
+                [consoleSink, fileSink = semanticFileSink](const spdlog::details::log_msg& message) {
                     const auto decoded = decodeRecord(message);
                     if (!decoded)
                         return;
                     const auto rendered = renderRecord(std::move(decoded->record), decoded->mode);
                     if (!rendered)
                         return;
-                    if (stdoutSink) {
-                        stdoutSink->log({message.time,
-                                         message.source,
-                                         message.logger_name,
-                                         message.level,
-                                         rendered->terminal.empty() ? rendered->plain : rendered->terminal});
+                    if (consoleSink) {
+                        consoleSink->log({message.time,
+                                          message.source,
+                                          message.logger_name,
+                                          message.level,
+                                          rendered->terminal.empty() ? rendered->plain : rendered->terminal});
                     }
                     if (fileSink)
                         fileSink->log({message.time, message.source, message.logger_name, message.level, rendered->plain});
@@ -544,7 +544,7 @@ namespace logger::detail {
         }
 
         void emitSemantic(const LogRecord& record,
-                          const std::shared_ptr<spdlog::logger>& stdoutLogger,
+                          const std::shared_ptr<spdlog::logger>& consoleLogger,
                           const std::shared_ptr<spdlog::logger>& fileLogger) const {
             const RenderMode mode = LogManager::format() == LogManager::Format::Json ? RenderMode::Json
                                     : disableColor                                   ? RenderMode::Plain
@@ -552,16 +552,16 @@ namespace logger::detail {
             const auto rendered = renderRecord(record, mode);
             if (!rendered)
                 return;
-            if (!quietMode && stdoutLogger)
-                stdoutLogger->log(rendered->level, rendered->terminal.empty() ? rendered->plain : rendered->terminal);
+            if (!quietMode && consoleLogger)
+                consoleLogger->log(rendered->level, rendered->terminal.empty() ? rendered->plain : rendered->terminal);
             if (fileLogger)
                 fileLogger->log(rendered->level, rendered->plain);
         }
 
         std::shared_ptr<spdlog::details::thread_pool> threadPool;
-        std::shared_ptr<spdlog::sinks::sink> semanticStdoutSink;
+        std::shared_ptr<spdlog::sinks::sink> semanticConsoleSink;
         std::shared_ptr<spdlog::sinks::rotating_file_sink_st> semanticFileSink;
-        std::shared_ptr<spdlog::logger> semanticStdoutLogger;
+        std::shared_ptr<spdlog::logger> semanticConsoleLogger;
         std::shared_ptr<spdlog::logger> semanticFileLogger;
         std::shared_ptr<spdlog::logger> semanticWorkerLogger;
         std::vector<LogRecord> pending;

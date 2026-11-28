@@ -57,7 +57,7 @@ class Server:
         self.cert = self.directory / "cert.pem"
         key = self.directory / "key.pem"
         roots = header_roots or (str(Path(__file__).resolve().parents[3] / "src"),) * 2
-        args = [executable, "--config-file", "/dev/null", "--log-console", "stderr"]
+        args = [executable, "--config-file", "/dev/null"]
         args += ["mcp-http", "local", "--host", "127.0.0.1", "--port", "0", "mcp", "--page-size", "3", "--deadline-ms", "2000",
                  "--allowed-origin", "http://localhost:3000", "--header-root", str(roots[0])] + list(extra)
         if tls:

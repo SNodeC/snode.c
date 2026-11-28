@@ -700,7 +700,7 @@ namespace utils {
                               ->trigger_on_parse();
 
         setConfigurable(
-            addOption("--log-console", "Console log stream", "stream", std::string("stdout"), CLI::IsMember({"stdout", "stderr"})), true);
+            addOption("--log-console", "Console log stream", "stream", std::string("stderr"), CLI::IsMember({"stdout", "stderr"})), true);
 
         quietOpt = setConfigurable(addFlag( //
                                        "-q{true},--quiet{true}",

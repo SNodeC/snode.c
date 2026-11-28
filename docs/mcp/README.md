@@ -35,11 +35,11 @@ target_link_libraries(my-server PRIVATE snodec::mcp-server-http)
 For a stdio client, configure the executable and arguments separately:
 
 ```sh
-snodec-dev-stdio --config-file /dev/null --log-console stderr \
+snodec-dev-stdio --config-file /dev/null \
   mcp --header-root "$HEADER_ROOT"
 ```
 
-Stdio preserves the original stdout descriptor for newline-delimited JSON-RPC and redirects ordinary stdout to stderr before initialization. The executable retains stdout before `core::SNodeC::init`, refuses daemon mode, attaches a `net::stdio::stream::SocketEndpoint` and runs the ordinary event loop. Shared protocol/diagnostic descriptions require `--quiet`. Even CLI help/errors are separated from protocol output. `--quiet` suppresses ordinary logging; it does not change the protocol descriptor. Client stdin EOF drains accepted requests and shuts down. Signals follow the normal SNode.C shutdown path.
+Stdio preserves the original stdout descriptor for newline-delimited JSON-RPC and redirects ordinary stdout to stderr before initialization. The executable retains stdout before `core::SNodeC::init`, refuses daemon mode, attaches a `net::stdio::stream::SocketEndpoint` and runs the ordinary event loop. Console logging defaults to stderr; `--log-console stdout` remains available. Launching on a terminal does not require `--quiet`. Even CLI help/errors are separated from protocol output. `--quiet` suppresses ordinary logging; it does not change the protocol descriptor. Client stdin EOF drains accepted requests and shuts down. Signals follow the normal SNode.C shutdown path.
 
 For HTTP, the default instance is `mcp-http`, listening on `127.0.0.1:3337`, with the router mounted at `/mcp`:
 
