@@ -397,7 +397,7 @@ $(eval $(call BuildSNodeCModule,mqtt-client-websocket,+snodec-mqtt-client +snode
 $(eval $(call BuildSNodeCModule,jsonrpc,+snodec-core-socket-stream,/usr/lib/snode.c/jsonrpc))
 $(eval $(call BuildSNodeCModule,jsonrpc-server-websocket,+snodec-jsonrpc +snodec-websocket-server,/usr/lib/snode.c/jsonrpc))
 $(eval $(call BuildSNodeCModule,jsonrpc-client-websocket,+snodec-jsonrpc +snodec-websocket-client,/usr/lib/snode.c/jsonrpc))
-$(eval $(call BuildSNodeCModule,mcp,+snodec-utils +libpcre2,/usr/lib/snode.c/mcp))
+$(eval $(call BuildSNodeCModule,mcp,+snodec-utils +snodec-core +snodec-jsonrpc +libpcre2,/usr/lib/snode.c/mcp))
 $(eval $(call BuildSNodeCModule,mcp-server,+snodec-mcp +snodec-jsonrpc +snodec-core-socket-stream,/usr/lib/snode.c/mcp))
 $(eval $(call BuildSNodeCModule,mcp-server-http,+snodec-mcp-server +snodec-http-server-express,/usr/lib/snode.c/mcp))
 $(eval $(call BuildSNodeCModule,mcp-client,+snodec-mcp +snodec-jsonrpc +snodec-net-stdio-stream,/usr/lib/snode.c/mcp))
