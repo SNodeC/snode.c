@@ -483,24 +483,24 @@ namespace utils {
         return static_cast<bool>(confFile);
     }
 
-    static std::string doWriteConfig(utils::SubCommand* subCommand) {
-        std::stringstream out;
+    static std::string diagnosticColor(Color::Code code) {
+        return ::isatty(STDERR_FILENO) == 1 ? std::string{} + code : std::string{};
+    }
 
+    static void doWriteConfig(utils::SubCommand* subCommand) {
         try {
             if (Config::writeConfig(subCommand->getOption("--write-config")->as<std::string>())) {
-                out << std::string{"["} << Color::Code::FG_GREEN << "SUCCESS" << Color::Code::FG_DEFAULT
-                    << "] Writing config file: " + subCommand->getOption("--write-config")->as<std::string>() << std::endl
-                    << std::endl;
+                std::cout << std::string{"["} << Color::Code::FG_GREEN << "SUCCESS" << Color::Code::FG_DEFAULT
+                          << "] Writing config file: " + subCommand->getOption("--write-config")->as<std::string>() << std::endl
+                          << std::endl;
             } else {
-                out << std::string{"["} << Color::Code::FG_RED << "Error" << Color::Code::FG_DEFAULT
-                    << "] Writing config file: " << std::strerror(errno) << std::endl;
+                std::cerr << std::string{"["} << diagnosticColor(Color::Code::FG_RED) << "Error" << diagnosticColor(Color::Code::FG_DEFAULT)
+                          << "] Writing config file: " << std::strerror(errno) << std::endl;
             }
         } catch (const CLI::ParseError& e) {
-            out << std::string{"["} << Color::Code::FG_RED << "Error" << Color::Code::FG_DEFAULT
-                << "] Writing config file: " << e.get_name() << " " << e.what() << std::endl;
+            std::cerr << std::string{"["} << diagnosticColor(Color::Code::FG_RED) << "Error" << diagnosticColor(Color::Code::FG_DEFAULT)
+                      << "] Writing config file: " << e.get_name() << " " << e.what() << std::endl;
         }
-
-        return out.str();
     }
 
     static std::string getHelp(utils::SubCommand* subCommand, CLI::App* helpTriggerApp) {
@@ -769,9 +769,9 @@ namespace utils {
                         utils::Daemon::stopDaemon(pidDirectory + "/" + std::string(std::filesystem::path(argv[0]).filename()) + ".pid");
                     std::cout << "Daemon terminated: Pid = " << daemonPid << std::endl;
                 } catch (const DaemonError& e) {
-                    std::cout << "DaemonError: " << e.what() << std::endl;
+                    std::cerr << "DaemonError: " << e.what() << std::endl;
                 } catch (const DaemonFailure& e) {
-                    std::cout << "DaemonFailure: " << e.what() << std::endl;
+                    std::cerr << "DaemonFailure: " << e.what() << std::endl;
                 }
 
                 proceed = false;
@@ -839,7 +839,7 @@ namespace utils {
 
                         if (daemonizeOpt->as<bool>() && helpTriggerApp == nullptr && showConfigTriggerApp == nullptr &&
                             writeConfigOpt->count() == 0 && commandlineTriggerApp == nullptr) {
-                            std::cout << "Running as daemon (double fork)" << std::endl;
+                            std::cerr << "Running as daemon (double fork)" << std::endl;
                             utils::Daemon::startDaemon(pidDirectory + "/" + applicationName + ".pid",
                                                        userNameOpt->as<std::string>(),
                                                        groupNameOpt->as<std::string>());
@@ -852,7 +852,7 @@ namespace utils {
                             const std::string logFile = logFileOpt->as<std::string>();
                             if (!logFile.empty()) {
                                 if (!quietOpt->as<bool>()) {
-                                    std::cout << "Writing logs to file " << logFile << std::endl;
+                                    std::cerr << "Writing logs to file " << logFile << std::endl;
                                 }
                                 logger::Logger::logToFile(logFile);
                             }
@@ -865,7 +865,7 @@ namespace utils {
                         } else if (commandlineTriggerApp != nullptr) {
                             std::cout << getCommandLine(commandlineTriggerApp);
                         } else if (getOption("--write-config")->count() > 0) {
-                            std::cout << doWriteConfig(this);
+                            doWriteConfig(this);
                         } else {
                             proceed = true;
                         }
@@ -881,8 +881,8 @@ namespace utils {
                 } catch (const CLI::ParseError& e) {
                     if (helpTriggerApp != nullptr || showConfigTriggerApp != nullptr || commandlineTriggerApp != nullptr ||
                         versionOpt->count() > 0) {
-                        std::cout << std::string{"["} << Color::Code::FG_RED << e.get_name() << Color::Code::FG_DEFAULT << "] " << e.what()
-                                  << std::endl
+                        std::cerr << std::string{"["} << diagnosticColor(Color::Code::FG_RED) << e.get_name()
+                                  << diagnosticColor(Color::Code::FG_DEFAULT) << "] " << e.what() << std::endl
                                   << std::endl;
 
                         if (versionOpt->count() > 0) {
@@ -904,49 +904,49 @@ namespace utils {
                     }
                 }
             } catch (const DaemonError& e) {
-                std::cout << std::string{"["} << Color::Code::FG_RED << "Error" << Color::Code::FG_DEFAULT << "] Daemonize: " << e.what()
-                          << " ... exiting" << std::endl;
+                std::cerr << std::string{"["} << diagnosticColor(Color::Code::FG_RED) << "Error" << diagnosticColor(Color::Code::FG_DEFAULT)
+                          << "] Daemonize: " << e.what() << " ... exiting" << std::endl;
             } catch (const DaemonFailure& e) {
-                std::cout << std::string{"["} << Color::Code::FG_RED << "Failure" << Color::Code::FG_DEFAULT << "] Daemonize: " << e.what()
-                          << " ... exiting" << std::endl;
+                std::cerr << std::string{"["} << diagnosticColor(Color::Code::FG_RED) << "Failure"
+                          << diagnosticColor(Color::Code::FG_DEFAULT) << "] Daemonize: " << e.what() << " ... exiting" << std::endl;
             } catch (const DaemonSignaled& e) {
-                std::cout << "Pid: " << getpid() << ", child pid: " << e.getPid() << ": " << e.what() << std::endl;
+                std::cerr << "Pid: " << getpid() << ", child pid: " << e.getPid() << ": " << e.what() << std::endl;
             } catch (const CLI::CallForHelp&) {
                 std::cout << getHelp(this, helpTriggerApp);
             } catch (const CLI::CallForVersion&) {
                 std::cout << version() << std::endl << std::endl;
             } catch (const CLI::ConversionError& e) {
-                std::cout << std::string{"["} << Color::Code::FG_RED << e.get_name() << Color::Code::FG_DEFAULT << "] " << e.what()
-                          << std::endl;
+                std::cerr << std::string{"["} << diagnosticColor(Color::Code::FG_RED) << e.get_name()
+                          << diagnosticColor(Color::Code::FG_DEFAULT) << "] " << e.what() << std::endl;
                 throw;
             } catch (const CLI::ArgumentMismatch& e) {
-                std::cout << std::string{"["} << Color::Code::FG_RED << e.get_name() << Color::Code::FG_DEFAULT << "] " << e.what()
-                          << std::endl;
+                std::cerr << std::string{"["} << diagnosticColor(Color::Code::FG_RED) << e.get_name()
+                          << diagnosticColor(Color::Code::FG_DEFAULT) << "] " << e.what() << std::endl;
                 throw;
             } catch (const CLI::ConfigError& e) {
-                std::cout << std::string{"["} << Color::Code::FG_RED << e.get_name() << Color::Code::FG_DEFAULT << "] " << e.what()
-                          << std::endl;
-                std::cout << "              Adding '-w' on the command line may solve this problem" << std::endl;
+                std::cerr << std::string{"["} << diagnosticColor(Color::Code::FG_RED) << e.get_name()
+                          << diagnosticColor(Color::Code::FG_DEFAULT) << "] " << e.what() << std::endl;
+                std::cerr << "              Adding '-w' on the command line may solve this problem" << std::endl;
                 throw;
             } catch (const CLI::ParseError& e) {
                 const std::string what = e.what();
                 if (what.find("[Option Group: ") != std::string::npos) { // If CLI11 throws that error it means for us there are
                                                                          // unconfigured anonymous instances
-                    std::cout << Color::Code::FG_RED << e.get_name() << Color::Code::FG_DEFAULT
+                    std::cerr << diagnosticColor(Color::Code::FG_RED) << e.get_name() << diagnosticColor(Color::Code::FG_DEFAULT)
                               << " Anonymous instance(s) not configured in source code " << std::endl;
                 } else {
-                    std::cout << std::string{"["} << Color::Code::FG_RED << e.get_name() << Color::Code::FG_DEFAULT << "] " << what
-                              << std::endl;
+                    std::cerr << std::string{"["} << diagnosticColor(Color::Code::FG_RED) << e.get_name()
+                              << diagnosticColor(Color::Code::FG_DEFAULT) << "] " << what << std::endl;
                 }
                 throw;
             }
         } catch ([[maybe_unused]] const CLI::ParseError& e) {
-            std::cout << std::endl << "Append -h or --help to your command line for more information." << std::endl;
+            std::cerr << std::endl << "Append -h or --help to your command line for more information." << std::endl;
         } catch (const CLI::Error& e) {
-            std::cout << std::string{"["} << Color::Code::FG_RED << e.get_name() << Color::Code::FG_DEFAULT << "] " << e.what()
-                      << std::endl;
+            std::cerr << std::string{"["} << diagnosticColor(Color::Code::FG_RED) << e.get_name()
+                      << diagnosticColor(Color::Code::FG_DEFAULT) << "] " << e.what() << std::endl;
 
-            std::cout << std::endl << "Append -h or --help to your command line for more information." << std::endl;
+            std::cerr << std::endl << "Append -h or --help to your command line for more information." << std::endl;
         }
 
         return proceed;
@@ -1011,12 +1011,12 @@ namespace utils {
                     const struct group* gr = nullptr;
                     if ((gr = getgrnam(XSTR(GROUP_NAME))) != nullptr) {
                         if (chown(configDirectory.c_str(), euid, gr->gr_gid) < 0) {
-                            std::cout << "Warning: Can not set group ownership of '" << configDirectory
+                            std::cerr << "Warning: Can not set group ownership of '" << configDirectory
                                       << "' to 'snodec':" << strerror(errno) << std::endl;
                         }
                     } else {
-                        std::cout << "Error: Can not find group 'snodec'. Add it using groupadd or addgroup" << std::endl;
-                        std::cout << "       and add the current user to this group." << std::endl;
+                        std::cerr << "Error: Can not find group 'snodec'. Add it using groupadd or addgroup" << std::endl;
+                        std::cerr << "       and add the current user to this group." << std::endl;
                         std::filesystem::remove(configDirectory);
                         proceed = false;
                     }
@@ -1033,12 +1033,12 @@ namespace utils {
                     const struct group* gr = nullptr;
                     if ((gr = getgrnam(XSTR(GROUP_NAME))) != nullptr) {
                         if (chown(logDirectory.c_str(), euid, gr->gr_gid) < 0) {
-                            std::cout << "Warning: Can not set group ownership of '" << logDirectory << "' to 'snodec':" << strerror(errno)
+                            std::cerr << "Warning: Can not set group ownership of '" << logDirectory << "' to 'snodec':" << strerror(errno)
                                       << std::endl;
                         }
                     } else {
-                        std::cout << "Error: Can not find group 'snodec'. Add it using groupadd or addgroup" << std::endl;
-                        std::cout << "       and add the current user to this group." << std::endl;
+                        std::cerr << "Error: Can not find group 'snodec'. Add it using groupadd or addgroup" << std::endl;
+                        std::cerr << "       and add the current user to this group." << std::endl;
                         std::filesystem::remove(logDirectory);
                         proceed = false;
                     }
@@ -1055,12 +1055,12 @@ namespace utils {
                     const struct group* gr = nullptr;
                     if ((gr = getgrnam(XSTR(GROUP_NAME))) != nullptr) {
                         if (chown(pidDirectory.c_str(), euid, gr->gr_gid) < 0) {
-                            std::cout << "Warning: Can not set group ownership of '" << pidDirectory << "' to 'snodec':" << strerror(errno)
+                            std::cerr << "Warning: Can not set group ownership of '" << pidDirectory << "' to 'snodec':" << strerror(errno)
                                       << std::endl;
                         }
                     } else {
-                        std::cout << "Error: Can not find group 'snodec'. Add it using groupadd or addgroup." << std::endl;
-                        std::cout << "       and add the current user to this group." << std::endl;
+                        std::cerr << "Error: Can not find group 'snodec'. Add it using groupadd or addgroup." << std::endl;
+                        std::cerr << "       and add the current user to this group." << std::endl;
                         std::filesystem::remove(pidDirectory);
                         proceed = false;
                     }

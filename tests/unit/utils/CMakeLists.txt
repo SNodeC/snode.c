@@ -71,3 +71,18 @@ target_link_libraries(
 set_tests_properties(
     SubCommandForwardingTest PROPERTIES LABELS "unit;utils;config" TIMEOUT 5
 )
+
+if(TARGET snodec-dev-http)
+    find_program(CONFIG_OUTPUT_PYTHON NAMES python3 REQUIRED)
+    add_test(
+        NAME ConfigOutputStreamsTest
+        COMMAND
+            ${CONFIG_OUTPUT_PYTHON} -B
+            ${CMAKE_CURRENT_SOURCE_DIR}/config_output_test.py
+            $<TARGET_FILE:snodec-dev-http>
+    )
+    set_tests_properties(
+        ConfigOutputStreamsTest PROPERTIES LABELS "utils;config;cli;component"
+                                           TIMEOUT 20
+    )
+endif()

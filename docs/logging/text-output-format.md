@@ -79,3 +79,5 @@ Files always receive the plain representation. JSON always serializes only the p
 Existing plain APIs remain deterministic and source-compatible. The hex-dump implementation uses one palette-driven renderer: existing public `hexDump()` overloads select the plain palette, while `hexDumpPresentation()` renders both the plain and terminal forms with the same formatting algorithm and explicit palettes. HTTP, WebSocket, MQTT, and MQTT-over-WebSocket body/frame diagnostics use this same palette-driven presentation model. The HTTP request and response formatters each use one layout algorithm parameterized by an explicit hex-dump palette; `httputils::toString()` remains plain and `httputils::toStringPresentation()` returns matched plain and terminal forms.
 
 Console logging now defaults to stderr for all SNode.C applications; consumers parsing stdout logs must use `2>&1` or `--log-console stdout`.
+
+Configuration diagnostics and process-status messages go to stderr; explicitly requested help, version, configuration and command results stay on stdout.
