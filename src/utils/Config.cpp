@@ -851,7 +851,9 @@ namespace utils {
                         } else if (enforceLogFileOpt->as<bool>()) {
                             const std::string logFile = logFileOpt->as<std::string>();
                             if (!logFile.empty()) {
-                                std::cout << "Writing logs to file " << logFile << std::endl;
+                                if (!quietOpt->as<bool>()) {
+                                    std::cout << "Writing logs to file " << logFile << std::endl;
+                                }
                                 logger::Logger::logToFile(logFile);
                             }
                         }

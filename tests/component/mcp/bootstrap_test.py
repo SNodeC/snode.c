@@ -52,17 +52,31 @@ import tty
 from stdio_test import Client, request
 
 
-def run(fixture, demo, headers):
+def run(fixture, demo, headers, showcase):
     with tempfile.TemporaryDirectory(prefix="mcp-bootstrap-") as directory:
         env = dict(os.environ, XDG_CONFIG_HOME=directory, XDG_STATE_HOME=directory)
         wire = json.dumps(request("server/discover", 1)).encode() + b"\n"
         demo_args = ["mcp", "--header-root", headers]
-        for executable, args in [(fixture, []), (demo, demo_args)]:
+        for executable, args in [(fixture, []), (demo, demo_args), (showcase, demo_args)]:
             command = [executable, "--config-file", "/dev/null"]
             refused = subprocess.run(command + ["--daemonize=true"] + args, input=wire, capture_output=True, env=env, timeout=5)
             assert refused.returncode == 1 and refused.stdout == b"" and refused.stderr == b"", refused
-            shared = subprocess.run(command + args, input=wire, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, env=env, timeout=5)
-            assert shared.returncode == 0 and any(line.startswith(b'{') for line in shared.stdout.splitlines()), shared
+            initialize = json.dumps(request("initialize", 1, {
+                "protocolVersion": "2025-11-25", "capabilities": {},
+                "clientInfo": {"name": "shared-console-test", "version": "1"}
+            }, modern=False)).encode() + b"\n"
+            logfile = Path(directory) / (Path(executable).name + ".log")
+            for flags in [[], ["--quiet=false", "--log-console", "stdout"]]:
+                shared = subprocess.run(command + ["--enforce-log-file", "--log-file", str(logfile)] + flags + args,
+                                        input=initialize, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, env=env, timeout=5)
+                assert shared.returncode == 0, shared
+                messages = [json.loads(line) for line in shared.stdout.splitlines()]
+                assert len(messages) == 1 and messages[0]["jsonrpc"] == "2.0" and messages[0]["id"] == 1, messages
+                assert messages[0]["result"]["protocolVersion"] == "2025-11-25", messages
+                assert ("fixture ready" if executable == fixture else "stdio ready") in logfile.read_text()
+            with open(os.devnull, "wb") as sink:
+                discarded = subprocess.run(command + args, input=initialize, stdout=sink, stderr=sink, env=env, timeout=5)
+                assert discarded.returncode == 1, discarded
         quiet = subprocess.run([demo, "--config-file", "/dev/null", "--quiet"] + demo_args,
                                input=wire, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, env=env, timeout=5)
         assert quiet.returncode == 0 and json.loads(quiet.stdout)["id"] == 1, quiet
@@ -92,6 +106,7 @@ def run(fixture, demo, headers):
                 if select.select([master], [], [], 0.1)[0]:
                     data += os.read(master, 65536)
             assert any(json.loads(line)["id"] == 1 for line in data.splitlines() if line.startswith(b'{')), data
+            assert b"stdio ready" in data, data
             child.send_signal(signal.SIGTERM)
             assert child.wait(timeout=5) == 241
         finally:
