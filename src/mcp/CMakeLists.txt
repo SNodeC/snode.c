@@ -84,13 +84,16 @@ add_library(
     Decode.cpp
     Headers.cpp
     ClientInputs.cpp
+    detail/Tasks.cpp
+    detail/Tasks.h
 )
 add_library(snodec::mcp ALIAS mcp)
 target_compile_features(mcp PUBLIC cxx_std_20)
 target_link_libraries(
     mcp
     PUBLIC nlohmann_json::nlohmann_json
-    PRIVATE nlohmann_json_schema_validator PkgConfig::MCP_PCRE2 utils
+    PRIVATE nlohmann_json_schema_validator PkgConfig::MCP_PCRE2 utils core
+            jsonrpc
 )
 target_include_directories(
     mcp SYSTEM PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/json-schema-validator/src"
@@ -104,7 +107,7 @@ set_target_properties(
     PROPERTIES VERSION ${SNode.C_VERSION}
                SOVERSION ${SNODEC_MCP_SOVERSION}
                OUTPUT_NAME snodec-mcp
-               INSTALL_RPATH "$ORIGIN;$ORIGIN/../.."
+               INSTALL_RPATH "$ORIGIN;$ORIGIN/../jsonrpc;$ORIGIN/../.."
 )
 install(
     TARGETS mcp

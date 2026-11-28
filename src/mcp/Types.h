@@ -60,7 +60,7 @@ namespace mcp {
     /// Owned JSON value using the library's configured JSON implementation.
     using Json = nlohmann::json;
 
-    /// RFC 5424 severities in increasing importance; protocol logging is legacy-only.
+    /// RFC 5424 severities in increasing importance; modern logging requires per-request opt-in.
     enum class LogLevel { Debug, Info, Notice, Warning, Error, Critical, Alert, Emergency };
     std::string loggingLevelName(LogLevel level);
     std::optional<LogLevel> parseLoggingLevel(const std::string& name);
@@ -115,12 +115,13 @@ namespace mcp {
     };
     /// Application and era-specific MCP errors; JSON-RPC envelope codes belong to jsonrpc.
     enum class ErrorCode : int {
-        InvalidParams = -32602,             ///< The supplied application parameters are invalid.
-        InternalError = -32603,             ///< Application processing failed internally.
-        ResourceNotFound = -32002,          ///< Legacy resource lookup failure.
-        HeaderMismatch = -32020,            ///< Modern HTTP headers disagree with the envelope.
-        MissingClientCapability = -32021,   ///< A request requires an unadvertised capability.
-        UnsupportedProtocolVersion = -32022 ///< Modern revision is unsupported.
+        InvalidParams = -32602,              ///< The supplied application parameters are invalid.
+        InternalError = -32603,              ///< Application processing failed internally.
+        ResourceNotFound = -32002,           ///< Legacy resource lookup failure.
+        HeaderMismatch = -32020,             ///< Modern HTTP headers disagree with the envelope.
+        MissingClientCapability = -32021,    ///< A request requires an unadvertised capability.
+        UnsupportedProtocolVersion = -32022, ///< Modern revision is unsupported.
+        UrlElicitationRequired = -32042      ///< Legacy URL input must be completed before retrying.
     };
     /// Sender or intended audience of a content block.
     enum class Role {

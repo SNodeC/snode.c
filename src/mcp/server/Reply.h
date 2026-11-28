@@ -48,6 +48,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <memory>
+#include <optional>
 #include <string>
 #include <type_traits>
 
@@ -81,8 +82,15 @@ namespace mcp::server {
         /// Mixed elicitation/sampling/roots round; retains the existing request lifetime.
         Completion clientInputRequired(ClientInputRequired input)
             requires(!std::is_same_v<Result, CompletionResult>);
+        /// Legacy reverse requests, including client-owned task lifecycle and ping.
+        /// Uses the same correlated input round and resumption as clientInputRequired.
+        Completion clientRequestsRequired(Json requests, std::optional<std::string> requestState = {})
+            requires(!std::is_same_v<Result, CompletionResult>);
         /// Send progress on the event loop with the original typed token; no token is a no-op.
         void progress(Progress progress);
+        /// Update a live task's working/input-required status and human-readable message.
+        bool taskStatus(TaskState state, const std::string& message = {})
+            requires(std::is_same_v<Result, ToolResult>);
         /// Materialize a negotiated modern task while retaining this asynchronous reply.
         /// Legacy augmented calls are materialized before the handler runs.
         Completion startTask(TaskOptions options = {})

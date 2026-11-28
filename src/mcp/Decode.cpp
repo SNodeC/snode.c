@@ -56,6 +56,32 @@
 #include <utility>
 #endif
 namespace mcp::detail {
+    bool validProgress(const Progress& progress, const std::optional<double>& previous) {
+        return std::isfinite(progress.value) && progress.value >= 0 && (!previous || progress.value > *previous) &&
+               (!progress.total || (std::isfinite(*progress.total) && *progress.total >= progress.value));
+    }
+
+    bool validProgressToken(const Json& token) {
+        return token.is_string() || (token.is_number_integer() && (!token.is_number_unsigned() || token.get<std::uint64_t>() <= INT64_MAX));
+    }
+
+    Progress decodeProgress(const Json& params) {
+        return Progress{params.at("progress").get<double>(),
+                        params.contains("total") ? std::optional<double>(params.at("total").get<double>()) : std::nullopt,
+                        params.value("message", std::string())};
+    }
+
+    Json encodeProgress(const Progress& progress, Json token) {
+        Json params{{"progress", progress.value}, {"progressToken", std::move(token)}};
+        if (progress.total) {
+            params["total"] = *progress.total;
+        }
+        if (!progress.message.empty()) {
+            params["message"] = progress.message;
+        }
+        return params;
+    }
+
     namespace {
         Annotations annotations(const Json& value) {
             Annotations result;

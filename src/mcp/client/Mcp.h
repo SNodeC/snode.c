@@ -68,6 +68,7 @@ namespace mcp::client {
     namespace detail {
         struct InputState;
     }
+
     /// Once-only input reply; retain to answer later. Destruction/timeout declines.
     class ElicitationReply final {
     public:
@@ -75,6 +76,12 @@ namespace mcp::client {
         ElicitationReply(const ElicitationReply&) = delete;
         ElicitationReply& operator=(const ElicitationReply&) = delete;
         Completion result(InputResponse response);
+        /// Opaque legacy URL identifier; absent for forms and modern URL continuations.
+        std::optional<std::string> getElicitationId() const;
+        std::optional<std::string> getTaskId() const;
+        bool taskStatus(TaskState status, const std::string& message = {});
+        void progress(Progress progress);
+        void onCancel(std::function<void()> callback);
 
     private:
         friend class Mcp;
@@ -90,6 +97,9 @@ namespace mcp::client {
         ClientReply(const ClientReply&) = delete;
         ClientReply& operator=(const ClientReply&) = delete;
         Completion result(SamplingResult result);
+        std::optional<std::string> getTaskId() const;
+        bool taskStatus(TaskState status, const std::string& message = {});
+        void progress(Progress progress);
         Completion result(RootsResult result);
         Completion error(ErrorCode code, std::string message, Json data = nullptr);
         void onCancel(std::function<void()> callback);
@@ -135,6 +145,8 @@ namespace mcp::client {
         bool onSignal(int signal) override;
         ProtocolEra getProtocolEra() const;
         const Json& getServerCapabilities() const;
+        /// Complete negotiated description, including identity, instructions and metadata.
+        const Json& getServerDescription() const;
         void disconnect();
         /// Legacy notification only; modern roots are carried by each input continuation.
         Completion notifyRootsChanged();
@@ -166,6 +178,11 @@ namespace mcp::client {
         /// Configure before connection; handlers control consent/model access and root disclosure.
         void setSamplingHandler(SamplingHandler handler, bool tools = false, bool context = false);
         void setRootsHandler(RootsHandler handler, bool listChanged = false);
+        /// Opt in to hosting legacy sampling/elicitation tasks, using the existing reply handles.
+        void setClientTaskSupport(bool sampling, bool elicitation);
+        /// Observe validated task descriptions, including statusMessage and extension metadata.
+        void setTaskObserver(std::function<void(const Json&)> observer);
+        void setElicitationCompleteHandler(std::function<void(const std::string&)> handler);
         void setNegotiation(Negotiation negotiation);
         virtual void onReady(ProtocolEra era, const Json& capabilities);
         virtual void onTools(const jsonrpc::messages::Id& id, const ToolsListResult& result);

@@ -40,22 +40,21 @@
  */
 
 #include "core/SNodeC.h"
+#include "mcp/Protocol.h"
+#include "mcp/Types.h"
 #include "mcp/server/Reply.h"
 #include "mcp/server/Request.h"
 #include "mcp/server/Results.h"
 #include "mcp/server/Server.h"
-#include "mcp/server/Types.h"
 #include "mcp/server/detail/Server.h"
 #include "tests/support/TestResult.h"
 #include "utils/Timeval.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cmath>
 #include <initializer_list>
 #include <map>
 #include <memory>
-#include <nlohmann/detail/json_ref.hpp>
 #include <nlohmann/json.hpp>
 #include <nlohmann/json_fwd.hpp>
 #include <optional>
@@ -434,7 +433,8 @@ false
     test.expectTrue(response["result"]["supportedVersions"] ==
                         Json::array({mcp::server::detail::protocolVersion2026, mcp::server::detail::protocolVersion2025}),
                     "versions");
-    test.expectTrue(response["result"]["capabilities"] == Json({{"tools", {{"listChanged", true}}},
+    test.expectTrue(response["result"]["capabilities"] == Json({{"logging", Json::object()},
+                                                                {"tools", {{"listChanged", true}}},
                                                                 {"resources", {{"subscribe", true}, {"listChanged", true}}},
                                                                 {"prompts", {{"listChanged", true}}},
                                                                 {"extensions", {{"io.modelcontextprotocol/tasks", Json::object()}}}}),

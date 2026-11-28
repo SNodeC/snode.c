@@ -41,14 +41,20 @@
 
 #include "core/SNodeC.h"
 #include "mcp/Protocol.h"
+#include "mcp/Results.h"
 #include "mcp/Types.h"
+#include "mcp/server/Reply.h"
 #include "mcp/server/Server.h"
 #include "mcp/server/detail/Server.h"
 #include "tests/support/TestResult.h"
+#include "utils/Timeval.h"
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+#include <functional>
+#include <initializer_list>
 #include <memory>
 #include <nlohmann/json.hpp>
 #include <string>
+#include <utility>
 #include <vector>
 #endif
 int main(int argc, char* argv[]) {
@@ -62,6 +68,7 @@ int main(int argc, char* argv[]) {
         auto other = std::make_shared<detail::Channel>();
         std::vector<Json> messages;
         std::vector<Json> independent;
+        std::vector<Json> streamed;
         channel->output = [&](const Json& value) {
             messages.push_back(value);
         };
@@ -71,12 +78,18 @@ int main(int argc, char* argv[]) {
         const auto call = [&](const std::string& method, Json params, const auto& target, bool modern = false) {
             Json result;
             if (modern) {
-                params["_meta"] = {{mcp::versionKey, mcp::protocolVersion2026}, {mcp::capabilitiesKey, Json::object()}};
+                params["_meta"][mcp::versionKey] = mcp::protocolVersion2026;
+                if (!params["_meta"].contains(mcp::capabilitiesKey)) {
+                    params["_meta"][mcp::capabilitiesKey] = Json::object();
+                }
             }
             detail::Access::registry(server).dispatch(
                 {{"jsonrpc", "2.0"}, {"id", 1}, {"method", method}, {"params", params}},
                 modern ? mcp::ProtocolEra::PerRequest20260728 : mcp::ProtocolEra::Initialization20251125,
                 [&](const Json& value, bool) {
+                    if (value.value("method", "") == "notifications/message") {
+                        streamed.push_back(value);
+                    }
                     result = value;
                 },
                 utils::Timeval(30),
@@ -89,8 +102,8 @@ int main(int argc, char* argv[]) {
                               {"clientInfo", {{"name", "test"}, {"version", "1"}}}};
         test.expectTrue(call("initialize", initialize, channel)["result"]["capabilities"].contains("logging"), "legacy logging advertised");
         call("initialize", initialize, other);
-        test.expectTrue(!call("server/discover", Json::object(), channel, true)["result"]["capabilities"].contains("logging"),
-                        "modern logging not advertised");
+        test.expectTrue(call("server/discover", Json::object(), channel, true)["result"]["capabilities"].contains("logging"),
+                        "modern request-scoped logging advertised");
         test.expectTrue(call("logging/setLevel", {{"level", "warning"}}, channel)["result"].empty(),
                         "legacy setLevel returns empty result");
         test.expectTrue(call("logging/setLevel", {{"level", "trace"}}, channel)["error"]["code"] == -32602, "invalid level rejected");
@@ -116,6 +129,37 @@ int main(int argc, char* argv[]) {
                         "request context logs only for its legacy era and retains explicit null data");
         test.expectTrue(messages.back()["params"]["data"].is_null() && !messages.back()["params"].contains("logger"),
                         "optional logger omitted");
+        streamed.clear();
+        const auto modern =
+            call("tools/call", {{"name", "context"}, {"_meta", {{"io.modelcontextprotocol/logLevel", "debug"}}}}, channel, true);
+        test.expectTrue(modern.contains("result") && streamed.size() == 1 && streamed.back()["params"]["level"] == "warning" &&
+                            messages.size() == 2 && independent.size() == 2,
+                        "modern opt-in log goes only to its originating response stream");
+        call("tools/call", {{"name", "context"}, {"_meta", {{"io.modelcontextprotocol/logLevel", "error"}}}}, channel, true);
+        call("tools/call", {{"name", "context"}}, channel, true);
+        test.expectTrue(streamed.size() == 1 && contextMessages == std::vector<Json>{true, false, true, false, false},
+                        "modern thresholds and absent opt-in are independent for every request");
+        for (const Json level : {Json("trace"), Json(1), Json()}) {
+            const auto invalid =
+                call("tools/call", {{"name", "context"}, {"_meta", {{"io.modelcontextprotocol/logLevel", level}}}}, channel, true);
+            test.expectTrue(invalid["error"]["code"] == -32602, "invalid modern log levels rejected before handler execution");
+        }
+        mcp::server::ToolDefinition taskLog{"task-log", {}, {{"type", "object"}}};
+        taskLog.taskSupport = mcp::TaskSupport::Optional;
+        server.tool(std::move(taskLog), [&](const auto& request, const auto& reply) {
+            reply->startTask({1000, 1});
+            contextMessages.push_back(request.context.log(mcp::LogLevel::Warning, "after ticket"));
+            reply->result(mcp::ToolResult::text("done"));
+        });
+        const auto ticket = call("tools/call",
+                                 {{"name", "task-log"},
+                                  {"_meta",
+                                   {{"io.modelcontextprotocol/logLevel", "debug"},
+                                    {mcp::capabilitiesKey, {{"extensions", {{"io.modelcontextprotocol/tasks", Json::object()}}}}}}}},
+                                 channel,
+                                 true);
+        test.expectTrue(ticket["result"]["resultType"] == "task" && contextMessages.back() == false && streamed.size() == 1,
+                        "modern task ticket closes the originating log stream before background work completes");
         const auto before = messages.size();
         server.log(mcp::LogLevel::Error, std::string(16385, 'x'));
         server.log(mcp::LogLevel::Error, 1, std::string(129, 'x'));
@@ -124,7 +168,7 @@ int main(int argc, char* argv[]) {
             server.log(mcp::LogLevel::Emergency, i);
         }
         test.expectTrue(messages.size() == 128 && independent.size() == 128, "per-session logging bounded to 128 messages per second");
-        channel->logReset = utils::Timeval(0);
+        channel->logging.reset = utils::Timeval(0);
         server.log(mcp::LogLevel::Emergency, "next-window");
         test.expectTrue(messages.size() == 129 && independent.size() == 128, "independent rate windows reset on admission");
         channel->active = false;

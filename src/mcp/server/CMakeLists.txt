@@ -44,7 +44,6 @@ add_library(
     Server.cpp
     Server.h
     detail/Tasks.cpp
-    detail/Tasks.h
     detail/UriTemplate.cpp
     Config.cpp
     Config.h

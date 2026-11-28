@@ -53,13 +53,13 @@
 #include "mcp/detail/ClientInputs.h"
 #include "mcp/detail/Headers.h"
 #include "mcp/detail/Serialization.h"
+#include "mcp/detail/Tasks.h"
 #include "mcp/server/Mcp.h"
 #include "mcp/server/Reply.h"
 #include "mcp/server/Request.h"
 #include "mcp/server/Results.h"
 #include "mcp/server/Types.h"
 #include "mcp/server/detail/Server.h"
-#include "mcp/server/detail/Tasks.h"
 #include "mcp/server/detail/UriTemplate.h"
 #include "utils/base64.h"
 
@@ -70,7 +70,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <algorithm>
-#include <cmath>
 #include <cstdint>
 #include <initializer_list>
 #include <map>
@@ -133,15 +132,29 @@ namespace mcp::server {
     } // namespace
 
     detail::Response::Response(Json id, ProtocolEra era, CachePolicy cachePolicy, Output output, const utils::Timeval& timeout)
-        : id(jsonrpc::messages::isValidId(id) ? std::move(id) : Json())
-        , era(era)
-        , cachePolicy(cachePolicy)
-        , output(std::move(output))
-        , deadline(utils::Timeval::currentTime() + timeout) {
+        : cachePolicy(cachePolicy) {
+        this->id = jsonrpc::messages::isValidId(id) ? std::move(id) : Json();
+        this->era = era;
+        this->output = std::move(output);
+        deadline = utils::Timeval::currentTime() + timeout;
     }
 
     detail::Response::~Response() {
         timer.cancel();
+    }
+
+    std::shared_ptr<const void> detail::Response::session() const {
+        return channel.lock();
+    }
+
+    void detail::Response::sendTaskMessage(const Json& message) {
+        if (message.value("method", "") == "notifications/tasks/status") {
+            if (const auto current = channel.lock(); current && current->active && current->output) {
+                current->output(message);
+            }
+        } else if (protocol) {
+            protocol->sendTaskMessage(message);
+        }
     }
 
     void detail::Response::expire() {
@@ -196,10 +209,8 @@ namespace mcp::server {
             if (task.expired()) {
                 timer.cancel();
             }
+            clientProgress.clear();
             observers.clear();
-            if (const auto record = task.lock(); record && era == ProtocolEra::Initialization20251125) {
-                value["_meta"]["io.modelcontextprotocol/related-task"] = {{"taskId", record->state["taskId"]}};
-            }
             output(jsonrpc::messages::Result{id, std::move(value)}.toJson(), true);
         }
 
@@ -207,21 +218,56 @@ namespace mcp::server {
     }
 
     Completion detail::Response::inputRequired(ClientInputRequired input) {
+        Json requests = Json::object();
+        for (const auto& [key, request] : input.requests) {
+            requests[key] = mcp::detail::encodeInput(request);
+        }
+        return requestsRequired(std::move(requests), std::move(input.requestState));
+    }
+
+    Completion detail::Response::requestsRequired(Json requests, std::optional<std::string> state) {
         Completion completion = Completion::Inactive;
         const auto keep = weak_from_this().lock();
         expire();
         if (!done) {
-            if (input.requests.size() > 16 || (input.requests.empty() && !input.requestState) ||
-                (input.requestState && input.requestState->size() > 16384)) {
+            if (!requests.is_object() || requests.size() > 16 || (requests.empty() && !state) || (state && state->size() > 16384)) {
                 completion = error(-32603, "Invalid continuation size or missing input/state");
             } else {
                 Json value{{"resultType", "input_required"}};
                 Json missing = Json::object();
                 bool valid = true;
-                for (const auto& [key, request] : input.requests) {
+                for (const auto& [key, request] : requests.items()) {
                     valid = valid && !key.empty() && key.size() <= 256;
-                    const Json encoded = mcp::detail::encodeInput(request);
-                    missing.merge_patch(mcp::detail::missingInputCapabilities(encoded, clientCapabilities));
+                    const Json encoded = request;
+                    const std::string method = request.value("method", "");
+                    const Json params = request.value("params", Json::object());
+                    if (method == "sampling/createMessage" || method == "elicitation/create" || method == "roots/list") {
+                        missing.merge_patch(mcp::detail::missingInputCapabilities(encoded, clientCapabilities));
+                        if (params.contains("task")) {
+                            const std::string category = method == "sampling/createMessage" ? "sampling" : "elicitation";
+                            const std::string operation = category == "sampling" ? "createMessage" : "create";
+                            const Json tasks = clientCapabilities.value("tasks", Json::object()).value("requests", Json::object());
+                            valid =
+                                valid && era == ProtocolEra::Initialization20251125 && method != "roots/list" && params["task"].is_object();
+                            if (!tasks.contains(category) || !tasks[category].contains(operation)) {
+                                missing["tasks"]["requests"][category][operation] = Json::object();
+                            }
+                        }
+                    } else {
+                        valid = valid && era == ProtocolEra::Initialization20251125 &&
+                                (method == "ping" || method == "tasks/get" || method == "tasks/list" || method == "tasks/result" ||
+                                 method == "tasks/cancel");
+                        if (method.starts_with("tasks/")) {
+                            const Json support = clientCapabilities.value("tasks", Json());
+                            if (!support.is_object()) {
+                                missing["tasks"] = Json::object();
+                            } else if (method == "tasks/list" && !support.value("list", Json()).is_object()) {
+                                missing["tasks"]["list"] = Json::object();
+                            } else if (method == "tasks/cancel" && !support.value("cancel", Json()).is_object()) {
+                                missing["tasks"]["cancel"] = Json::object();
+                            }
+                        }
+                    }
                     value["inputRequests"][key] = encoded;
                 }
 
@@ -238,8 +284,8 @@ namespace mcp::server {
                 } else if (!valid) {
                     completion = error(-32603, "Malformed client input request");
                 } else {
-                    if (input.requestState && era == ProtocolEra::PerRequest20260728) {
-                        value["requestState"] = std::move(*input.requestState);
+                    if (state && era == ProtocolEra::PerRequest20260728) {
+                        value["requestState"] = std::move(*state);
                     }
 
                     if (const auto record = task.lock(); record && era == ProtocolEra::PerRequest20260728) {
@@ -249,13 +295,13 @@ namespace mcp::server {
                         }
                     } else if (era == ProtocolEra::PerRequest20260728) {
                         completion = result(std::move(value));
-                    } else if (const auto current = channel.lock(); current && current->active && resume && !input.requests.empty()) {
+                    } else if (const auto current = channel.lock(); current && current->active && resume && !requests.empty()) {
                         const bool waiting = std::any_of(current->inputs.begin(), current->inputs.end(), [this](const auto& item) {
                             const auto owner = item.second.response.lock();
                             return owner.get() == this;
                         });
-                        if (waiting || current->inputs.size() + input.requests.size() > 1024 ||
-                            current->nextInput > UINT64_MAX - input.requests.size()) {
+                        if (waiting || current->inputs.size() + requests.size() > 1024 ||
+                            current->nextInput > UINT64_MAX - requests.size()) {
                             completion = error(-32603, "Client input already pending or capacity exceeded");
                         } else {
                             if (const auto record = task.lock()) {
@@ -263,13 +309,15 @@ namespace mcp::server {
                                     store->input(record, value);
                                 }
                             }
+                            clientRequests = value["inputRequests"];
                             inputResponses.clear();
                             clientInputResponses.clear();
-                            requestState = std::move(input.requestState);
+                            requestState = std::move(state);
                             std::vector<Json> messages;
                             for (auto& [key, request] : value["inputRequests"].items()) {
                                 const Json requestId = "snodec.elicitation." + std::to_string(++current->nextInput);
-                                if (const auto record = task.lock()) {
+                                if (const auto record = task.lock();
+                                    record && !request.at("method").get_ref<const std::string&>().starts_with("tasks/")) {
                                     request["params"]["_meta"]["io.modelcontextprotocol/related-task"] = {
                                         {"taskId", record->state["taskId"]}};
                                 }
@@ -277,7 +325,13 @@ namespace mcp::server {
                                     request["params"]["elicitationId"] = requestId;
                                 }
 
-                                current->inputs.emplace(requestId.dump(), Channel::Input{keep, key, request});
+                                if (auto progress = clientProgress.find(key); progress != clientProgress.end()) {
+                                    progress->second.token = requestId;
+                                    progress->second.latest.reset();
+                                    request["params"]["_meta"]["progressToken"] = requestId;
+                                }
+                                clientRequests[key] = request;
+                                current->inputs.emplace(requestId.dump(), Channel::Input{keep, key});
                                 messages.push_back(jsonrpc::messages::Request{
                                     requestId, request["method"].get<std::string>(), std::optional<Json>(std::move(request["params"]))}
                                                        .toJson());
@@ -319,6 +373,7 @@ namespace mcp::server {
             if (task.expired()) {
                 timer.cancel();
             }
+            clientProgress.clear();
             observers.clear();
             output(response, true);
         }
@@ -382,6 +437,7 @@ namespace mcp::server {
                 }
 
                 done = true;
+                clientProgress.clear();
                 if (task.expired()) {
                     timer.cancel();
                 }
@@ -570,7 +626,10 @@ namespace mcp::server {
     }
 
     Json Server::Impl::capabilities() const {
-        Json result{{"tools", {{"listChanged", true}}}, {"resources", {{"listChanged", true}}}, {"prompts", {{"listChanged", true}}}};
+        Json result{{"logging", Json::object()},
+                    {"tools", {{"listChanged", true}}},
+                    {"resources", {{"listChanged", true}}},
+                    {"prompts", {{"listChanged", true}}}};
         for (const auto& [key, entry] : entries) {
             static_cast<void>(key);
             if (entry.kind == Kind::Prompt) {
@@ -650,6 +709,12 @@ namespace mcp::server {
             reply->clientCapabilities = era == ProtocolEra::Initialization20251125 && channel ? channel->capabilities
                                         : meta.is_object()                                    ? meta.value(capabilitiesKey, Json::object())
                                                                                               : Json::object();
+            const Json logLevel = meta.is_object() ? meta.value("io.modelcontextprotocol/logLevel", Json()) : Json();
+            const auto threshold = logLevel.is_string() ? parseLoggingLevel(logLevel.get<std::string>()) : std::nullopt;
+            if (era == ProtocolEra::PerRequest20260728 && threshold) {
+                reply->logging.emplace();
+                reply->logging->threshold = *threshold;
+            }
             const Json retry = params.value("inputResponses", Json::object());
             bool validRetry =
                 retry.is_object() && retry.size() <= 16 &&
@@ -666,8 +731,7 @@ namespace mcp::server {
 
             const Json client = params.value("clientInfo", Json());
             const Json token = meta.is_object() ? meta.value("progressToken", Json()) : Json();
-            const bool validToken = !meta.is_object() || !meta.contains("progressToken") || token.is_string() ||
-                                    (token.is_number_integer() && (!token.is_number_unsigned() || token.get<std::uint64_t>() <= INT64_MAX));
+            const bool validToken = !meta.is_object() || !meta.contains("progressToken") || mcp::detail::validProgressToken(token);
             if (token.is_string()) {
                 reply->progressToken = token.get<std::string>();
             } else if (validToken && !token.is_null()) {
@@ -677,6 +741,8 @@ namespace mcp::server {
             if (era == ProtocolEra::PerRequest20260728 &&
                 (!meta.is_object() || !version.is_string() || !meta.contains(capabilitiesKey) || !meta[capabilitiesKey].is_object())) {
                 reply->error(-32602, "Missing or malformed per-request metadata");
+            } else if (era == ProtocolEra::PerRequest20260728 && meta.contains("io.modelcontextprotocol/logLevel") && !threshold) {
+                reply->error(-32602, "Invalid request logging level");
             } else if (!validRetry) {
                 reply->error(-32602, "Malformed retry input or state");
             } else if (!validToken) {
@@ -749,7 +815,7 @@ namespace mcp::server {
                 } else if (!channel || !channel->active) {
                     reply->error(-32601, "Transport has no legacy notification channel");
                 } else {
-                    channel->loggingLevel = *level;
+                    channel->logging.threshold = *level;
                     reply->result(Json::object());
                 }
             } else if (era == ProtocolEra::Initialization20251125 && method == "ping") {
@@ -1089,23 +1155,34 @@ namespace mcp::server {
         return result;
     }
 
-    bool detail::Channel::log(LogLevel level, Json data, const std::string& logger) {
-        bool accepted = false;
+    Json detail::LogStream::message(LogLevel level, Json data, const std::string& logger) {
+        Json value;
         const auto now = utils::Timeval::currentTime();
-        if (logReset <= now) {
-            logReset = now + utils::Timeval(1);
-            logCount = 0;
+        if (reset <= now) {
+            reset = now + utils::Timeval(1);
+            count = 0;
         }
         const std::string name = loggingLevelName(level);
-        if (active && output && !name.empty() && level >= loggingLevel && logCount < 128 && logger.size() <= 128 && !data.is_discarded() &&
+        if (!name.empty() && level >= threshold && count < 128 && logger.size() <= 128 && !data.is_discarded() &&
             data.dump().size() <= 16384) {
-            ++logCount;
+            ++count;
             Json params{{"level", name}, {"data", std::move(data)}};
             if (!logger.empty()) {
                 params["logger"] = logger;
             }
-            accepted = true;
-            output(jsonrpc::messages::Notification{"notifications/message", std::optional<Json>(std::move(params))}.toJson());
+            value = jsonrpc::messages::Notification{"notifications/message", std::optional<Json>(std::move(params))}.toJson();
+        }
+        return value;
+    }
+
+    bool detail::Channel::log(LogLevel level, Json data, const std::string& logger) {
+        bool accepted = false;
+        if (active && output) {
+            const auto message = logging.message(level, std::move(data), logger);
+            if (!message.is_null()) {
+                accepted = true;
+                output(message);
+            }
         }
         return accepted;
     }
@@ -1135,6 +1212,13 @@ namespace mcp::server {
         if (impl->era == ProtocolEra::Initialization20251125 && !impl->done) {
             if (const auto current = impl->channel.lock()) {
                 accepted = current->log(level, std::move(data), logger);
+            }
+        } else if (impl->era == ProtocolEra::PerRequest20260728 && !impl->done && !impl->subscription && impl->task.expired() &&
+                   impl->logging) {
+            const auto message = impl->logging->message(level, std::move(data), logger);
+            if (!message.is_null()) {
+                accepted = true;
+                impl->output(message, false);
             }
         }
         return accepted;
@@ -1268,8 +1352,22 @@ namespace mcp::server {
     }
 
     template <class Result>
+    Completion Reply<Result>::clientRequestsRequired(Json requests, std::optional<std::string> state)
+        requires(!std::is_same_v<Result, CompletionResult>)
+    {
+        return impl->requestsRequired(std::move(requests), std::move(state));
+    }
+
+    template <class Result>
     Completion Reply<Result>::error(ErrorCode code, std::string message, Json data) {
         return impl->error(static_cast<int>(code), message, std::move(data));
+    }
+
+    template <class Result>
+    bool Reply<Result>::taskStatus(TaskState state, const std::string& message)
+        requires(std::is_same_v<Result, ToolResult>)
+    {
+        return impl->taskStatus(state, message);
     }
 
     template <class Result>
@@ -1280,11 +1378,7 @@ namespace mcp::server {
     }
 
     std::optional<std::string> RequestContext::getTaskId() const {
-        std::optional<std::string> id;
-        if (const auto task = impl->task.lock()) {
-            id = task->state["taskId"].get<std::string>();
-        }
-        return id;
+        return impl->taskId();
     }
 
     template <class Result>
@@ -1292,22 +1386,14 @@ namespace mcp::server {
         const auto request = impl;
         request->expire();
         if ((request->task.expired() || request->era == ProtocolEra::Initialization20251125) && request->progressToken && !request->done &&
-            std::isfinite(progress.value) && progress.value >= 0 && (!request->lastProgress || progress.value > *request->lastProgress) &&
-            (!progress.total || (std::isfinite(*progress.total) && *progress.total >= progress.value))) {
+            mcp::detail::validProgress(progress, request->lastProgress)) {
             request->lastProgress = progress.value;
-            Json params{{"progress", progress.value}};
-            params["progressToken"] = std::visit(
-                [](const auto& token) {
-                    return Json(token);
-                },
-                *request->progressToken);
-            if (progress.total) {
-                params["total"] = *progress.total;
-            }
-
-            if (!progress.message.empty()) {
-                params["message"] = std::move(progress.message);
-            }
+            Json params = mcp::detail::encodeProgress(progress,
+                                                      std::visit(
+                                                          [](const auto& token) {
+                                                              return Json(token);
+                                                          },
+                                                          *request->progressToken));
 
             request->notify("notifications/progress", std::move(params));
         }
@@ -1315,6 +1401,10 @@ namespace mcp::server {
 
     RequestContext::RequestContext(std::shared_ptr<detail::Response> impl)
         : impl(std::move(impl)) {
+    }
+
+    ProtocolEra RequestContext::getProtocolEra() const {
+        return impl->era;
     }
 
     const std::optional<Principal>& RequestContext::getPrincipal() const {
@@ -1375,6 +1465,56 @@ namespace mcp::server {
             }
         }
         return valid;
+    }
+
+    bool RequestContext::trackClientProgress(const std::string& key, std::function<void(const Progress&)> observer) const {
+        const bool accepted = !impl->done && impl->era == ProtocolEra::Initialization20251125 && !key.empty() && key.size() <= 256 &&
+                              (impl->clientProgress.contains(key) || impl->clientProgress.size() < 16);
+        if (accepted) {
+            impl->clientProgress[key].observer = std::move(observer);
+        }
+        return accepted;
+    }
+
+    std::optional<Progress> RequestContext::getClientProgress(const std::string& key) const {
+        const auto found = impl->clientProgress.find(key);
+        return found == impl->clientProgress.end() ? std::nullopt : found->second.latest;
+    }
+
+    const Json* RequestContext::getClientResponse(const std::string& key) const {
+        const auto found = impl->clientInputResponses.find(key);
+        return found == impl->clientInputResponses.end() ? nullptr : &found->second;
+    }
+
+    std::optional<std::string> RequestContext::getElicitationId(const std::string& key) const {
+        std::optional<std::string> result;
+        if (impl->clientRequests.contains(key)) {
+            const auto& request = impl->clientRequests.at(key);
+            if (request.at("method") == "elicitation/create" && request.at("params").contains("elicitationId")) {
+                result = request.at("params").at("elicitationId").get<std::string>();
+            }
+        }
+        return result;
+    }
+
+    bool RequestContext::notifyElicitationComplete(const std::string& id) const {
+        const auto channel = impl->channel.lock();
+        const bool origin = !impl->done && impl->task.expired() && impl->output;
+        const bool active = impl->era == ProtocolEra::Initialization20251125 && channel && channel->active && (origin || channel->output) &&
+                            !id.empty() && id.size() <= 256;
+        if (active) {
+            Json params{{"elicitationId", id}};
+            if (origin) {
+                impl->notify("notifications/elicitation/complete", std::move(params));
+            } else {
+                if (const auto task = impl->task.lock()) {
+                    params["_meta"]["io.modelcontextprotocol/related-task"] = {{"taskId", task->state.at("taskId")}};
+                }
+                channel->output(
+                    jsonrpc::messages::Notification{"notifications/elicitation/complete", std::optional<Json>(std::move(params))}.toJson());
+            }
+        }
+        return active;
     }
 
     std::optional<SamplingResult> RequestContext::getSamplingResponse(const std::string& key, const SamplingRequest& request) const {
