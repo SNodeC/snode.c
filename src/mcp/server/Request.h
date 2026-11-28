@@ -43,6 +43,7 @@
 #define MCP_SERVER_REQUEST_H
 
 #include "mcp/ClientInputs.h" // IWYU pragma: export
+#include "mcp/Protocol.h"
 #include "mcp/server/Types.h"
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -67,6 +68,7 @@ namespace mcp::server {
         /// Once-only observer on cancellation; never called after successful completion.
         using OnCancel = std::function<void(CancelReason)>;
 
+        ProtocolEra getProtocolEra() const;
         /// Borrow the authenticated identity while this context remains alive.
         const std::optional<Principal>& getPrincipal() const;
         /// Borrow the original typed progress token while this context remains alive.
@@ -79,6 +81,14 @@ namespace mcp::server {
         /// Validate a sampled response against the original request before returning owned data.
         std::optional<SamplingResult> getSamplingResponse(const std::string& key, const SamplingRequest& request) const;
         std::optional<RootsResult> getRootsResponse(const std::string& key) const;
+        /// Request legacy reverse progress for a keyed input; the parent request owns its observation.
+        bool trackClientProgress(const std::string& key, std::function<void(const Progress&)> observer = {}) const;
+        std::optional<Progress> getClientProgress(const std::string& key) const;
+        /// Borrow a validated reverse-request result until the next input round.
+        const Json* getClientResponse(const std::string& key) const;
+        /// The URL elicitation identifier generated for the most recent input round.
+        std::optional<std::string> getElicitationId(const std::string& key) const;
+        bool notifyElicitationComplete(const std::string& elicitationId) const;
         /// Replace this legacy session's roots-change observer; cleared on session retirement.
         /// Modern roots are obtained afresh through per-request input continuations.
         bool onRootsChanged(std::function<void()> callback) const;
@@ -87,7 +97,7 @@ namespace mcp::server {
         /// Register on the event loop; late observers run immediately after cancellation.
         /// Observer exceptions are contained and logged; captures live until termination.
         void onCancel(OnCancel callback) const;
-        /// Emit on this legacy session, subject to its threshold/rate/size limits.
+        /// Emit with shared threshold/rate/size limits; modern requests must opt in through metadata.
         bool log(LogLevel level, Json data, const std::string& logger = {}) const;
         std::optional<std::string> getTaskId() const;
 

@@ -43,6 +43,7 @@
 
 #include "core/timer/Timer.h"
 #include "mcp/Protocol.h"
+#include "mcp/detail/Tasks.h"
 #include "mcp/server/Server.h"
 #include "mcp/server/detail/UriTemplate.h"
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -77,25 +78,30 @@ namespace mcp::server::detail {
     enum class SubscriptionClosure { Complete, Cancel };
 
     struct Response;
-    struct Task;
-    class Tasks;
+    using mcp::detail::Task;
+    using mcp::detail::Tasks;
+
+    struct LogStream {
+        LogLevel threshold = LogLevel::Info;
+        utils::Timeval reset;
+        std::size_t count = 0;
+        Json message(LogLevel level, Json data, const std::string& logger);
+    };
 
     struct Channel {
         struct Input {
             std::weak_ptr<Response> response;
             std::string key;
-            Json request;
         };
 
         bool log(LogLevel level, Json data, const std::string& logger);
-        LogLevel loggingLevel = LogLevel::Info;
-        utils::Timeval logReset;
-        std::size_t logCount = 0;
+        LogStream logging;
         bool respond(const Json& message);
         bool complete(const Json& message);
         void forget(const Response& response);
 
         void rootsChanged() const;
+        void progress(const Json& params) const;
         std::function<void()> onRootsChanged;
         Json capabilities = Json::object();
         std::map<std::string, Input> inputs;
@@ -107,51 +113,54 @@ namespace mcp::server::detail {
         bool resourceSubscriptions = true;
     };
 
-    struct Response : std::enable_shared_from_this<Response> {
+    struct Response final
+        : mcp::detail::TaskExecution
+        , std::enable_shared_from_this<Response> {
         using Output = std::function<void(const Json&, bool)>;
 
         Response(Json id, ProtocolEra era, CachePolicy cachePolicy, Output output, const utils::Timeval& timeout);
 
-        ~Response();
+        ~Response() final;
 
-        Completion result(Json value);
+        Completion result(Json value) final;
         Completion inputRequired(ClientInputRequired input);
-        bool acceptInput(const std::string& key, const Json& value);
-        Completion error(int code, const std::string& message, Json data = nullptr);
+        Completion requestsRequired(Json requests, std::optional<std::string> state);
+        bool acceptInput(const std::string& key, const Json& value) final;
+        Completion error(int code, const std::string& message, Json data = nullptr) final;
         void notify(const std::string& method, Json params);
-        void cancel(CancelReason reason = CancelReason::Client);
+        void cancel(CancelReason reason = CancelReason::Client) final;
+        std::shared_ptr<const void> session() const final;
+        void sendTaskMessage(const Json& message) final;
         void observe(RequestContext::OnCancel callback);
         void expire();
         void listen(Json notifications = Json::object());
 
-        std::optional<Principal> principal;
         std::optional<ProgressToken> progressToken;
         std::optional<CancelReason> cancellation;
         std::vector<RequestContext::OnCancel> observers;
-        core::timer::Timer timer;
         std::optional<double> lastProgress;
         Json outputSchema;
-        Json clientCapabilities;
-        Json serverInfo;
+        std::optional<LogStream> logging;
         std::map<std::string, InputResponse> inputResponses;
         std::map<std::string, Json> clientInputResponses;
-        std::optional<std::string> requestState;
+        Json clientRequests = Json::object();
+
+        struct ClientProgress {
+            Json token;
+            std::optional<Progress> latest;
+            std::function<void(const Progress&)> observer;
+        };
+
+        std::map<std::string, ClientProgress> clientProgress;
         std::weak_ptr<Channel> channel;
-        std::function<void()> resume;
         std::function<Completion(TaskOptions)> startTask;
-        std::weak_ptr<Task> task;
         Mcp* protocol = nullptr;
         std::shared_ptr<jsonrpc::JsonRpcContext> protocolOwner;
-        Json id;
-        ProtocolEra era;
         CachePolicy cachePolicy;
         bool toolRequest = false;
-        bool done = false;
         bool subscription = false;
         SubscriptionClosure closure = SubscriptionClosure::Complete;
         Json notifications;
-        Output output;
-        utils::Timeval deadline;
     };
 
     class Access {

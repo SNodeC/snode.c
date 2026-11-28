@@ -790,6 +790,11 @@ namespace mcp::server::http {
                             }
                         }
 
+                        if (era == ProtocolEra::Initialization20251125 && method == "notifications/progress") {
+                            if (const auto channel = state->findSession(req)) {
+                                channel->progress(params);
+                            }
+                        }
                         if (era == ProtocolEra::Initialization20251125 && method == "notifications/roots/list_changed") {
                             if (const auto channel = state->findSession(req)) {
                                 channel->rootsChanged();

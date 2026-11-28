@@ -67,6 +67,7 @@ add_test(
         "-DSNODEC_FIND_ROOT_PATH=${CMAKE_FIND_ROOT_PATH}"
         "-DSNODEC_EMULATOR=${CMAKE_CROSSCOMPILING_EMULATOR}"
         "-DSNODEC_MCP_HTTP_LIBRARY=$<TARGET_FILE_NAME:mcp-server-http>"
+        "-DSNODEC_MCP_LIBRARY=$<TARGET_FILE_NAME:mcp>"
         "-DSNODEC_MCP_STDIO_FIXTURE=$<TARGET_FILE:McpStdioFixture>" -P
         ${CMAKE_CURRENT_SOURCE_DIR}/StagedInstalledConsumerTest.cmake
 )

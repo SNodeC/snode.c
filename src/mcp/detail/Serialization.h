@@ -43,6 +43,10 @@
 #include "mcp/Results.h"
 
 namespace mcp::detail {
+    bool validProgress(const Progress& progress, const std::optional<double>& previous = {});
+    bool validProgressToken(const Json& token);
+    Progress decodeProgress(const Json& params);
+    Json encodeProgress(const Progress& progress, Json token);
     Json implementation(const Implementation& description);
     ResourceContents decodeResource(const Json& value);
     Content decodeContent(const Json& value);

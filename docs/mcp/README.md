@@ -16,7 +16,7 @@ cmake -S . -B "$BUILD_DIR" -DCMAKE_BUILD_TYPE=Debug \
 cmake --build "$BUILD_DIR" --target snodec-dev-stdio snodec-dev-http
 ```
 
-The module follows the MQTT layout under `src/mcp/server`; the applications live in `src/apps/mcp`. The internal `mcp::server::Mcp` protocol derives from the reusable [JSON-RPC peer](../jsonrpc/README.md). JSON-RPC owns envelopes, response correlation, timers and stream framing; MCP owns eras, metadata, registry dispatch, continuation semantics and output policy. The newline binding remains part of `mcp-server`, which links `jsonrpc` and `core-socket-stream` publicly; attach its `mcp::server::stream::SocketContextFactory` to a stdio endpoint or another stream connection. Its headers are installed under `snode.c/mcp/server/stream`. Installed components and exported targets are `mcp-server` and `mcp-server-http`, with `snodec::` target names; only the web-dependent HTTP binding has a separate component. The existing package installation procedure installs these components; no additional JSON or MCP SDK dependency is introduced. Consumers can use:
+The module follows the MQTT layout under `src/mcp/server`; the applications live in `src/apps/mcp`. The internal `mcp::server::Mcp` protocol derives from the reusable [JSON-RPC peer](../jsonrpc/README.md). JSON-RPC owns envelopes, response correlation, timers and stream framing; MCP owns eras, metadata, registry dispatch, continuation semantics and output policy. The common `mcp` component owns the task store shared by client and server roles, using core timers and JSON-RPC serialization through private dependencies; the role-specific bindings own transport and request completion. The newline binding remains part of `mcp-server`, which links `jsonrpc` and `core-socket-stream` publicly; attach its `mcp::server::stream::SocketContextFactory` to a stdio endpoint or another stream connection. Its headers are installed under `snode.c/mcp/server/stream`. Installed components and exported targets are `mcp-server` and `mcp-server-http`, with `snodec::` target names; only the web-dependent HTTP binding has a separate component. The existing package installation procedure installs these components; no additional JSON or MCP SDK dependency is introduced. Consumers can use:
 
 ```cmake
 find_package(snodec CONFIG REQUIRED COMPONENTS mcp-server)
@@ -269,7 +269,7 @@ int main(int argc, char* argv[]) {
 }
 ```
 
-Link `snodec::mcp-client` for this example. Applications own their UI, elicitation decisions, retry policy after transport failures and authorization flow. There are no sampling or roots APIs and no modern logging capability. Server/client code is experimental; the unreleased MCP SOVERSION remains 4.
+Link `snodec::mcp-client` for this example. Applications own their UI, elicitation decisions, retry policy after transport failures and authorization flow. Sampling and roots use opt-in application handlers described in [CLIENT-INPUTS.md](CLIENT-INPUTS.md). Modern logging is request-scoped: set `_meta["io.modelcontextprotocol/logLevel"]` on the request to receive `notifications/message` on its response stream; without it the server emits no request logs. `logging/setLevel` remains legacy-only. Server/client code is experimental; the unreleased MCP SOVERSION remains 4.
 
 See the [qualification record](QUALIFICATION.md) for the SDK/Inspector/native feature matrices, supported eras and reproducible build discipline.
 

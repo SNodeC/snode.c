@@ -50,7 +50,7 @@ import time
 from showcase_support import Server
 from stdio_test import Client
 
-CAPABILITIES = {"sampling": {"tools": {}}, "roots": {"listChanged": True}, "elicitation": {"form": {}, "url": {}}, "extensions": {"io.modelcontextprotocol/tasks": {}}}
+CAPABILITIES = {"sampling": {"tools": {}, "context": {}}, "roots": {"listChanged": True}, "elicitation": {"form": {}, "url": {}}, "extensions": {"io.modelcontextprotocol/tasks": {}}, "tasks": {"list": {}, "cancel": {}, "requests": {"sampling": {"createMessage": {}}, "elicitation": {"create": {}}}}}
 
 
 def frame(response):
@@ -90,7 +90,7 @@ class Wire:
         info = initial.get("serverInfo", initial.get("_meta", {}).get("io.modelcontextprotocol/serverInfo"))
         assert info["name"] == "snodec-mcp-showcase" and info["title"] and info["icons"] and info["websiteUrl"]
         assert initial["capabilities"]["resources"]["subscribe"] is True
-        assert ("logging" in initial["capabilities"]) != self.modern
+        assert "logging" in initial["capabilities"]
         assert initial["instructions"]
         if not self.modern:
             self.notify("notifications/initialized", {})
@@ -100,6 +100,7 @@ class Wire:
         params = dict(params or {})
         if self.modern:
             capabilities = dict(CAPABILITIES, roots={})
+            capabilities.pop("tasks")
             params["_meta"] = dict(params.get("_meta", {}), **{"io.modelcontextprotocol/protocolVersion": self.era,
                                 "io.modelcontextprotocol/clientCapabilities": capabilities})
         return {"jsonrpc": "2.0", "id": self.ident, "method": method, "params": params}
@@ -165,15 +166,25 @@ class Wire:
         print(json.dumps({"request": value, "response": result}, ensure_ascii=False, indent=4), flush=True)
         return result
 
-    def client_input(self, name, arguments, result):
+    def client_input(self, name, arguments, result, expected=None):
         value = self.message("tools/call", {"name": name, "arguments": arguments})
-        expected_method = "roots/list" if name == "roots" else "sampling/createMessage"
+        expected_method = "roots/list" if name == "roots" else "elicitation/create" if name == "input.url" else "sampling/createMessage"
+        seen = []
+        def answer(request):
+            seen.append(request)
+            assert request["method"] == expected_method
+            token = request.get("params", {}).get("_meta", {}).get("progressToken")
+            if token is not None:
+                for progress, total in ((1, 2), (1, 2), (0, 2), (2, 1), (2, 2)):
+                    self.notify("notifications/progress", {"progressToken": token, "progress": progress, "total": total})
+            response = result(request) if callable(result) else result
+            return response
         if self.modern:
             response = self.call("tools/call", {"name": name, "arguments": arguments})["result"]
-            assert response["resultType"] == "input_required"
-            key, request = next(iter(response["inputRequests"].items()))
-            assert request["method"] == expected_method
-            response = self.call("tools/call", {"name": name, "arguments": arguments, "requestState": response["requestState"], "inputResponses": {key: result}})["result"]
+            while response.get("resultType") == "input_required":
+                responses = {key: answer(request) for key, request in response["inputRequests"].items()}
+                response = self.call("tools/call", {"name": name, "arguments": arguments,
+                    "requestState": response["requestState"], "inputResponses": responses})["result"]
         else:
             connection = None
             stream = None
@@ -186,24 +197,88 @@ class Wire:
             while not complete:
                 message = self.client.receive() if self.client else frame(stream)[1]
                 if message is not None and message.get("method") == expected_method:
-                    answer = {"jsonrpc": "2.0", "id": message["id"], "result": result}
+                    reply = {"jsonrpc": "2.0", "id": message["id"], "result": answer(message)}
                     if self.client:
-                        self.client.send(answer)
+                        self.client.send(reply)
                     else:
-                        reply_connection, reply = self.http(value=answer)
-                        assert reply.status == 202 and reply.read() == b""
+                        reply_connection, received = self.http(value=reply)
+                        assert received.status == 202 and received.read() == b""
                         reply_connection.close()
                 elif message is not None and message.get("id") == value["id"]:
                     response = message["result"]
                     complete = True
+                elif message is not None:
+                    self.notifications.append(message)
             if connection:
                 connection.close()
+        if any("progressToken" in request.get("params", {}).get("_meta", {}) for request in seen):
+            assert response["_meta"]["showcase/clientProgress"] == 2, response
         actual = dict(response["structuredContent"])
         changes = actual.pop("listChanges") if name == "roots" else None
-        assert actual == result, response
+        assert actual == (result if expected is None else expected), response
         if name == "roots":
             assert changes == getattr(self, "roots_changes", 0), response
-        print(json.dumps({"clientInput": expected_method, "result": result}, indent=4), flush=True)
+        print(json.dumps({"clientInput": expected_method, "requests": seen, "result": actual}, indent=4), flush=True)
+        return seen
+
+    def client_task(self, kind, cancel):
+        value = self.message("tools/call", {"name": "client.task", "arguments": {"kind": kind, "cancel": cancel}})
+        connection = None
+        stream = None
+        if self.client:
+            self.client.send(value)
+        else:
+            connection, stream = self.http(value=value)
+            assert stream.status == 200 and "text/event-stream" in stream.getheader("Content-Type", "")
+        task = {"taskId": "wire-client-task", "status": "working", "createdAt": "2026-01-01T00:00:00Z",
+                "lastUpdatedAt": "2026-01-01T00:00:00Z", "ttl": 60000, "pollInterval": 20}
+        payload = {"role": "assistant", "model": "wire-model", "content": {"type": "text", "text": "42"}} if kind == "sampling" else {"action": "decline"}
+        payload["_meta"] = {"io.modelcontextprotocol/related-task": {"taskId": task["taskId"]}}
+        methods = []
+        complete = False
+        while not complete:
+            message = self.client.receive() if self.client else frame(stream)[1]
+            if message is not None and "method" in message and "id" in message:
+                method = message["method"]
+                methods.append(method)
+                params = message.get("params", {})
+                if method in ("sampling/createMessage", "elicitation/create"):
+                    assert params["task"]["ttl"] == 60000
+                    self.notify("notifications/progress", {"progressToken": params["_meta"]["progressToken"], "progress": 1, "total": 1,
+                                "_meta": {"io.modelcontextprotocol/related-task": {"taskId": task["taskId"]}}})
+                    response = {"task": task, "_meta": {"io.modelcontextprotocol/related-task": {"taskId": task["taskId"]}}}
+                elif method == "tasks/get":
+                    assert params["taskId"] == task["taskId"]
+                    response = task
+                elif method == "tasks/list":
+                    response = {"tasks": [task]}
+                elif method == "tasks/result":
+                    assert not cancel and params["taskId"] == task["taskId"]
+                    response = payload
+                elif method == "tasks/cancel":
+                    assert cancel and params["taskId"] == task["taskId"]
+                    response = dict(task, status="cancelled")
+                else:
+                    raise AssertionError(message)
+                reply = {"jsonrpc": "2.0", "id": message["id"], "result": response}
+                if self.client:
+                    self.client.send(reply)
+                else:
+                    reply_connection, received = self.http(value=reply)
+                    assert received.status == 202 and received.read() == b""
+                    reply_connection.close()
+            elif message is not None and message.get("id") == value["id"]:
+                assert message["result"]["_meta"]["showcase/clientProgress"] == 1, message
+                actual = message["result"]["structuredContent"]
+                assert actual["status"] == ("cancelled" if cancel else "completed"), message
+                assert actual["payload"] == (dict(task, status="cancelled") if cancel else payload), message
+                complete = True
+            elif message is not None:
+                self.notifications.append(message)
+        assert methods == ["sampling/createMessage" if kind == "sampling" else "elicitation/create", "tasks/list", "tasks/get", "tasks/cancel" if cancel else "tasks/result"], methods
+        if connection:
+            connection.close()
+        print(json.dumps({"clientTask": kind, "cancel": cancel, "methods": methods}, indent=4), flush=True)
 
     def close(self):
         for connection in self.connections:
@@ -259,6 +334,57 @@ def check(wire):
                     assert retry["structuredContent"]["action"] == action
     wire.client_input("sampling", {}, {"role": "assistant", "model": "wire-model", "content": {"type": "text", "text": "42"}, "_meta": {"wire/sample": True}})
     wire.client_input("sampling", {"toolUse": True}, {"role": "assistant", "model": "wire-model", "content": [{"type": "tool_use", "id": "wire-tool", "name": "answer", "input": {}}], "stopReason": "toolUse"})
+    final = {"role": "assistant", "model": "wire-model", "content": {"type": "text", "text": "42"}}
+    for choice in ("auto", "none", "required"):
+        chosen = final if choice != "required" else {"role": "assistant", "model": "wire-model", "content": [{"type": "tool_use", "id": "choice", "name": "answer", "input": {}}]}
+        def choice_answer(request):
+            assert request["params"]["toolChoice"] == {"mode": choice}
+            return chosen
+        wire.client_input("sampling", {"toolChoice": choice}, choice_answer, chosen)
+    for context in ("none", "thisServer", "allServers"):
+        def context_answer(request):
+            assert request["params"]["includeContext"] == context
+            return final
+        wire.client_input("sampling", {"context": context}, context_answer, final)
+    def loop_answer(request):
+        params = request["params"]
+        if params["toolChoice"]["mode"] == "required":
+            result = {"role": "assistant", "model": "wire-model", "content": [{"type": "tool_use", "id": "loop", "name": "answer", "input": {}}], "stopReason": "toolUse"}
+        else:
+            assert params["toolChoice"]["mode"] == "none"
+            assert params["messages"][-1]["content"][0]["toolUseId"] == "loop"
+            assert params["messages"][-1]["content"][0]["structuredContent"] == {"answer": 42}
+            result = final
+        return result
+    loop = wire.client_input("sampling", {"toolLoop": True}, loop_answer, final)
+    assert len(loop) == 2
+    for media in ("image", "audio"):
+        def media_answer(request):
+            params = request["params"]
+            assert params["messages"][0]["content"]["type"] == media
+            assert params["systemPrompt"] and params["temperature"] == 0.25
+            assert params["modelPreferences"]["hints"] and params["metadata"] == {"showcase": True}
+            assert params["includeContext"] == "allServers" and params["stopSequences"] == ["END"]
+            return final
+        wire.client_input("sampling", {"media": media, "options": True, "context": "allServers"}, media_answer, final)
+    url = wire.client_input("input.url", {}, {"action": "accept"}, {"action": "accept", "state": "first", "completionNotified": not wire.modern})
+    if not wire.modern:
+        assert any(event.get("method") == "notifications/elicitation/complete" and event["params"]["elicitationId"] == url[0]["params"]["elicitationId"] for event in wire.notifications)
+        required = wire.call("tools/call", {"name": "input.url", "arguments": {"required": True}})
+        assert required["error"]["code"] == -32042 and required["error"]["data"]["elicitations"][0]["mode"] == "url"
+        assert wire.call("ping")["result"] == {}
+        for kind in ("sampling", "elicitation"):
+            for cancel in (False, True):
+                wire.client_task(kind, cancel)
+    if wire.modern:
+        before = len(wire.notifications)
+        no_logs = wire.call("tools/call", {"name": "logging"})
+        assert no_logs["result"]["structuredContent"]["requestLogAdmitted"] is False
+        assert len(wire.notifications) == before
+        logged = wire.call("tools/call", {"name": "logging", "_meta": {"io.modelcontextprotocol/logLevel": "debug"}})
+        assert logged["result"]["structuredContent"]["requestLogAdmitted"] is True
+        assert len(wire.notifications) == before + 1 and wire.notifications[-1]["method"] == "notifications/message"
+        assert wire.call("tools/call", {"name": "logging", "_meta": {"io.modelcontextprotocol/logLevel": "trace"}})["error"]["code"] == -32602
     wire.client_input("roots", {}, {"roots": [{"uri": "file:///wire/workspace", "name": "Wire workspace"}], "_meta": {"wire/roots": True}})
     if not wire.modern:
         wire.notify("notifications/roots/list_changed", {})

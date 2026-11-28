@@ -107,7 +107,7 @@ try {
     await client.connect(transport);
     assert.equal(client.getNegotiatedProtocolVersion(), era);
     await step('pagination', async () => {
-        assert.equal((await client.listTools()).tools.length, 35);
+        assert.equal((await client.listTools()).tools.length, 37);
         assert.equal((await client.listResources()).resources.length, 15);
         assert.equal((await client.listResourceTemplates()).resourceTemplates.length, 12);
         assert.equal((await client.listPrompts()).prompts.length, 12);

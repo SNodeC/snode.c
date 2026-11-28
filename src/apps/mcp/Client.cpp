@@ -53,11 +53,9 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cmath>
 #include <exception>
 #include <initializer_list>
 #include <iostream>
-#include <map>
 #include <memory>
 #include <nlohmann/json.hpp>
 #include <optional>
@@ -93,18 +91,44 @@ namespace apps::mcp {
         if (config.getCommand() == "tour") {
             setSamplingHandler(
                 [](const std::string&, const ::mcp::SamplingRequest& request, const std::shared_ptr<::mcp::client::ClientReply>& reply) {
-                    const bool tools = request.toJson().contains("tools");
+                    reply->progress({1, 1, "deterministic client sampling"});
+                    const auto& params = request.toJson();
+                    const bool tools =
+                        params.contains("tools") && params.value("toolChoice", Json::object()).value("mode", "auto") != "none";
+                    const auto& input = params.at("messages").front().at("content");
                     const Json content =
                         tools ? Json{{"type", "tool_use"}, {"id", "demo-call"}, {"name", "answer"}, {"input", Json::object()}}
-                              : Json{{"type", "text"}, {"text", "42"}};
-                    reply->result(::mcp::SamplingResult({{"role", "assistant"},
-                                                         {"content", content},
-                                                         {"model", "deterministic-test-model"},
-                                                         {"stopReason", tools ? "toolUse" : "endTurn"}}));
+                        : input.is_object() && input.at("type") != "text" ? input
+                                                                          : Json{{"type", "text"}, {"text", "42"}};
+                    const auto timer = std::make_shared<core::timer::Timer>();
+                    reply->onCancel([timer] {
+                        timer->cancel();
+                    });
+                    *timer = core::timer::Timer::singleshotTimer(
+                        [reply, content, tools, timer] {
+                            auto firing = std::move(*timer);
+                            reply->result(::mcp::SamplingResult({{"role", "assistant"},
+                                                                 {"content", content},
+                                                                 {"model", "deterministic-test-model"},
+                                                                 {"stopReason", tools ? "toolUse" : "endTurn"},
+                                                                 {"_meta", {{"showcase/sample", true}}}}));
+                        },
+                        utils::Timeval(reply->getTaskId() ? 0.5 : 0.05));
                 },
+                true,
                 true);
+            setClientTaskSupport(true, true);
+            setTaskObserver([this](const Json& task) {
+                if (task.value("statusMessage", "") == "Running bounded demonstration work") {
+                    ++taskMessages;
+                }
+            });
+            setElicitationCompleteHandler([this](const std::string&) {
+                ++elicitationCompletions;
+            });
             setRootsHandler(
                 [](const std::string&, const std::shared_ptr<::mcp::client::ClientReply>& reply) {
+                    reply->progress({1, 1, "client root disclosure"});
                     reply->result(::mcp::RootsResult(
                         Json{{"roots", {{{"uri", "file:///showcase/workspace"}, {"name", "Demonstration workspace"}}}}}));
                 },
@@ -164,13 +188,25 @@ namespace apps::mcp {
             return result.at("structuredContent").at("completed") == 3;
         };
         add(
+            "identity",
+            "initialize/server/discover identity and metadata",
+            [this] {
+                finish(getServerDescription());
+            },
+            [this](const Json& value) {
+                const Json info = legacy() ? value.at("serverInfo") : value.at("_meta").at("io.modelcontextprotocol/serverInfo");
+                return info.at("name") == "snodec-mcp-showcase" && info.at("version").is_string() && info.at("title").is_string() &&
+                       !info.at("icons").empty() && info.at("websiteUrl").is_string() && value.at("instructions").is_string() &&
+                       value.at("capabilities") == getServerCapabilities();
+            });
+        add(
             "tools.pagination",
             "tools/list; follow every page",
             [this] {
                 listTools();
             },
             [](const Json& value) {
-                return value.size() == 35 && hasName(value, "schema") && hasName(value, "catalogue.8") && !hasName(value, "dynamic.tool");
+                return value.size() == 37 && hasName(value, "schema") && hasName(value, "catalogue.8") && !hasName(value, "dynamic.tool");
             });
         add(
             "resources.pagination",
@@ -206,11 +242,118 @@ namespace apps::mcp {
                 [this, tools] {
                     callTool("sampling", {{"toolUse", tools}});
                 },
-                [tools](const Json& result) {
+                [this, tools](const Json& result) {
                     const auto& value = result.at("structuredContent");
-                    return value.at("model") == "deterministic-test-model" &&
+                    return (!legacy() || result.at("_meta").at("showcase/clientProgress") == 1) &&
+                           value.at("model") == "deterministic-test-model" &&
                            value.at("content").at("type") == (tools ? "tool_use" : "text");
                 });
+        }
+        for (const std::string choice : {"auto", "none"}) {
+            add(
+                "sampling.choice." + choice,
+                "tools/call sampling with explicit tool choice",
+                [this, choice] {
+                    callTool("sampling", {{"toolChoice", choice}});
+                },
+                [choice](const Json& result) {
+                    return result.at("structuredContent").at("content").at("type") == (choice == "none" ? "text" : "tool_use");
+                });
+        }
+        for (const std::string media : {"image", "audio"}) {
+            add(
+                "sampling." + media,
+                "tools/call sampling with media",
+                [this, media] {
+                    callTool("sampling", {{"media", media}, {"options", true}});
+                },
+                [media](const Json& result) {
+                    return result.at("structuredContent").at("content").at("type") == media;
+                });
+        }
+        add(
+            "sampling.context",
+            "tools/call sampling with context and model preferences",
+            [this] {
+                callTool("sampling", {{"context", "allServers"}, {"options", true}});
+            },
+            [](const Json& result) {
+                return result.at("structuredContent").at("content").at("text") == "42";
+            });
+        add(
+            "sampling.context.thisServer",
+            "tools/call sampling with this-server context",
+            [this] {
+                callTool("sampling", {{"context", "thisServer"}});
+            },
+            [](const Json& result) {
+                return result.at("structuredContent").at("content").at("text") == "42";
+            });
+        add(
+            "sampling.loop",
+            "sampling tool_use followed by tool_result and final answer",
+            [this] {
+                callTool("sampling", {{"toolLoop", true}});
+            },
+            [](const Json& result) {
+                return result.at("structuredContent").at("content").at("text") == "42";
+            });
+        if (legacy()) {
+            add(
+                "client.ping",
+                "tools/call client.ping",
+                [this] {
+                    callTool("client.ping");
+                },
+                [](const Json& result) {
+                    return result.at("structuredContent").empty();
+                });
+            add(
+                "server.ping",
+                "ping",
+                [this] {
+                    request("ping");
+                },
+                [](const Json& result) {
+                    return result.empty();
+                });
+            for (const std::string kind : {"sampling", "elicitation"}) {
+                for (const bool cancel : {false, true}) {
+                    add(
+                        "client.task." + kind + (cancel ? ".cancel" : ".result"),
+                        "tools/call client.task",
+                        [this, kind, cancel] {
+                            callTool("client.task", {{"kind", kind}, {"cancel", cancel}});
+                        },
+                        [cancel](const Json& result) {
+                            return result.at("structuredContent").at("status") == (cancel ? "cancelled" : "completed");
+                        });
+                }
+            }
+        }
+        if (legacy()) {
+            add(
+                "input.url.required",
+                "tools/call input.url required",
+                [this] {
+                    callTool("input.url", {{"required", true}});
+                },
+                [](const Json& value) {
+                    return value.at("code") == -32042 && value.at("data").at("elicitations").size() == 1;
+                },
+                Outcome::Error);
+        } else {
+            for (const std::string tool : {"client.task", "client.ping"}) {
+                add(
+                    tool + ".legacy-only",
+                    "tools/call " + tool,
+                    [this, tool] {
+                        callTool(tool);
+                    },
+                    [](const Json& result) {
+                        return result.value("isError", false);
+                    });
+            }
         }
         add(
             "roots",
@@ -388,10 +531,14 @@ namespace apps::mcp {
             "logging",
             "tools/call logging",
             [this] {
-                callTool("logging");
+                if (legacy()) {
+                    callTool("logging");
+                } else {
+                    request("tools/call", {{"name", "logging"}, {"_meta", {{"io.modelcontextprotocol/logLevel", "debug"}}}});
+                }
             },
-            [this](const Json& value) {
-                return value.at("structuredContent").at("requestLogAdmitted") == legacy();
+            [](const Json& value) {
+                return value.at("structuredContent").at("requestLogAdmitted") == true;
             });
         add("subscriptions", "subscribe/listen to counter and inventory updates", [this] {
             if (legacy()) {
@@ -694,10 +841,11 @@ namespace apps::mcp {
                         {"statuses", statuses}});
             },
             [this](const Json&) {
-                return toolChanges == 2 && resourceChanges == 2 && promptChanges == 2 && updates == 1 && logs == (legacy() ? 2U : 0U) &&
+                return toolChanges == 2 && resourceChanges == 2 && promptChanges == 2 && updates == 1 && logs == (legacy() ? 2U : 1U) &&
                        progress == (legacy() ? 9U : 3U) &&
-                       inputs == (config.getAnswerAction() == ::mcp::ElicitationAction::Accept ? 9U : 8U) && tasks == 4 && statuses > 0 &&
-                       (legacy() || taskAcknowledgements == 1);
+                       inputs == (config.getAnswerAction() == ::mcp::ElicitationAction::Accept ? 9U : 8U) + (legacy() ? 2U : 0U) &&
+                       elicitationCompletions == (legacy() && config.getAnswerAction() == ::mcp::ElicitationAction::Accept ? 1U : 0U) &&
+                       tasks == 4 && statuses > 0 && taskMessages > 0 && (legacy() || taskAcknowledgements == 1);
             });
     }
 
@@ -813,7 +961,11 @@ namespace apps::mcp {
     }
 
     void Client::onRemoteError(const jsonrpc::messages::Error& error) {
-        finish({{"code", error.code}, {"message", error.message}}, Outcome::Error);
+        Json value{{"code", error.code}, {"message", error.message}};
+        if (error.data) {
+            value["data"] = *error.data;
+        }
+        finish(std::move(value), Outcome::Error);
     }
 
     void Client::onTimeout(const jsonrpc::messages::Id&, const std::string& method) {
@@ -828,16 +980,22 @@ namespace apps::mcp {
                                const std::variant<::mcp::FormInput, ::mcp::UrlInput>& input,
                                const std::shared_ptr<::mcp::client::ElicitationReply>& reply) {
         ++inputs;
+        reply->progress({1, 1, "client demonstration consent"});
         std::cout << Json{{"elicitation", key}, {"mode", std::holds_alternative<::mcp::FormInput>(input) ? "form" : "url"}}.dump()
                   << std::endl;
         const bool form = std::holds_alternative<::mcp::FormInput>(input);
         const auto action = config.getCommand() == "tour" ? config.getAnswerAction() : ::mcp::ElicitationAction::Decline;
         const Json content = form && action == ::mcp::ElicitationAction::Accept ? Json{{"label", config.getAnswer()}} : Json();
-        core::timer::Timer::singleshotTimer(
-            [reply, response = ::mcp::InputResponse{action, content}] {
+        const auto timer = std::make_shared<core::timer::Timer>();
+        reply->onCancel([timer] {
+            timer->cancel();
+        });
+        *timer = core::timer::Timer::singleshotTimer(
+            [reply, timer, response = ::mcp::InputResponse{action, content}] {
+                auto firing = std::move(*timer);
                 reply->result(response);
             },
-            utils::Timeval(0.01));
+            utils::Timeval(reply->getTaskId() ? 0.5 : 0.01));
     }
 
     void Client::onProgress(const ::mcp::ProgressToken&, const ::mcp::Progress& value) {

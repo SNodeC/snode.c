@@ -2,7 +2,7 @@
 
 The separate `snodec-mcp-showcase-stdio` and `snodec-mcp-showcase-http` applications demonstrate every feature implemented by SNode.C's shared MCP values, server, HTTP server, client and HTTP client components. The development assistant's source-inspection tools, previews, resources and review prompt remain available. Additional examples operate on generated or process-local data. They do not execute commands or write source/configuration files. All registrations use concrete `Tool`, `Resource`, `ResourceTemplate` or `Prompt` subclasses. There is one registry/dispatcher and one client engine, shared across transports.
 
-The [public API inventory](SHOWCASE-API.md) maps the installed entry points to the examples and qualification. The `sampling` and `roots` tools demonstrate [client-controlled sampling and root disclosure](CLIENT-INPUTS.md), including sampling tool-use results and an observable `listChanges` count for legacy roots notifications. A fresh showcase has 35 tools, 15 resources, 12 prompts and 12 resource templates. The tour uses a deterministic test model and an informational demonstration root; it does not contact an LLM provider or inspect that directory. Both features are deprecated but retained by the 2026-07-28 specification. Logging is legacy-only. Native harness support is separate from server/library support; a harness need not expose every protocol operation to an LLM.
+The [public API inventory](SHOWCASE-API.md) maps the installed entry points to the examples and qualification. The `sampling` and `roots` tools demonstrate [client-controlled sampling and root disclosure](CLIENT-INPUTS.md), including sampling tool-use results and an observable `listChanges` count for legacy roots notifications. A fresh showcase has 37 tools, 15 resources, 12 prompts and 12 resource templates. The tour uses a deterministic test model and an informational demonstration root; it does not contact an LLM provider or inspect that directory. Both features are deprecated but retained by the 2026-07-28 specification. Logging uses session thresholds in 2025 and explicit per-request log levels in 2026. Native harness support is separate from server/library support; a harness need not expose every protocol operation to an LLM.
 
 ## Build and run
 
@@ -83,7 +83,12 @@ Each client step prints its feature name, request summary and final result or ex
 | Templates | `showcase://greeting/{name}`, `showcase://path/{+path}` | Scalar and reserved RFC 6570 expansion; completion with `context.arguments` |
 | Prompts | `conversation(name)` | Completed argument, multiple messages and embedded resource |
 | Dynamic registry | `dynamic(action=add|remove)` | Add/remove one item of all four kinds; coalesced list-changed notifications; subsequent inventories reflect the change |
-| Logging | `logging` | Legacy `logging/setLevel`, request-context and server logging; modern logging is absent/rejected |
+| Client-owned tasks | `client.task` with `kind:sampling|elicitation`, `cancel:true|false` | Legacy augmented reverse requests, task tickets, get/list/result/cancel; modern tool returns an explanatory tool error |
+| Reverse progress | Sampling, roots and `client.task` | Client reply progress is correlated to the originating input and exposed in result metadata; duplicates/decreases are ignored |
+| Ping | `client.ping`; tour sends `ping` | Bidirectional initialized-session health check; modern tool returns an explanatory tool error |
+| Sampling scenarios | `sampling` with `media`, `context`, `options`, `toolUse`, `toolLoop`, `toolChoice` | Text/image/audio messages and responses, model preferences, system prompt, temperature, stop sequences, metadata, all three tool choices and a completed tool-use/result loop |
+| URL completion/error | `input.url`; `input.url {"required":true}` | Legacy completion notification and −32042 URL-required error; modern URL input uses continuations |
+| Logging | `logging` | Legacy `logging/setLevel` and session delivery; modern request metadata opt-in and delivery on the originating response stream |
 | HTTP policy | `mcp-http mcp` / `mcp-https mcp` | Optional authorizer, protected-resource metadata, 401/403 challenges, exact Origin policy |
 | Legacy HTTP lifetime | Session ID, GET, DELETE, `Last-Event-ID` | Bounded replay for interrupted POST SSE and GET notification streams; modern never uses replay |
 | Transport shutdown | EOF, disconnect, client stop | Shared stream framing/context and transport ownership |

@@ -41,9 +41,11 @@
 
 #include "mcp/ClientInputs.h"
 
+#include "mcp/Protocol.h"
 #include "mcp/Schema.h"
 #include "mcp/detail/ClientInputs.h"
 #include "mcp/detail/Serialization.h"
+#include "mcp/detail/Tasks.h"
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 #include <cctype>
 #include <cmath>
@@ -102,7 +104,6 @@ namespace mcp {
         require(value.is_object() && value.at("messages").is_array() && value.at("maxTokens").is_number() &&
                     value["maxTokens"].get<double>() > 0 && std::isfinite(value["maxTokens"].get<double>()),
                 "Invalid sampling parameters");
-        value.erase("task"); // Unadvertised augmentation is ignored; sampling completes normally.
         std::set<std::string> expected;
         for (const auto& message : value["messages"]) {
             samplingMessage(message);
@@ -299,7 +300,24 @@ namespace mcp::detail {
         bool valid = false;
         try {
             const auto method = request.at("method").get<std::string>();
-            if (method == "roots/list") {
+            const Json params = request.value("params", Json::object());
+            if (params.contains("task") && result.contains("task") &&
+                (method == "sampling/createMessage" || method == "elicitation/create")) {
+                static_cast<void>(taskInfo(result.at("task"), ProtocolEra::Initialization20251125));
+                valid = true;
+            } else if (method == "tasks/get" || method == "tasks/cancel") {
+                const auto task = taskInfo(result, ProtocolEra::Initialization20251125);
+                valid = params.value("taskId", Json()) == task.taskId;
+            } else if (method == "tasks/list") {
+                valid = result.at("tasks").is_array() && (!result.contains("nextCursor") || result["nextCursor"].is_string());
+                for (const auto& task : result.at("tasks")) {
+                    static_cast<void>(taskInfo(task, ProtocolEra::Initialization20251125));
+                }
+            } else if (method == "tasks/result") {
+                valid = result.is_object();
+            } else if (method == "ping") {
+                valid = result.is_object();
+            } else if (method == "roots/list") {
                 static_cast<void>(RootsResult(result));
                 valid = true;
             } else if (method == "sampling/createMessage") {

@@ -49,14 +49,16 @@
 #include "jsonrpc/messages/Result.h"
 #include "mcp/Protocol.h"
 #include "mcp/detail/ClientInputs.h"
+#include "mcp/detail/Serialization.h"
+#include "mcp/detail/Tasks.h"
 #include "mcp/server/Server.h"
-#include "mcp/server/detail/Tasks.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
+#include <exception>
 #include <functional>
 #include <map>
 #include <utility>
@@ -314,6 +316,9 @@ namespace mcp::server {
     }
 
     void Mcp::onNotification(const jsonrpc::messages::Notification& notification) {
+        if (notification.method == "notifications/progress" && state->era == ProtocolEra::Initialization20251125 && state->channel) {
+            state->channel->progress(notification.params.value_or(Json::object()));
+        }
         if (notification.method == "notifications/roots/list_changed" && state->era == ProtocolEra::Initialization20251125 &&
             state->channel) {
             state->channel->rootsChanged();
@@ -332,7 +337,14 @@ namespace mcp::server {
         if (state->channel && result.result.is_object()) {
             const auto found = state->channel->inputs.find(result.id.dump());
             if (found != state->channel->inputs.end()) {
-                accepted = mcp::detail::validInputResult({{"method", found->second.request["method"]}}, result.result);
+                if (const auto response = found->second.response.lock()) {
+                    const Json& request = response->clientRequests.at(found->second.key);
+                    const std::string method = request.at("method");
+                    // Framing validates result shape; completion enforces the original input schema.
+                    const bool task = method.starts_with("tasks/") ||
+                                      (request.value("params", Json::object()).contains("task") && result.result.contains("task"));
+                    accepted = mcp::detail::validInputResult(task ? request : Json{{"method", method}}, result.result);
+                }
             }
         }
         return accepted;
@@ -396,7 +408,7 @@ namespace mcp::server {
                 if (response) {
                     const Json result = message.value("result", Json());
                     const Json failure = message.value("error", Json());
-                    const bool failed = !failure.is_null() || !mcp::detail::validInputResult(found->second.request, result);
+                    const bool failed = !failure.is_null() || !mcp::detail::validInputResult(response->clientRequests.at(key), result);
 
                     response->expire();
                     if (!response->done) {
@@ -409,7 +421,10 @@ namespace mcp::server {
                                 response->error(-32603, "Client input failed");
                             }
                         } else {
-                            static_cast<void>(response->acceptInput(key, result));
+                            response->clientInputResponses[key] = result;
+                            if (result.contains("action")) {
+                                static_cast<void>(response->acceptInput(key, result));
+                            }
                             if (std::none_of(inputs.begin(), inputs.end(), [&response](const auto& item) {
                                     return item.second.response.lock() == response;
                                 })) {
@@ -430,6 +445,37 @@ namespace mcp::server {
         }
 
         return accepted;
+    }
+
+    void detail::Channel::progress(const Json& params) const {
+        try {
+            const Progress progress = mcp::detail::decodeProgress(params);
+            const Json token = params.at("progressToken");
+            bool delivered = false;
+            std::shared_ptr<Response> receiver;
+            std::function<void(const Progress&)> observer;
+            for (auto input = inputs.begin(); active && !delivered && input != inputs.end();) {
+                const auto owner = input->second.response.lock();
+                ++input;
+                if (owner && !owner->done && owner->deadline > utils::Timeval::currentTime()) {
+                    for (auto item = owner->clientProgress.begin(); !delivered && item != owner->clientProgress.end(); ++item) {
+                        auto& observation = item->second;
+                        const auto previous = observation.latest ? std::optional<double>(observation.latest->value) : std::nullopt;
+                        if (observation.token == token && !token.is_null() && mcp::detail::validProgress(progress, previous)) {
+                            delivered = true;
+                            observation.latest = progress;
+                            receiver = owner;
+                            observer = observation.observer;
+                        }
+                    }
+                }
+            }
+            if (receiver && observer) {
+                observer(progress);
+            }
+        } catch (const std::exception&) {
+            // Malformed notifications and observer failures cannot escape the event loop.
+        }
     }
 
     void detail::Channel::rootsChanged() const {
