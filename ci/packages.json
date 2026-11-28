@@ -7,7 +7,8 @@
   "build": {
     "deb": "ci/package/native.sh",
     "rpm": "ci/package/native.sh",
-    "openwrt": "ci/package/openwrt.sh"
+    "openwrt": "ci/package/openwrt.sh",
+    "openwrt_register": "ci/package/openwrt-register.sh"
   },
   "build_dependencies": {
     "deb": [
