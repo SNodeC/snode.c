@@ -41,9 +41,10 @@
 
 #include "ClientConfig.h"
 
+#include <map>
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 #include <cstdlib>
-#include <map>
 #include <nlohmann/json.hpp>
 #endif
 

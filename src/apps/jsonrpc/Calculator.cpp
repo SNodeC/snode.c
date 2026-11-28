@@ -39,6 +39,8 @@
  * THE SOFTWARE.
  */
 
+// IWYU pragma: no_include <nlohmann/detail/json_ref.hpp>
+
 #include "Calculator.h"
 
 #include "core/SNodeC.h"

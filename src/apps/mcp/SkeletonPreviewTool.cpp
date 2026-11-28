@@ -46,9 +46,10 @@
 #include "mcp/server/Request.h"
 #include "mcp/server/Results.h"
 
+#include <map>
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <map>
 #include <memory>
 #include <nlohmann/json.hpp>
 #include <string>
@@ -87,6 +88,7 @@ namespace apps::mcp {
             files = {{"src/example/CMakeLists.txt", "add_subdirectory(server)\n"},
                      {"src/example/server/Router.h", R"preview(#pragma once
 #include <express/Router.h>
+
 namespace example::server {
     class Router : public express::Router {
     public:
@@ -96,6 +98,7 @@ namespace example::server {
 )preview"},
                      {"src/example/server/Router.cpp", R"preview(#include "example/server/Router.h"
 #include <express/Response.h>
+
 namespace example::server {
     Router::Router() {
         get("/", [](const auto&, const auto& response) {
@@ -126,6 +129,7 @@ install(EXPORT snodec_example-server_Targets
         } else {
             files = {{"src/apps/example/main.cpp", R"preview(#include <express/legacy/in/WebApp.h>
 #include <express/Response.h>
+
 int main(int argc, char* argv[]) {
     using WebApp = express::legacy::in::WebApp;
     const WebApp app("example");

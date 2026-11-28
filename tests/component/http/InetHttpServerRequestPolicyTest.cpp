@@ -5,17 +5,11 @@
  */
 
 #include "core/SNodeC.h"
-#include "net/in/SocketAddress.h"
 #include "support/TestResult.h"
-#include "utils/Timeval.h"
 #include "web/http/client/ConfigHTTP.h"
 #include "web/http/legacy/in/Client.h"
 #include "web/http/legacy/in/Server.h"
 #include "web/http/server/ConfigHttpServer.h"
-
-#include <cstdint>
-#include <string>
-#include <vector>
 
 namespace {
 

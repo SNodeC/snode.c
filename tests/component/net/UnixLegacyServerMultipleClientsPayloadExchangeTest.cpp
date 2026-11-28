@@ -40,21 +40,15 @@
  */
 
 #include "core/SNodeC.h"
-#include "core/socket/State.h"
-#include "core/socket/stream/SocketConnection.h"
 #include "core/socket/stream/SocketContext.h"
 #include "core/socket/stream/SocketContextFactory.h"
-#include "net/un/SocketAddress.h"
 #include "net/un/stream/legacy/SocketClient.h"
 #include "net/un/stream/legacy/SocketServer.h"
 #include "support/TestResult.h"
-#include "utils/Timeval.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef>
 #include <cstdio>
-#include <string>
 #include <string_view>
 #include <unistd.h>
 

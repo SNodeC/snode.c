@@ -1,18 +1,11 @@
 #include "core/SNodeC.h"
-#include "net/in/SocketAddress.h"
 #include "support/TestResult.h"
-#include "utils/Timeval.h"
-#include "web/http/client/Response.h"
 #include "web/http/legacy/in/Client.h"
 #include "web/http/legacy/in/Server.h"
-#include "web/http/server/Request.h"
-#include "web/http/server/Response.h"
+#include "web/http/server/Response.h" // IWYU pragma: keep
 
 #include <iomanip>
-#include <memory>
 #include <sstream>
-#include <string>
-#include <vector>
 
 namespace {
     constexpr int headerCount = 32;

@@ -45,6 +45,11 @@
 #include "mcp/client/Mcp.h"
 #include "mcp/client/Stdio.h"
 #include "tests/support/TestResult.h"
+
+#include <nlohmann/json.hpp>
+#include <stdlib.h>
+#include <string>
+#include <vector>
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 #include <cerrno>
 #include <csignal>

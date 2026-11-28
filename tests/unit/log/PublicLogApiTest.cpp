@@ -1,6 +1,7 @@
 #include "Log.h"
 #include "tests/support/TestResult.h"
 
+#include <optional>
 #include <stdexcept>
 #include <string>
 #include <utility>

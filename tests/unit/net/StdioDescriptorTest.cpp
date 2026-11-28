@@ -39,10 +39,16 @@
  * THE SOFTWARE.
  */
 
+#include "core/socket/stream/stdio/DescriptorOwnership.h"
 #include "net/config/ConfigInstance.h"
+#include "net/stdio/SocketAddress.h"
 #include "net/stdio/config/ConfigAddress.h"
 #include "net/stdio/phy/stream/PhysicalSocket.h"
 #include "support/TestResult.h"
+
+#include <functional>
+#include <string>
+#include <vector>
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

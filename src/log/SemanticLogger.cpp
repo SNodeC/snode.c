@@ -44,8 +44,10 @@
 #include "log/Logger.h"
 #include "utils/hexdump.h"
 
+#include <ctime>
 #include <iomanip>
 #include <map>
+#include <ratio>
 #include <sstream>
 #include <stdexcept>
 #include <utility>

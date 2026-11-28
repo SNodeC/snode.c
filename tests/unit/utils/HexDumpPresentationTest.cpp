@@ -3,6 +3,8 @@
 #include "utils/hexdump.h"
 
 #include <algorithm>
+#include <cstddef>
+#include <initializer_list>
 #include <iomanip>
 #include <sstream>
 #include <string>

@@ -63,6 +63,7 @@
 #include "mcp/server/detail/UriTemplate.h"
 #include "utils/base64.h"
 
+#include <cmath>
 #include <compare>
 #include <cstddef>
 #include <exception>

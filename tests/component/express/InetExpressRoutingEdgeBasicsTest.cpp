@@ -1,15 +1,10 @@
 #include "core/SNodeC.h"
 #include "express/legacy/in/WebApp.h"
-#include "net/in/SocketAddress.h"
 #include "support/TestResult.h"
-#include "utils/Timeval.h"
 #include "web/http/legacy/in/Client.h"
 
-#include <cstdint>
+#include <cstddef>
 #include <deque>
-#include <memory>
-#include <string>
-#include <vector>
 
 namespace {
 

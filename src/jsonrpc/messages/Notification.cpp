@@ -39,11 +39,14 @@
  * THE SOFTWARE.
  */
 
+// IWYU pragma: no_include <nlohmann/detail/json_ref.hpp>
+
 #include "jsonrpc/messages/Notification.h"
+
+#include <map>
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <map>
 #include <nlohmann/json.hpp>
 #include <string>
 #endif // DOXYGEN_SHOULD_SKIP_THIS

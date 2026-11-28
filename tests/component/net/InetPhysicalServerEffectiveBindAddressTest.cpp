@@ -4,9 +4,11 @@
  *               2020, 2021, 2022, 2023, 2024, 2025, 2026
  */
 
-#include "net/in/SocketAddress.h"
 #include "net/in/phy/stream/PhysicalSocketServer.h"
+#include "net/phy/PhysicalSocketOption.h"
 #include "support/TestResult.h"
+
+#include <string>
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

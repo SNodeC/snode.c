@@ -4,6 +4,8 @@
 #include <cerrno>
 #include <openssl/err.h>
 #include <openssl/ssl.h>
+#include <openssl/sslerr.h>
+#include <string>
 
 using core::socket::stream::tls::detail::classifyOpenSslFailure;
 using core::socket::stream::tls::detail::fatalTlsStatusToErrno;

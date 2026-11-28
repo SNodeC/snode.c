@@ -1,10 +1,11 @@
 #include "express/legacy/in/WebApp.h"
 #include "express/middleware/JsonMiddleware.h"
+#include "support/TestResult.h"
 #include "tests/support/NetworkTest.h"
 
+#include <cstddef>
 #include <nlohmann/json.hpp>
-#include <string>
-#include <vector>
+#include <nlohmann/json_fwd.hpp>
 
 int main(int argc, char* argv[]) {
     tests::support::TestResult testResult;

@@ -1,8 +1,5 @@
-#include "iot/mqtt/MqttContext.h"
 #include "iot/mqtt/Mqtt.h"
-#include "iot/mqtt/ControlPacketDeserializer.h"
-#include "iot/mqtt/packets/Publish.h"
-#include "iot/mqtt/FixedHeader.h"
+#include "iot/mqtt/MqttContext.h"
 #include "iot/mqtt/server/packets/Connect.h"
 #include "iot/mqtt/server/packets/Publish.h"
 #include "iot/mqtt/server/packets/Pubrel.h"
@@ -11,8 +8,11 @@
 #include "tests/support/TestResult.h"
 
 #include <algorithm>
+#include <cstddef>
 #include <cstdint>
+#include <initializer_list>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace {

@@ -1,4 +1,6 @@
+#include "core/socket/stream/SocketContext.h"
 #include "net/in/stream/legacy/SocketServer.h"
+#include "support/TestResult.h"
 #include "tests/support/NetworkTest.h"
 
 int main() {

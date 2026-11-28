@@ -42,6 +42,8 @@
 #include "support/TestResult.h"
 #include "utils/SubCommand.h"
 
+#include <string>
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 #include <memory>
 #include <string_view>

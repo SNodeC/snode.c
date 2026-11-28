@@ -39,15 +39,21 @@
  * THE SOFTWARE.
  */
 
+// IWYU pragma: no_include <nlohmann/detail/json_ref.hpp>
+
 #include "core/SNodeC.h"
 #include "core/timer/Timer.h"
 #include "jsonrpc/messages/Error.h"
+#include "jsonrpc/messages/Id.h"
+#include "mcp/Types.h"
 #include "mcp/client/Mcp.h"
 #include "mcp/client/Stdio.h"
 #include "mcp/client/http/Client.h"
 #include "utils/Config.h"
+#include "web/http/legacy/in/Client.h"
+
+#include <nlohmann/json.hpp>
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-#include <cstdlib>
 #include <iostream>
 #include <utility>
 #endif

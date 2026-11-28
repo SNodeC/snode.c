@@ -1,13 +1,7 @@
 #include "core/SNodeC.h"
 #include "express/legacy/in6/WebApp.h"
-#include "net/in6/SocketAddress.h"
 #include "support/TestResult.h"
-#include "utils/Timeval.h"
 #include "web/http/legacy/in6/Client.h"
-
-#include <cstdint>
-#include <string>
-#include <vector>
 
 namespace {
 

@@ -1,4 +1,5 @@
 #include "net/in/stream/tls/SocketServer.h"
+#include "support/TestResult.h"
 #include "tests/support/NetworkTest.h"
 
 int main(int argc, char** argv) {

@@ -39,6 +39,8 @@
  * THE SOFTWARE.
  */
 
+// IWYU pragma: no_include <nlohmann/detail/json_ref.hpp>
+
 #include "core/SNodeC.h"
 #include "mcp/Protocol.h"
 #include "mcp/Types.h"
@@ -49,6 +51,8 @@
 #include "mcp/server/detail/Server.h"
 #include "tests/support/TestResult.h"
 #include "utils/Timeval.h"
+
+#include <cmath>
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

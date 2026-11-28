@@ -1,9 +1,13 @@
 #include "HttpServerClientRoundTripTest.h"
-#include "net/in/SocketAddress.h"
+#include "core/SNodeC.h"
 #include "support/SemanticLogCapture.h"
+#include "support/TestResult.h"
 #include "web/http/legacy/in/Client.h"
 #include "web/http/legacy/in/Server.h"
 
+#include <initializer_list>
+#include <nlohmann/json.hpp>
+#include <nlohmann/json_fwd.hpp>
 #include <string_view>
 #include <utility>
 

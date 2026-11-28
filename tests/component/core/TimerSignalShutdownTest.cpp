@@ -12,10 +12,12 @@
 
 #include <array>
 #include <chrono>
+#include <compare>
 #include <csignal>
 #include <cstdlib>
-#include <pthread.h>
+#include <functional>
 #include <string>
+#include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
 

@@ -11,11 +11,14 @@
 #include "core/pipe/PipeSink.h"
 #include "core/timer/Timer.h"
 #include "support/TestResult.h"
-#include "utils/Timeval.h"
 
 #include <cerrno>
 #include <chrono>
+#include <compare>
+#include <cstddef>
 #include <fcntl.h>
+#include <functional>
+#include <string>
 
 int main(int argc, char* argv[]) {
     tests::support::TestResult testResult;

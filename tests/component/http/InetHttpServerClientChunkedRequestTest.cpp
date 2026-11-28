@@ -1,21 +1,12 @@
 #include "core/SNodeC.h"
-#include "core/socket/State.h"
-#include "core/socket/stream/SocketConnection.h"
-#include "core/socket/stream/SocketContext.h"
 #include "core/socket/stream/SocketContextFactory.h"
-#include "net/in/SocketAddress.h"
 #include "net/in/stream/legacy/SocketClient.h"
 #include "support/TestResult.h"
-#include "utils/Timeval.h"
 #include "web/http/legacy/in/Server.h"
-#include "web/http/server/Request.h"
-#include "web/http/server/Response.h"
+#include "web/http/server/Response.h" // IWYU pragma: keep
 
 #include <cstddef>
-#include <cstdint>
-#include <string>
 #include <string_view>
-#include <vector>
 
 namespace {
     std::string toString(const std::vector<char>& bytes) {

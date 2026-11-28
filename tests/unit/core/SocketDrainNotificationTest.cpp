@@ -1,14 +1,13 @@
 /* SPDX-License-Identifier: LGPL-3.0-or-later OR MIT */
 
-#include "core/socket/stream/SocketConnection.h"
 #include "core/socket/stream/SocketContext.h"
 #include "core/socket/stream/SocketContextFactory.h"
 #include "net/in/stream/legacy/SocketServer.h"
+#include "support/TestResult.h"
 #include "tests/support/NetworkTest.h"
 
 #include <array>
 #include <cstddef>
-#include <string>
 #include <vector>
 
 namespace {

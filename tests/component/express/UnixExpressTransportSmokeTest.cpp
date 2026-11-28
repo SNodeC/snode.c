@@ -1,13 +1,10 @@
 #include "core/SNodeC.h"
 #include "express/legacy/un/WebApp.h"
 #include "support/TestResult.h"
-#include "utils/Timeval.h"
 #include "web/http/legacy/un/Client.h"
 
 #include <filesystem>
-#include <string>
 #include <unistd.h>
-#include <vector>
 
 namespace {
 

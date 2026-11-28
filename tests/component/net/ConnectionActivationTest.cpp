@@ -42,7 +42,6 @@
 #include "core/DescriptorEventPublisher.h"
 #include "core/EventLoop.h"
 #include "core/EventMultiplexer.h"
-#include "core/EventReceiver.h"
 #include "core/SNodeC.h"
 #include "core/socket/stream/SocketContextFactory.h"
 #include "core/timer/Timer.h"
@@ -52,6 +51,9 @@
 #include "net/in/stream/tls/SocketServer.h"
 #include "support/TestResult.h"
 
+#include <netinet/in.h>
+#include <sys/select.h>
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <arpa/inet.h>
@@ -59,7 +61,6 @@
 #include <dlfcn.h>
 #include <fcntl.h>
 #include <iostream>
-#include <string>
 #include <sys/epoll.h>
 #include <sys/resource.h>
 #include <unistd.h>

@@ -10,12 +10,12 @@
 #include "support/TestResult.h"
 #include "web/http/server/RequestParser.h"
 
+#include <functional>
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <algorithm>
-#include <cstddef>
 #include <cstring>
-#include <map>
 #include <string>
 #include <utility>
 

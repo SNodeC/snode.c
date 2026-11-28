@@ -1,11 +1,14 @@
 #include "core/SNodeC.h"
 #include "core/timer/Timer.h"
 #include "database/mariadb/MariaDBClient.h"
+#include "mysql.h"
 #include "support/TestResult.h"
 
 #include <csignal>
 #include <cstdint>
+#include <functional>
 #include <memory>
+#include <stdlib.h>
 #include <string>
 
 int main(int argc, char** argv) {

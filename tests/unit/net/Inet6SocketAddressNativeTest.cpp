@@ -42,6 +42,9 @@
 #include "net/in6/SocketAddress.h"
 #include "support/TestResult.h"
 
+#include <arpa/inet.h>
+#include <string>
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <netinet/in.h>

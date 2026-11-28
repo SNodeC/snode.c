@@ -40,20 +40,19 @@
  */
 
 #include "core/DescriptorEventPublisher.h"
-#include "core/DescriptorEventReceiver.h"
 #include "core/EventLoop.h"
 #include "core/EventMultiplexer.h"
 #include "core/SNodeC.h"
 #include "core/eventreceiver/ReadEventReceiver.h"
 #include "core/pipe/Pipe.h"
+#include "log/SemanticLogger.h"
 #include "support/TestResult.h"
+#include "utils/Timeval.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cerrno>
 #include <stdexcept>
 #include <string>
-#include <system_error>
 #include <unistd.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

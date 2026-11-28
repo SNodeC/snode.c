@@ -42,11 +42,12 @@
 #include "mcp/detail/Headers.h"
 
 #include "utils/base64.h"
+
+#include <cmath>
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 // IWYU pragma: no_include <nlohmann/detail/iterators/iter_impl.hpp>
 // IWYU pragma: no_include <nlohmann/detail/iterators/iteration_proxy.hpp>
 #include <algorithm>
-#include <cmath>
 #include <functional>
 #include <nlohmann/json.hpp>
 #include <set>

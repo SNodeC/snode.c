@@ -1,6 +1,15 @@
 #include "core/socket/stream/tls/TLSHandshake.h"
 #include "core/socket/stream/tls/TLSShutdown.h"
+#include "support/TestResult.h"
 #include "tests/support/NetworkTest.h"
+#include "utils/Timeval.h"
+
+#include <functional>
+#include <openssl/ssl.h>
+#include <openssl/types.h>
+#include <string>
+#include <sys/socket.h>
+#include <unistd.h>
 
 int main(int argc, char** argv) {
     using namespace tests::support;

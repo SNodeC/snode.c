@@ -17,21 +17,21 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/un/SocketAddress.h"
+#include "net/phy/PhysicalSocketOption.h"
 #include "net/un/phy/stream/PhysicalSocketServer.h"
 #include "support/TestResult.h"
+
+#include <map>
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <algorithm>
 #include <array>
 #include <cerrno>
-#include <cstddef>
 #include <cstdlib>
 #include <fstream>
 #include <iterator>
 #include <string>
-#include <sys/socket.h>
 #include <sys/stat.h>
 #include <unistd.h>
 

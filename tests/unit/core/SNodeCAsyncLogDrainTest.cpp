@@ -11,8 +11,10 @@
 
 #include "core/SNodeC.h"
 #include "log/Logger.h"
-#include "log/SemanticLogger.h"
 #include "support/TestResult.h"
+
+#include <cstddef>
+#include <optional>
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -22,8 +24,8 @@
 #include <iterator>
 #include <string>
 #include <system_error>
-#include <utility>
 #include <unistd.h>
+#include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

@@ -40,15 +40,16 @@
  */
 
 #include "core/SNodeC.h"
-#include "core/socket/State.h"
-#include "core/socket/stream/SocketConnection.h"
 #include "core/socket/stream/SocketContext.h"
 #include "core/socket/stream/SocketContextFactory.h"
 #include "log/Logger.h"
-#include "net/in/SocketAddress.h"
 #include "net/in/stream/legacy/SocketClient.h"
 #include "support/TestResult.h"
-#include "utils/Timeval.h"
+
+#include <cmath>
+#include <map>
+#include <nlohmann/json_fwd.hpp>
+#include <system_error>
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -57,7 +58,6 @@
 #include <filesystem>
 #include <fstream>
 #include <nlohmann/json.hpp>
-#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

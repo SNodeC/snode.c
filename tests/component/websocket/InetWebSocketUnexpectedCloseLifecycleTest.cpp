@@ -1,13 +1,9 @@
 #include "core/SNodeC.h"
-#include "core/socket/stream/SocketConnection.h"
-#include "net/in/SocketAddress.h"
 #include "support/SemanticLogCapture.h"
 #include "support/TestResult.h"
-#include "utils/Timeval.h"
 #include "web/http/legacy/in/Client.h"
 #include "web/http/legacy/in/Server.h"
-#include "web/http/server/Request.h"
-#include "web/http/server/Response.h"
+#include "web/http/server/Response.h" // IWYU pragma: keep
 #include "web/websocket/SubProtocolFactory.h"
 #include "web/websocket/client/SocketContextUpgradeFactory.h"
 #include "web/websocket/client/SubProtocol.h"
@@ -17,10 +13,14 @@
 #include "web/websocket/server/SubProtocolFactorySelector.h"
 
 #include <cstddef>
-#include <cstdint>
-#include <memory>
-#include <string>
-#include <vector>
+#include <initializer_list>
+#include <nlohmann/json.hpp>
+
+namespace web {
+    namespace websocket {
+        class SubProtocolContext;
+    } // namespace websocket
+} // namespace web
 
 namespace {
 

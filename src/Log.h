@@ -5,7 +5,6 @@
 #include <functional>
 #include <memory>
 #include <optional>
-#include <ostream>
 #include <span>
 #include <sstream>
 #include <stdexcept>
@@ -153,8 +152,6 @@ namespace snode::log {
             return formatCaptured(pattern, capture(std::forward<Args>(args)...));
         }
     } // namespace detail
-
-    class Logger;
 
     class Stream {
     public:

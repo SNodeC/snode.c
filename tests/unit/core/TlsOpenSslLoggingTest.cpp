@@ -4,9 +4,11 @@
 
 #include <filesystem>
 #include <fstream>
+#include <iterator>
 #include <openssl/err.h>
 #include <openssl/sslerr.h>
 #include <string>
+#include <system_error>
 
 namespace {
     class LoggerStateGuard {

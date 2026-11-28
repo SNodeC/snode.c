@@ -1,18 +1,24 @@
-#include "log/LogScopeOwner.h"
 #include "Log.h"
 #include "SemanticLog.h"
+#include "log/LogScopeOwner.h"
 #include "log/Logger.h"
-#include "log/SemanticLogger.h"
 #include "tests/support/TestResult.h"
 #include "utils/hexdump.h"
 
 #include <cctype>
 #include <chrono>
+#include <cstdio>
 #include <filesystem>
 #include <fstream>
+#include <initializer_list>
+#include <optional>
+#include <span>
 #include <sstream>
 #include <string>
+#include <string_view>
+#include <system_error>
 #include <unistd.h>
+#include <utility>
 #include <vector>
 
 namespace {

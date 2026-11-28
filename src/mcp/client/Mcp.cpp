@@ -52,6 +52,8 @@
 #include "mcp/detail/ClientInputs.h"
 #include "mcp/detail/Serialization.h"
 #include "mcp/detail/Tasks.h"
+
+#include <cmath>
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 #include <algorithm>
 #include <compare>

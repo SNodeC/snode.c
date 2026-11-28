@@ -1,8 +1,15 @@
+#include "core/socket/stream/SocketContextFactory.h"
+#include "net/config/ConfigInstance.h"
 #include "net/in/stream/legacy/SocketServer.h"
+#include "support/TestResult.h"
 #include "tests/support/NetworkTest.h"
 #include "web/http/ConfigWebSocket.h"
 #include "web/http/SocketContextUpgradeFactory.hpp"
+#include "web/websocket/SocketContextUpgrade.h"
 #include "web/websocket/SocketContextUpgrade.hpp"
+
+#include <cstddef>
+#include <stdint.h>
 
 namespace {
     struct DummyRequest {};

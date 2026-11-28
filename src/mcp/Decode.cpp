@@ -42,11 +42,12 @@
 #include "mcp/Results.h"
 #include "mcp/Types.h"
 #include "mcp/detail/Serialization.h"
+
+#include <map>
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
-#include <map>
 #include <nlohmann/json.hpp>
 #include <optional>
 #include <vector>

@@ -44,11 +44,12 @@
 #include "iot/mqtt/SemanticLog.h"
 #include "iot/mqtt/server/Mqtt.h"
 
+#include <map>
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <algorithm>
 #include <iterator>
-#include <map>
 #include <nlohmann/json.hpp>
 #include <string>
 

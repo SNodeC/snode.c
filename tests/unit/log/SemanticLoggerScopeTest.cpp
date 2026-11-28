@@ -1,5 +1,3 @@
-#include "core/eventreceiver/AcceptEventReceiver.h"
-#include "core/eventreceiver/ConnectEventReceiver.h"
 #include "core/socket/Socket.hpp"
 #include "core/socket/SocketAddress.h"
 #include "core/socket/stream/SocketAcceptor.h"
@@ -9,14 +7,16 @@
 #include "core/socket/stream/SocketContext.h"
 #include "core/socket/stream/SocketContextFactory.h"
 #include "core/socket/stream/SocketServer.h"
-#include "log/SemanticLogger.h"
+#include "log/LogScopeOwner.h"
 #include "net/config/ConfigInstance.h"
 #include "tests/support/TestResult.h"
 
 #include <chrono>
+#include <cstdint>
 #include <cstdlib>
+#include <optional>
 #include <string>
-#include <type_traits>
+#include <string_view>
 #include <utility>
 #include <vector>
 
@@ -172,7 +172,7 @@ namespace {
     };
 
     template <typename PhysicalSocket, typename Config>
-    class TestTemplatedSocketConnection;
+    class TestTemplatedSocketConnection; // IWYU pragma: keep
 
     using TestCommonSocketAcceptor =
         core::socket::stream::SocketAcceptor<TestPhysicalSocket, TestConfigInstance, TestTemplatedSocketConnection>;

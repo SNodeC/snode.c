@@ -43,9 +43,8 @@
 #include "web/http/legacy/in/Client.h"
 #include "web/http/tls/in/Client.h"
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
 #include <cmath>
-#endif
+
 namespace mcp::client {
     class Mcp;
 }
@@ -76,6 +75,7 @@ namespace mcp::client::http {
 
     private:
         struct State;
+
         std::shared_ptr<State> state;
     };
 

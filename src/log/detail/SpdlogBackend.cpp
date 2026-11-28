@@ -11,23 +11,40 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+// IWYU pragma: no_include <spdlog/async_logger-inl.h>
+// IWYU pragma: no_include <spdlog/details/file_helper-inl.h>
+// IWYU pragma: no_include <spdlog/details/log_msg-inl.h>
+// IWYU pragma: no_include <spdlog/details/os-inl.h>
+// IWYU pragma: no_include <spdlog/details/thread_pool-inl.h>
+// IWYU pragma: no_include <spdlog/fmt/fmt.h>
+// IWYU pragma: no_include <spdlog/sinks/ansicolor_sink-inl.h>
+// IWYU pragma: no_include <spdlog/sinks/base_sink-inl.h>
+// IWYU pragma: no_include <spdlog/sinks/rotating_file_sink-inl.h>
+
 #include "log/detail/SpdlogBackend.h"
 
 #include "utils/hexdump.h"
 
 #include <algorithm>
 #include <cerrno>
+#include <chrono>
 #include <csignal>
 #include <cstdint>
 #include <cstring>
 #include <limits>
 #include <optional>
 #include <spdlog/async_logger.h>
+#include <spdlog/common.h>
+#include <spdlog/details/log_msg.h>
 #include <spdlog/details/thread_pool.h>
 #include <spdlog/logger.h>
+#include <spdlog/sinks/ansicolor_sink.h>
 #include <spdlog/sinks/callback_sink.h>
 #include <spdlog/sinks/rotating_file_sink.h>
+#include <spdlog/sinks/sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
+#include <stdio.h>
+#include <string_view>
 #include <system_error>
 #include <type_traits>
 #include <unistd.h>

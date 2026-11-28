@@ -5,8 +5,8 @@
 #include "tests/support/TestResult.h"
 
 #include <optional>
-#include <ostream>
 #include <string>
+#include <utility>
 
 namespace {
     struct ExpensiveArgument {

@@ -39,6 +39,8 @@
  * THE SOFTWARE.
  */
 
+// IWYU pragma: no_include <nlohmann/detail/iterators/iter_impl.hpp>
+
 #include "mcp/detail/Tasks.h"
 
 #include "jsonrpc/messages/Notification.h"
@@ -49,6 +51,7 @@
 #include "mcp/server/detail/Server.h"
 
 #include <algorithm>
+#include <cmath>
 #include <functional>
 #include <memory>
 #include <nlohmann/json.hpp>

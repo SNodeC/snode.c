@@ -8,24 +8,21 @@
 #include "core/socket/stream/SocketConnection.h"
 #include "core/socket/stream/SocketContext.h"
 #include "support/TestResult.h"
-#include "web/http/CiStringMap.h"
 #include "web/http/ParserLimits.h"
 #include "web/http/client/ResponseParser.h"
 #include "web/http/http_utils.h"
 #include "web/http/server/RequestParser.h"
 
+#include <initializer_list>
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <algorithm>
-#include <cstddef>
 #include <cstring>
 #include <functional>
-#include <map>
-#include <memory>
 #include <optional>
 #include <string>
 #include <utility>
-#include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -435,7 +432,8 @@ int main() {
     }
 
     {
-        BufferSocketConnection connection("POST /items/search?q=snode%2Ec&empty= HTTP/1.1\r\nHost: example.test\r\nX-Test: one\r\nx-test: two\r\nContent-Length: 7\r\n\r\npayload");
+        BufferSocketConnection connection("POST /items/search?q=snode%2Ec&empty= HTTP/1.1\r\nHost: example.test\r\nX-Test: one\r\nx-test: "
+                                          "two\r\nContent-Length: 7\r\n\r\npayload");
         BufferSocketContext context(&connection);
         bool started = false;
         bool parsed = false;

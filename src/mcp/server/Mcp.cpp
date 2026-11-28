@@ -39,6 +39,8 @@
  * THE SOFTWARE.
  */
 
+// IWYU pragma: no_include <nlohmann/detail/json_ref.hpp>
+
 #include "mcp/server/Mcp.h"
 
 #include "jsonrpc/JsonRpcContext.h"
@@ -53,10 +55,11 @@
 #include "mcp/detail/Tasks.h"
 #include "mcp/server/Server.h"
 
+#include <cmath>
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <algorithm>
-#include <cmath>
 #include <cstdint>
 #include <exception>
 #include <functional>

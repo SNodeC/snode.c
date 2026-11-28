@@ -1,10 +1,12 @@
 #include "core/EventLoop.h"
 #include "core/SNodeC.h"
-#include "core/State.h"
 #include "support/TestResult.h"
 #include "utils/Config.h"
 
 #include <csignal>
+#include <stdlib.h>
+#include <string>
+#include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
 

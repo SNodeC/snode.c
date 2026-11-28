@@ -1,10 +1,8 @@
-#include "log/LogScopeOwner.h"
 #include "SemanticLog.h"
-#include "core/socket/SocketAddress.h"
 #include "core/socket/stream/SocketConnection.h"
 #include "core/socket/stream/SocketContext.h"
+#include "log/LogScopeOwner.h"
 #include "log/Logger.h"
-#include "log/SemanticLogger.h"
 #include "net/config/ConfigInstance.h"
 #include "tests/support/TestResult.h"
 
@@ -12,10 +10,17 @@
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
+#include <iterator>
 #include <string>
 #include <system_error>
 #include <utility>
 #include <vector>
+
+namespace core {
+    namespace socket {
+        class SocketAddress;
+    } // namespace socket
+} // namespace core
 
 namespace {
     logger::BoundaryLogger makeLogger(logger::LogScope scope,

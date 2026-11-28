@@ -1,10 +1,13 @@
 #include "core/socket/stream/tls/TLSHandshake.h"
 #include "core/socket/stream/tls/TLSShutdown.h"
-#include "utils/Timeval.h"
 
 #include <functional>
-#include <openssl/ssl.h>
+#include <openssl/types.h>
 #include <string>
+
+namespace utils {
+    class Timeval;
+} // namespace utils
 
 namespace {
     void compileSixArgumentCalls(const std::string& name,

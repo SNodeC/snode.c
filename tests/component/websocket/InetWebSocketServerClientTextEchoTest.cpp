@@ -1,5 +1,6 @@
 #include "WebSocketServerClientTextEchoTest.h"
-#include "net/in/SocketAddress.h"
+#include "core/SNodeC.h"
+#include "support/TestResult.h"
 #include "web/http/legacy/in/Client.h"
 #include "web/http/legacy/in/Server.h"
 

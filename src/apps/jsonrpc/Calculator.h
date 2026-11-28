@@ -45,9 +45,10 @@
 #include "jsonrpc/JsonRpc.h"
 #include "jsonrpc/messages/Id.h"
 
+#include <map>
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <map>
 #include <nlohmann/json.hpp>
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 

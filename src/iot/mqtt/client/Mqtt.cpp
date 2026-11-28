@@ -59,6 +59,8 @@
 #include "iot/mqtt/packets/Subscribe.h"
 #include "iot/mqtt/packets/Unsubscribe.h"
 
+#include <map>
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/LogScopeOwner.h"
@@ -69,7 +71,6 @@
 #include <fstream>
 #include <functional>
 #include <iomanip>
-#include <map>
 #include <nlohmann/json.hpp>
 #include <optional>
 #include <sstream>

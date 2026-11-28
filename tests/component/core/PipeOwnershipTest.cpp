@@ -13,6 +13,7 @@
 
 #include <cerrno>
 #include <fcntl.h>
+#include <string>
 #include <system_error>
 #include <type_traits>
 #include <unistd.h>

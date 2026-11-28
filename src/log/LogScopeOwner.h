@@ -44,6 +44,9 @@
 
 #include "log/SemanticLogger.h" // IWYU pragma: export
 
+#include <optional>
+#include <string>
+
 namespace logger {
 
     class LogScopeOwner {

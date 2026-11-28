@@ -1,6 +1,12 @@
+#include "core/timer/Timer.h"
 #include "net/in/stream/legacy/SocketClient.h"
 #include "net/in/stream/legacy/SocketServer.h"
+#include "support/TestResult.h"
 #include "tests/support/NetworkTest.h"
+
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <unistd.h>
 
 int main(int argc, char** argv) {
     using namespace tests::support;

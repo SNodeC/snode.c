@@ -5,14 +5,10 @@
  */
 
 #include "core/SNodeC.h"
-#include "core/socket/State.h"
-#include "core/socket/stream/SocketConnection.h"
 #include "core/socket/stream/SocketContext.h"
 #include "core/socket/stream/SocketContextFactory.h"
-#include "net/in/SocketAddress.h"
 #include "net/in/stream/legacy/SocketServer.h"
 #include "support/TestResult.h"
-#include "utils/Timeval.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

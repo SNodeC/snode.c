@@ -1,8 +1,14 @@
 #include "InetWebSocketBehaviorRunner.h"
+#include "component/websocket/WebSocketServerClientBehaviorTest.h"
 #include "support/SemanticLogCapture.h"
+#include "support/TestResult.h"
 
+#include <initializer_list>
+#include <map>
+#include <nlohmann/json.hpp>
 #include <string>
 #include <utility>
+#include <vector>
 
 int main(int argc, char* argv[]) {
     int result = tests::support::cTestSkipReturnCode;

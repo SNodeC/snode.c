@@ -7,6 +7,8 @@
 #include "support/TestResult.h"
 #include "web/http/CiStringMap.h"
 
+#include <utility>
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <string>

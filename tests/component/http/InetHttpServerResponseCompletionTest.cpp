@@ -1,11 +1,11 @@
 #include "core/pipe/Source.h"
+#include "support/TestResult.h"
 #include "tests/support/NetworkTest.h"
 #include "utils/system/time.h"
 #include "web/http/legacy/in/Server.h"
 #include "web/http/server/Response.h"
 
 #include <iostream>
-#include <string>
 
 namespace utils::system {
     time_t time(time_t* value) {

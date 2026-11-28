@@ -11,10 +11,8 @@
 #include "core/EventReceiver.h"
 #include "core/SNodeC.h"
 #include "core/pipe/Sink.h"
-#include "core/pipe/Source.h"
 #include "core/timer/Timer.h"
 #include "support/TestResult.h"
-#include "utils/Timeval.h"
 
 #include <algorithm>
 #include <array>
@@ -23,8 +21,11 @@
 #include <fcntl.h>
 #include <filesystem>
 #include <functional>
+#include <initializer_list>
 #include <stdexcept>
 #include <string>
+#include <string_view>
+#include <sys/types.h>
 #include <unistd.h>
 #include <utility>
 

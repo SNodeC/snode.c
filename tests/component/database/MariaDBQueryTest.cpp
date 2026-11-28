@@ -46,7 +46,7 @@
 
 #include <fstream>
 #include <memory>
-#include <string>
+#include <stdlib.h>
 #include <type_traits>
 
 static_assert(!std::is_copy_constructible_v<database::mariadb::commands::async::MariaDBQueryCommand>);

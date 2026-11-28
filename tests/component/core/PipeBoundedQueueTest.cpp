@@ -12,10 +12,11 @@
 #include "core/pipe/PipeSource.h"
 #include "core/timer/Timer.h"
 #include "support/TestResult.h"
-#include "utils/Timeval.h"
 
 #include <cerrno>
+#include <cstddef>
 #include <fcntl.h>
+#include <functional>
 #include <string>
 
 int main(int argc, char* argv[]) {

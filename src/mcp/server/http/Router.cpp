@@ -39,6 +39,8 @@
  * THE SOFTWARE.
  */
 
+// IWYU pragma: no_include <nlohmann/detail/json_ref.hpp>
+
 #include "mcp/server/http/Router.h"
 
 #include "Log.h"
@@ -60,11 +62,12 @@
 #include "mcp/server/http/detail/Replay.h"
 #include "web/http/http_utils.h"
 
+#include <cmath>
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 #include <algorithm>
 #include <cctype>
 #include <cerrno>
-#include <cmath>
 #include <cstddef>
 #include <exception>
 #include <nlohmann/json.hpp>

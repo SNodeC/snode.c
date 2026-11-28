@@ -1,6 +1,5 @@
 #include "core/socket/SocketAddress.h"
 #include "core/socket/stream/SocketConnection.h"
-#include "iot/mqtt/Mqtt.h"
 #include "iot/mqtt/MqttContext.h"
 #include "iot/mqtt/packets/Connect.h"
 #include "iot/mqtt/server/Mqtt.h"
@@ -13,8 +12,10 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include <map>
 #include <memory>
 #include <nlohmann/json.hpp>
+#include <nlohmann/json_fwd.hpp>
 #include <string>
 #include <string_view>
 #include <utility>

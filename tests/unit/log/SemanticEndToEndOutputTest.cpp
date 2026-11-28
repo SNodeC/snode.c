@@ -1,15 +1,17 @@
 #include "SemanticLog.h"
 #include "log/Logger.h"
-#include "log/SemanticLogger.h"
 #include "tests/support/TestResult.h"
 
 #include <cerrno>
 #include <chrono>
+#include <cstddef>
 #include <filesystem>
 #include <fstream>
+#include <optional>
 #include <sstream>
 #include <string>
 #include <system_error>
+#include <utility>
 #include <vector>
 
 namespace {

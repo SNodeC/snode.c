@@ -167,8 +167,6 @@ namespace logger {
     OwnedLogScope copyLogScope(LogScope scope);
     LogScope viewLogScope(const OwnedLogScope& scope) noexcept;
 
-    class LogScopeOwner;
-
     class LogStream {
     public:
         LogStream() = default;

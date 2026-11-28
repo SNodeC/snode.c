@@ -59,6 +59,8 @@
 #include "mcp/server/Types.h"
 #include "utils/CLI11.hpp"
 
+#include <map>
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <algorithm>
@@ -69,7 +71,6 @@
 #include <dirent.h>
 #include <exception>
 #include <functional>
-#include <map>
 #include <memory>
 #include <nlohmann/json.hpp>
 #include <nlohmann/json_fwd.hpp>

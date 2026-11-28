@@ -5,21 +5,14 @@
  */
 
 #include "core/SNodeC.h"
-#include "core/socket/State.h"
-#include "core/socket/stream/SocketConnection.h"
-#include "core/socket/stream/SocketContext.h"
 #include "core/socket/stream/SocketContextFactory.h"
-#include "net/in/SocketAddress.h"
 #include "net/in/stream/legacy/SocketServer.h"
 #include "support/TestResult.h"
-#include "utils/Timeval.h"
 #include "web/http/ConfigHttpParser.h"
 #include "web/http/client/ConfigHTTP.h"
 #include "web/http/legacy/in/Client.h"
 
 #include <cstddef>
-#include <cstdint>
-#include <string>
 #include <string_view>
 
 namespace {

@@ -39,6 +39,8 @@
  * THE SOFTWARE.
  */
 
+// IWYU pragma: no_include <nlohmann/detail/input/parser.hpp>
+
 #include "jsonrpc/JsonRpc.h"
 
 #include "core/socket/stream/SocketConnection.h"
@@ -51,9 +53,10 @@
 #include "log/LogScopeOwner.h"
 #include "log/Logger.h"
 
+#include <cmath>
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cmath>
 #include <functional>
 #include <limits>
 #include <stdexcept>

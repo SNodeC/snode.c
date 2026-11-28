@@ -12,9 +12,10 @@
 #include "core/pipe/PipeSink.h"
 #include "core/timer/Timer.h"
 #include "support/TestResult.h"
-#include "utils/Timeval.h"
 
+#include <cstddef>
 #include <fcntl.h>
+#include <functional>
 #include <string>
 #include <unistd.h>
 

@@ -47,6 +47,7 @@
 #include "mcp/detail/ClientInputs.h"
 #include "mcp/detail/Utilities.h"
 
+#include <cmath>
 #include <compare>
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 #include <algorithm>

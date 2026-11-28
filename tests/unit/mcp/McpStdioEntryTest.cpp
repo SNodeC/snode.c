@@ -40,16 +40,21 @@
  */
 
 #include "core/SNodeC.h"
+#include "core/socket/State.h"
 #include "mcp/server/Config.h"
 #include "mcp/server/Server.h"
 #include "mcp/server/stream/SocketContextFactory.h"
+#include "net/config/ConfigConnection.h"
+#include "net/stdio/SocketAddress.h"
 #include "net/stdio/stream/SocketEndpoint.h"
+#include "net/stdio/stream/config/ConfigSocketEndpoint.h"
 #include "tests/support/TestResult.h"
 #include "utils/Config.h"
 
+#include <memory>
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cerrno>
 #include <fcntl.h>
 #include <string>
 #include <sys/stat.h>

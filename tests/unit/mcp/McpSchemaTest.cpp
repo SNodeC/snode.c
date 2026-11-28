@@ -40,6 +40,7 @@
  */
 
 #include "core/SNodeC.h"
+#include "mcp/Types.h"
 #include "mcp/server/Server.h"
 #include "src/apps/mcp/FindTool.h"
 #include "src/apps/mcp/ReadTool.h"
@@ -47,6 +48,12 @@
 #include "src/apps/mcp/Tools.h"
 #include "tests/support/TestResult.h"
 #include "utils/Config.h"
+
+#include <cmath>
+#include <cstddef>
+#include <initializer_list>
+#include <map>
+#include <string>
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

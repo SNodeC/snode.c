@@ -43,6 +43,8 @@
 #include "mcp/server/http/detail/Replay.h"
 #include "tests/support/TestResult.h"
 #include "utils/Timeval.h"
+
+#include <optional>
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 #include <string>
 #endif

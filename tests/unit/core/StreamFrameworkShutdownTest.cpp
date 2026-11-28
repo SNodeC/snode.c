@@ -39,22 +39,27 @@
  * THE SOFTWARE.
  */
 
-#include "core/DescriptorEventPublisher.h"
 #include "core/EventLoop.h"
 #include "core/EventMultiplexer.h"
 #include "core/SNodeC.h"
-#include "core/Shutdown.h"
 #include "core/eventreceiver/ReadEventReceiver.h"
 #include "core/socket/SocketAddress.h"
+#include "core/socket/stream/SocketConnection.h"
 #include "core/socket/stream/SocketConnection.hpp"
 #include "core/socket/stream/SocketContext.h"
 #include "core/socket/stream/SocketReader.h"
 #include "core/socket/stream/SocketWriter.h"
 #include "core/timer/Timer.h"
 #include "log/Logger.h"
-#include "log/SemanticLogger.h"
 #include "net/config/ConfigInstance.h"
 #include "tests/support/TestResult.h"
+
+#include <cstddef>
+#include <initializer_list>
+#include <map>
+#include <nlohmann/json_fwd.hpp>
+#include <sys/types.h>
+#include <system_error>
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -66,8 +71,6 @@
 #include <filesystem>
 #include <fstream>
 #include <functional>
-#include <iterator>
-#include <list>
 #include <memory>
 #include <nlohmann/json.hpp>
 #include <optional>

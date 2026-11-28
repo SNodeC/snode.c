@@ -43,7 +43,8 @@
 #include "core/SNodeC.h"
 #include "core/timer/Timer.h"
 #include "support/TestResult.h"
-#include "utils/Timeval.h"
+
+#include <string>
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

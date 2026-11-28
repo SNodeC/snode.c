@@ -1,9 +1,13 @@
 #include "utils/Formatter.h"
 #include "utils/SubCommand.h"
 
+#include <cstdlib>
 #include <filesystem>
 #include <fstream>
+#include <functional>
+#include <initializer_list>
 #include <iostream>
+#include <memory>
 #include <sstream>
 #include <string>
 #include <unistd.h>

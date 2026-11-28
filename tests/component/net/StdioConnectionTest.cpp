@@ -41,12 +41,18 @@
 
 #include "core/SNodeC.h"
 #include "core/socket/stream/SocketContext.h"
+#include "core/socket/stream/stdio/SocketConnection.h"
 #include "core/socket/stream/stdio/SocketConnection.hpp"
 #include "net/config/ConfigConnection.h"
 #include "net/config/ConfigInstance.h"
+#include "net/stdio/SocketAddress.h"
 #include "net/stdio/config/ConfigAddress.h"
 #include "net/stdio/phy/stream/PhysicalSocket.h"
 #include "support/TestResult.h"
+
+#include <cstddef>
+#include <functional>
+#include <memory>
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

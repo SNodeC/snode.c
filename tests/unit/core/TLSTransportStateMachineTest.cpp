@@ -1,5 +1,8 @@
 #include "net/in/stream/tls/SocketServer.h"
+#include "support/TestResult.h"
 #include "tests/support/NetworkTest.h"
+
+#include <openssl/ssl.h>
 
 int main(int argc, char** argv) {
     using namespace tests::support;

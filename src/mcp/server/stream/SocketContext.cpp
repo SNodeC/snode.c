@@ -50,10 +50,11 @@
 #include "mcp/server/Types.h"
 #include "mcp/server/detail/Server.h"
 
+#include <map>
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <algorithm>
-#include <map>
 #include <memory>
 #include <nlohmann/json.hpp>
 #include <optional>

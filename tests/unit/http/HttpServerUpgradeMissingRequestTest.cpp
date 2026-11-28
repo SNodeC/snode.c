@@ -6,6 +6,9 @@
 #include "web/http/server/Response.h"
 #include "web/http/server/SocketContext.h"
 
+#include <cstddef>
+#include <memory>
+#include <nlohmann/json.hpp>
 #include <string>
 
 namespace {

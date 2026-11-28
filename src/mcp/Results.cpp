@@ -42,8 +42,9 @@
 #include "mcp/Results.h"
 
 #include "mcp/detail/Serialization.h"
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include <map>
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 #include <nlohmann/json.hpp>
 #include <optional>
 #include <string>

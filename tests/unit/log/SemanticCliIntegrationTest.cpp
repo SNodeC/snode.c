@@ -1,14 +1,18 @@
 #include "log/Logger.h"
-#include "log/SemanticLogger.h"
 #include "tests/support/TestResult.h"
 #include "utils/Config.h"
 
 #include <chrono>
 #include <filesystem>
 #include <fstream>
+#include <initializer_list>
+#include <iterator>
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <system_error>
+#include <utility>
+#include <vector>
 
 namespace {
     logger::LogRecord record(logger::LogLevel level,

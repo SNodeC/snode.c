@@ -1,5 +1,6 @@
 #include "HttpServerClientBodyStatusTest.h"
-#include "net/in6/SocketAddress.h"
+#include "core/SNodeC.h"
+#include "support/TestResult.h"
 #include "web/http/legacy/in6/Client.h"
 #include "web/http/legacy/in6/Server.h"
 

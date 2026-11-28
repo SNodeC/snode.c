@@ -41,6 +41,9 @@
 
 #include "tests/support/TestResult.h"
 #include "web/http/client/tools/EventSource.h"
+
+#include <functional>
+#include <string_view>
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 #include <string>
 #include <vector>

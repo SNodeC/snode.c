@@ -1,16 +1,12 @@
-#include "core/EventLoop.h"
-#include "core/EventReceiver.h"
 #include "core/SNodeC.h"
 #include "core/eventreceiver/AcceptEventReceiver.h"
 #include "core/eventreceiver/ConnectEventReceiver.h"
 #include "core/socket/Socket.hpp"
 #include "core/socket/SocketAddress.h"
 #include "core/socket/stream/SocketClient.h"
-#include "core/socket/stream/SocketConnection.h"
 #include "core/socket/stream/SocketContextFactory.h"
 #include "core/socket/stream/SocketServer.h"
 #include "log/Logger.h"
-#include "log/SemanticLogger.h"
 #include "net/config/ConfigInstance.h"
 #include "tests/support/TestResult.h"
 #include "utils/Timeval.h"
@@ -20,12 +16,9 @@
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
-#include <functional>
 #include <iterator>
-#include <memory>
 #include <string>
 #include <system_error>
-#include <type_traits>
 #include <utility>
 #include <vector>
 

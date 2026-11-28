@@ -1,4 +1,7 @@
 #include "EventSourceComponentTest.h"
+#include "support/TestResult.h"
+#include "web/http/client/tools/EventSource.h"
+#include "web/http/legacy/in/Client.h"
 
 int main(int argc, char* argv[]) {
     tests::component::eventsource::State state;

@@ -10,7 +10,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <map>
 #include <string>
 #include <vector>
 

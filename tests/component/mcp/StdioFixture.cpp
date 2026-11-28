@@ -59,6 +59,8 @@
 #include "net/stdio/stream/config/ConfigSocketEndpoint.h"
 #include "utils/Config.h"
 
+#include <map>
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <exception>
@@ -66,7 +68,6 @@
 #include <fstream>
 #include <functional>
 #include <iostream>
-#include <map>
 #include <memory>
 #include <nlohmann/json.hpp>
 #include <nlohmann/json_fwd.hpp>

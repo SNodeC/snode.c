@@ -41,7 +41,10 @@
 
 #include "core/SNodeC.h"
 #include "database/mariadb/MariaDBClient.h"
+#include "mysql.h"
 #include "support/TestResult.h"
+
+#include <functional>
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

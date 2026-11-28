@@ -39,22 +39,28 @@
  * THE SOFTWARE.
  */
 
-#include "core/EventReceiver.h"
 #include "core/SNodeC.h"
 #include "core/socket/stream/SocketContext.h"
 #include "core/socket/stream/SocketContextFactory.h"
+#include "core/socket/stream/stdio/DescriptorOwnership.h"
+#include "core/socket/stream/stdio/SocketEndpoint.h"
 #include "net/in/stream/legacy/SocketClient.h"
 #include "net/in/stream/legacy/SocketServer.h"
+#include "net/stdio/SocketAddress.h"
+#include "net/stdio/config/ConfigAddress.h"
+#include "net/stdio/phy/stream/PhysicalSocket.h"
 #include "net/stdio/stream/SocketEndpoint.h"
+#include "net/stdio/stream/config/ConfigSocketEndpoint.h"
 #include "support/TestResult.h"
+
+#include <cstddef>
+#include <optional>
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <fcntl.h>
 #include <map>
-#include <memory>
 #include <stdexcept>
-#include <string>
 #include <unistd.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

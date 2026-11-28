@@ -41,6 +41,13 @@
 
 #include "mcp/server/Config.h"
 #include "tests/support/TestResult.h"
+#include "utils/SubCommand.h"
+#include "utils/Timeval.h"
+
+#include <initializer_list>
+#include <memory>
+#include <string>
+#include <vector>
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cmath>

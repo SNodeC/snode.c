@@ -2,10 +2,10 @@
 #include "core/SNodeC.h"
 #include "core/timer/Timer.h"
 #include "support/TestResult.h"
-#include "utils/Timeval.h"
 #include "utils/system/time.h"
 
-#include <sys/time.h>
+#include <functional>
+#include <string>
 
 namespace {
     bool freezeClock = false;

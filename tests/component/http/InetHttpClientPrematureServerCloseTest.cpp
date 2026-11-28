@@ -1,9 +1,11 @@
 #include "HttpServerClientBehaviorTest.h"
-#include "net/in/SocketAddress.h"
+#include "core/SNodeC.h"
 #include "support/SemanticLogCapture.h"
+#include "support/TestResult.h"
 #include "web/http/legacy/in/Client.h"
 #include "web/http/legacy/in/Server.h"
 
+#include <nlohmann/json.hpp>
 #include <string_view>
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {

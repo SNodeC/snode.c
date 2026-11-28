@@ -39,8 +39,16 @@
  * THE SOFTWARE.
  */
 
+// IWYU pragma: no_include <nlohmann/detail/json_ref.hpp>
+
+#include "mcp/Types.h"
 #include "mcp/detail/Headers.h"
 #include "tests/support/TestResult.h"
+
+#include <initializer_list>
+#include <map>
+#include <nlohmann/json.hpp>
+#include <optional>
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 #include <string>
 #endif

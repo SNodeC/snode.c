@@ -1,7 +1,13 @@
+#include "core/SNodeC.h"
+#include "core/timer/Timer.h"
 #include "net/in/stream/tls/SocketServer.h"
+#include "support/TestResult.h"
 #include "tests/support/NetworkTest.h"
 
 #include <atomic>
+#include <chrono>
+#include <compare>
+#include <openssl/ssl.h>
 #include <thread>
 
 int main(int argc, char** argv) {

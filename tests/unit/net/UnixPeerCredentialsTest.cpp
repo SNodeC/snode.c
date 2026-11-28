@@ -42,6 +42,9 @@
 #include "net/un/PeerCredentials.h"
 #include "support/TestResult.h"
 
+#include <optional>
+#include <string>
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cerrno>

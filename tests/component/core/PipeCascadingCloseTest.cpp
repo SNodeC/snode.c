@@ -12,6 +12,8 @@
 
 #include <cstdlib>
 #include <fcntl.h>
+#include <functional>
+#include <string>
 
 int main(int argc, char* argv[]) {
     tests::support::TestResult testResult;

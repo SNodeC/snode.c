@@ -1,4 +1,7 @@
 #include "InetWebSocketBehaviorRunner.h"
+#include "component/websocket/WebSocketServerClientBehaviorTest.h"
+#include "support/TestResult.h"
+#include "web/http/legacy/in/Client.h"
 
 int main(int argc, char* argv[]) {
     int result = tests::support::cTestSkipReturnCode;

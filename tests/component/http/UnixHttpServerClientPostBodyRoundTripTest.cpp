@@ -1,9 +1,10 @@
 #include "HttpServerClientBodyStatusTest.h"
+#include "core/SNodeC.h"
+#include "support/TestResult.h"
 #include "web/http/legacy/un/Client.h"
 #include "web/http/legacy/un/Server.h"
 
 #include <filesystem>
-#include <string>
 #include <unistd.h>
 
 namespace {

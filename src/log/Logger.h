@@ -47,7 +47,6 @@
 #include "log/SemanticLogger.h" // IWYU pragma: export
 
 #include <functional>
-#include <memory>
 #include <ostream> // IWYU pragma: export
 #include <string>
 

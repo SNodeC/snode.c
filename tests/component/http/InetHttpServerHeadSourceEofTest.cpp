@@ -1,11 +1,12 @@
 #include "core/pipe/Source.h"
+#include "support/TestResult.h"
 #include "tests/support/NetworkTest.h"
 #include "web/http/legacy/in/Server.h"
-#include "web/http/server/Response.h"
+#include "web/http/server/Response.h" // IWYU pragma: keep
 
+#include <cstddef>
 #include <iomanip>
 #include <iostream>
-#include <string>
 
 namespace {
     class EofSource : public core::pipe::Source {

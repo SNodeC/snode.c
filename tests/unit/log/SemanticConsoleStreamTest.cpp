@@ -1,7 +1,7 @@
 #include "core/SNodeC.h"
 #include "log/Logger.h"
-#include "log/SemanticLogger.h"
 #include "tests/support/TestResult.h"
+#include "utils/CLI11.hpp"
 #include "utils/Config.h"
 
 #include <cerrno>
@@ -12,9 +12,11 @@
 #include <filesystem>
 #include <fstream>
 #include <iterator>
+#include <optional>
 #include <pty.h>
 #include <stdexcept>
 #include <string>
+#include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
 #include <utility>

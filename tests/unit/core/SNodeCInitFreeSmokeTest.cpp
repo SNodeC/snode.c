@@ -40,8 +40,9 @@
  */
 
 #include "core/SNodeC.h"
-#include "core/State.h"
 #include "support/TestResult.h"
+
+#include <string>
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

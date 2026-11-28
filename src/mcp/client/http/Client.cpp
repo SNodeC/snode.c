@@ -43,9 +43,8 @@
 
 #include "mcp/client/http/Client.hpp" // IWYU pragma: keep
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
 #include <cmath>
-#endif
+
 namespace mcp::client::http::detail {
     Events::~Events() = default;
 }

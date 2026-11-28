@@ -1,13 +1,9 @@
 #include "core/SNodeC.h"
-#include "net/in/SocketAddress.h"
 #include "support/TestResult.h"
-#include "utils/Timeval.h"
 #include "web/http/legacy/in/Client.h"
 
 #include <arpa/inet.h>
-#include <cstdint>
-#include <string>
-#include <sys/socket.h>
+#include <netinet/in.h>
 #include <unistd.h>
 
 namespace {

@@ -7,19 +7,20 @@
  */
 
 #include "core/SNodeC.h"
-#include "core/Shutdown.h"
 #include "core/eventreceiver/ReadEventReceiver.h"
 #include "core/pipe/Pipe.h"
 #include "core/system/unistd.h"
 #include "core/timer/Timer.h"
+#include "log/SemanticLogger.h"
 #include "support/TestResult.h"
-#include "utils/Timeval.h"
 
 #include <chrono>
+#include <compare>
 #include <csignal>
+#include <functional>
+#include <stdlib.h>
 #include <string>
 #include <sys/wait.h>
-#include <unistd.h>
 
 namespace {
 

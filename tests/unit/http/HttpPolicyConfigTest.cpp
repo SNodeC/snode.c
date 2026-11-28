@@ -5,12 +5,15 @@
  */
 
 #include "support/TestResult.h"
+#include "utils/CLI11.hpp"
 #include "web/http/ConfigHttpParser.h"
 #include "web/http/ConfigWebSocket.h"
+#include "web/http/ParserLimits.h"
 #include "web/http/client/ConfigHTTP.h"
 #include "web/http/server/ConfigHttpServer.h"
 
 #include <cstddef>
+#include <initializer_list>
 #include <string>
 
 int main() {

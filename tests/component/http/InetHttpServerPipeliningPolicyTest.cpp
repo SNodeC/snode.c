@@ -1,3 +1,4 @@
+#include "web/http/server/Response.h" // IWYU pragma: keep
 /*
  * SNode.C - A Slim Toolkit for Network Communication
  * Copyright (C) Volker Christian <me@vchrist.at>
@@ -7,19 +8,11 @@
  */
 
 #include "core/SNodeC.h"
-#include "net/in/SocketAddress.h"
 #include "support/TestResult.h"
-#include "utils/Timeval.h"
 #include "web/http/client/ConfigHTTP.h"
-#include "web/http/client/Response.h"
 #include "web/http/legacy/in/Client.h"
 #include "web/http/legacy/in/Server.h"
 #include "web/http/server/ConfigHttpServer.h"
-#include "web/http/server/Request.h"
-#include "web/http/server/Response.h"
-
-#include <string>
-#include <vector>
 
 namespace {
 

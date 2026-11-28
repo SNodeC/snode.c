@@ -40,9 +40,10 @@
  */
 
 #include "mcp/Schema.h"
+
+#include <map>
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 #include <exception>
-#include <map>
 #include <nlohmann/json-schema.hpp>
 #include <nlohmann/json.hpp>
 #include <string>

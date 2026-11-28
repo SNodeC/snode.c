@@ -42,11 +42,13 @@
 #include "core/EventReceiver.h"
 #include "core/SNodeC.h"
 #include "database/mariadb/MariaDBClient.h"
+#include "mysql.h"
 #include "support/TestResult.h"
 
 #include <fstream>
 #include <functional>
 #include <memory>
+#include <stdlib.h>
 #include <string>
 
 int main(int argc, char* argv[]) {
